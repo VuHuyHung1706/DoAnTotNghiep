@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/user-service
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: vuhuyhung17062002@gmail.com
+    password: skwk jbiz qydz gqsc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  signerKey: "YlYC92Q2NQlTEWXqxCMLhICbRb561RUicb+iEvw2sOTdWNOUavYJorDKyItY+0awM6rExXLQuDDCImefylr/wYQdTksaXc0mpJkQcg87vys="
+  #  valid-duration: 86400 # in second
+  #  refreshable-duration: 259200 # in seconds
+  valid-duration: 1
+  refreshable-duration: 2
+
+outbound:
+  identity:
+    client-id: "775410551685-o7gobv3nm7054en071ef17il3hdnsho8.apps.googleusercontent.com"
+    client-secret: "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"
+    redirect-uri: "http://localhost:3000/authenticate"
