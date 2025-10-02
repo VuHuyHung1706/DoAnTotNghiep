@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/cinema-service
+    url: jdbc:mysql://localhost:3306/cinemadb
     username: root
-    password: 123456
+    password: Huu@123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -21,3 +21,10 @@ movie:
 showtime:
   service:
     url: http://localhost:8083
+
+jwt:
+  signerKey: "YlYC92Q2NQlTEWXqxCMLhICbRb561RUicb+iEvw2sOTdWNOUavYJorDKyItY+0awM6rExXLQuDDCImefylr/wYQdTksaXc0mpJkQcg87vys="
+  #  valid-duration: 86400 # in second
+  #  refreshable-duration: 259200 # in seconds
+  valid-duration: 1
+  refreshable-duration: 2

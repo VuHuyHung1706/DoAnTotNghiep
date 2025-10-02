@@ -8,7 +8,7 @@ import com.web.userservice.dto.resquest.UpdateProfileRequest;
 import com.web.userservice.dto.resquest.UserRegistrationRequest;
 
 public interface AccountService {
-//    CustomerResponse registerUser(UserRegistrationRequest request);
+    CustomerResponse registerUser(UserRegistrationRequest request);
 
     void sendOtp(UserRegistrationRequest request);
     CustomerResponse completeRegistration(UserRegistrationRequest request, String otp);

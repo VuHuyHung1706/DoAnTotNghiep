@@ -1,7 +1,7 @@
 package com.web.movieservice.service.movie;
 
 import com.web.movieservice.dto.request.MovieRequest;
-import com.web.movieservice.dto.response.MovieResponse;
+import com.web.movieservice.dto.response.*;
 import com.web.movieservice.entity.Actor;
 import com.web.movieservice.entity.Genre;
 import com.web.movieservice.entity.Movie;
@@ -11,14 +11,16 @@ import com.web.movieservice.mapper.MovieMapper;
 import com.web.movieservice.repository.ActorRepository;
 import com.web.movieservice.repository.GenreRepository;
 import com.web.movieservice.repository.MovieRepository;
+import com.web.movieservice.repository.ShowtimeRepository;
 import com.web.movieservice.repository.client.CinemaServiceClient;
-import com.web.movieservice.repository.client.ShowtimeServiceClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,14 +39,8 @@ public class MovieServiceImpl implements MovieService {
     @Autowired
     private ActorRepository actorRepository;
 
-//    @Autowired
-//    private RoomRepository roomRepository;
-
     @Autowired
-    private ShowtimeServiceClient showtimeServiceClient;
-
-//    @Autowired
-//    private CinemaRepository cinemaRepository;
+    private ShowtimeRepository showtimeRepository;
 
     @Autowired
     private CinemaServiceClient cinemaServiceClient;
@@ -152,39 +148,41 @@ public class MovieServiceImpl implements MovieService {
                 .collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<MovieResponse> searchMovies(String query, Integer cinemaId, List<Integer> genreIds, LocalDate date) {
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        List<Movie> movies = movieRepository.findAll();
-//
-//        // Filter by title or actor name
-//        if (query != null && !query.isEmpty()) {
-//            Set<Movie> filteredByQuery = new HashSet<>();
-//
-//            filteredByQuery.addAll(movieRepository.findByTitleContainingIgnoreCase(query));
-//
-//            List<Actor> matchingActors = actorRepository.findAll().stream()
-//                    .filter(actor -> (actor.getFirstName() != null && actor.getFirstName().toLowerCase().contains(query.toLowerCase())) ||
-//                            (actor.getLastName() != null && actor.getLastName().toLowerCase().contains(query.toLowerCase())))
-//                    .collect(Collectors.toList());
-//
-//            for (Actor actor : matchingActors) {
-//                filteredByQuery.addAll(actor.getMovies());
-//            }
-//            movies = movies.stream()
-//                    .filter(filteredByQuery::contains)
-//                    .collect(Collectors.toList());
-//        }
-//
-//        // Filter by cinemaId
+    @Override
+    public List<String> getCinemasFromMovie(String movieId) {
+        return List.of();
+    }
+
+    @Override
+    public List<MovieResponse> searchMovies(String query, Integer cinemaId, List<Integer> genreIds, LocalDate date) {
+        List<Movie> movies = movieRepository.findAll();
+
+        // Filter by title or actor name
+        if (query != null && !query.isEmpty()) {
+            Set<Movie> filteredByQuery = new HashSet<>();
+
+            filteredByQuery.addAll(movieRepository.findByTitleContainingIgnoreCase(query));
+
+            List<Actor> matchingActors = actorRepository.findAll().stream()
+                    .filter(actor -> (actor.getFirstName() != null && actor.getFirstName().toLowerCase().contains(query.toLowerCase())) ||
+                            (actor.getLastName() != null && actor.getLastName().toLowerCase().contains(query.toLowerCase())))
+                    .collect(Collectors.toList());
+
+            for (Actor actor : matchingActors) {
+                filteredByQuery.addAll(actor.getMovies());
+            }
+            movies = movies.stream()
+                    .filter(filteredByQuery::contains)
+                    .collect(Collectors.toList());
+        }
+
+        // Filter by cinemaId
 //        if (cinemaId != null) {
 //            if (!cinemaRepository.existsById(cinemaId)) {
 //                throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
 //            }
 //            List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomCinemaId(cinemaId);
 //            Set<Integer> movieIdsAtCinema = showtimesAtCinema.stream()
-//                    .filter(showtime -> showtime.getStartTime().isAfter(now) || showtime.getEndTime().isAfter(now))
 //                    .map(Showtime::getMovieId)
 //                    .collect(Collectors.toSet());
 //
@@ -192,36 +190,36 @@ public class MovieServiceImpl implements MovieService {
 //                    .filter(movie -> movieIdsAtCinema.contains(movie.getId()))
 //                    .collect(Collectors.toList());
 //        }
-//
-//        // Filter by genreIds
-//        if (genreIds != null && !genreIds.isEmpty()) {
-//            Set<Integer> genreIdSet = new HashSet<>(genreIds);
-//            movies = movies.stream()
-//                    .filter(movie -> movie.getGenres().stream()
-//                            .anyMatch(genre -> genreIdSet.contains(genre.getId())))
-//                    .collect(Collectors.toList());
-//        }
-//
-//        // --- Filter by date
-//        if (date != null) {
-//            LocalDateTime from = date.atStartOfDay();
-//            LocalDateTime to = date.plusDays(1).atStartOfDay().minusSeconds(1);
-//
-//            Set<Integer> movieIdsOnDate = showtimeRepository.findAll().stream()
-//                    .filter(showtime -> !showtime.getStartTime().isBefore(from) && !showtime.getStartTime().isAfter(to))
-//                    .map(showtime -> showtime.getMovie().getId())
-//                    .collect(Collectors.toSet());
-//
-//            movies = movies.stream()
-//                    .filter(movie -> movieIdsOnDate.contains(movie.getId()))
-//                    .collect(Collectors.toList());
-//        }
-//
-//        return movies.stream()
-//                .map(this::mapMovieToResponseWithStatus)
-//                .collect(Collectors.toList());
-//    }
-//
+
+        // Filter by genreIds
+        if (genreIds != null && !genreIds.isEmpty()) {
+            Set<Integer> genreIdSet = new HashSet<>(genreIds);
+            movies = movies.stream()
+                    .filter(movie -> movie.getGenres().stream()
+                            .anyMatch(genre -> genreIdSet.contains(genre.getId())))
+                    .collect(Collectors.toList());
+        }
+
+        // --- Filter by date
+        if (date != null) {
+            LocalDateTime from = date.atStartOfDay();
+            LocalDateTime to = date.plusDays(1).atStartOfDay().minusSeconds(1);
+
+            Set<Integer> movieIdsOnDate = showtimeRepository.findAll().stream()
+                    .filter(showtime -> !showtime.getStartTime().isBefore(from) && !showtime.getStartTime().isAfter(to))
+                    .map(showtime -> showtime.getMovie().getId())
+                    .collect(Collectors.toSet());
+
+            movies = movies.stream()
+                    .filter(movie -> movieIdsOnDate.contains(movie.getId()))
+                    .collect(Collectors.toList());
+        }
+
+        return movies.stream()
+                .map(this::mapMovieToResponseWithStatus)
+                .collect(Collectors.toList());
+    }
+
 //    @Override
 //    public List<MovieResponse> getMoviesByRoomId(Integer roomId) {
 //        LocalDateTime now = LocalDateTime.now();
@@ -297,21 +295,21 @@ public class MovieServiceImpl implements MovieService {
 //    }
 //
 //
-//    public MovieResponse mapMovieToResponseWithStatus(Movie movie) {
-//        MovieResponse response = movieMapper.toMovieResponse(movie);
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        boolean nowShowing = movie.getShowtimes().stream()
-//                .anyMatch(showtime ->
-//                        (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now)) &&
-//                                (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now))
-//                );
-//
-//        boolean upcoming = movie.getShowtimes().stream()
-//                .anyMatch(showtime -> showtime.getStartTime().isAfter(now));
-//
-//        response.setNowShowing(nowShowing);
-//        response.setUpcoming(upcoming);
-//        return response;
-//    }
+    public MovieResponse mapMovieToResponseWithStatus(Movie movie) {
+        MovieResponse response = movieMapper.toMovieResponse(movie);
+        LocalDateTime now = LocalDateTime.now();
+
+        boolean nowShowing = movie.getShowtimes().stream()
+                .anyMatch(showtime ->
+                        (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now)) &&
+                                (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now))
+                );
+
+        boolean upcoming = movie.getShowtimes().stream()
+                .anyMatch(showtime -> showtime.getStartTime().isAfter(now));
+
+        response.setNowShowing(nowShowing);
+        response.setUpcoming(upcoming);
+        return response;
+    }
 }

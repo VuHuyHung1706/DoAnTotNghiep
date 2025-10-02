@@ -47,33 +47,33 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private MailService mailService;
 
-//    @Override
-//    public CustomerResponse registerUser(UserRegistrationRequest request) {
-//        if (accountRepository.existsByUsername(request.getUsername())) {
-//            throw new AppException(ErrorCode.USER_EXISTED);
-//        }
-//
-//        if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
-//            throw new AppException(ErrorCode.EMAIL_EXISTED);
-//        }
-//
+    @Override
+    public CustomerResponse registerUser(UserRegistrationRequest request) {
+        if (accountRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
 //        mailService.sendMail(request.getEmail());
-//
-//        Account account = Account.builder()
-//                .username(request.getUsername())
-//                .password(passwordEncoder.encode(request.getPassword()))
-//                .status(true)
-//                .build();
-//
-//        account = accountRepository.save(account);
-//
-//        Customer customer = customerMapper.toCustomer(request);
-//        customer.setAccount(account);
-//
-//        customer = customerRepository.save(customer);
-//
-//        return customerMapper.toCustomerResponse(customer);
-//    }
+
+        Account account = Account.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .status(true)
+                .build();
+
+        account = accountRepository.save(account);
+
+        Customer customer = customerMapper.toCustomer(request);
+        customer.setAccount(account);
+
+        customer = customerRepository.save(customer);
+
+        return customerMapper.toCustomerResponse(customer);
+    }
 
     @Override
     public void sendOtp(UserRegistrationRequest request) {

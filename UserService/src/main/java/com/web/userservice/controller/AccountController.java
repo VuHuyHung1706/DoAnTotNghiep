@@ -18,12 +18,12 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-//    @PostMapping("/register")
-//    public ApiResponse<CustomerResponse> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
-//        return ApiResponse.<CustomerResponse>builder()
-//                .result(accountService.registerUser(request))
-//                .build();
-//    }
+    @PostMapping("/register")
+    public ApiResponse<CustomerResponse> registerUser(@Valid @RequestBody UserRegistrationRequest request) {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(accountService.registerUser(request))
+                .build();
+    }
 
     @PostMapping("/send-otp")
     public ApiResponse<String> sendOtp(@Valid @RequestBody UserRegistrationRequest request) {
