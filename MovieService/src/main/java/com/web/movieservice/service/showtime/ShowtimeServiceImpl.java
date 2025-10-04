@@ -1,6 +1,9 @@
 package com.web.movieservice.service.showtime;
 
 import com.web.movieservice.dto.request.ShowtimeRequest;
+import com.web.movieservice.dto.response.ApiResponse;
+import com.web.movieservice.dto.response.CinemaResponse;
+import com.web.movieservice.dto.response.RoomResponse;
 import com.web.movieservice.dto.response.ShowtimeResponse;
 import com.web.movieservice.entity.Movie;
 import com.web.movieservice.entity.Showtime;
@@ -9,6 +12,7 @@ import com.web.movieservice.exception.ErrorCode;
 import com.web.movieservice.mapper.ShowtimeMapper;
 import com.web.movieservice.repository.MovieRepository;
 import com.web.movieservice.repository.ShowtimeRepository;
+import com.web.movieservice.repository.client.CinemaServiceClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,6 +45,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 //    @Autowired
 //    private CinemaRepository cinemaRepository;
 //
+    @Autowired
+    private CinemaServiceClient cinemaServiceClient;
+
     @Autowired
     private ShowtimeMapper showtimeMapper;
 
@@ -191,12 +198,17 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     @Override
     public List<ShowtimeResponse> getShowtimesByCinemaId(Integer cinemaId) {
         LocalDateTime now = LocalDateTime.now();
-//
-//        if (!cinemaRepository.existsById(cinemaId)) {
-//            throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
-//        }
 
-        return showtimeRepository.findByRoomCinemaId(cinemaId)
+        ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
+        if (cinemaApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+        }
+
+        CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
+        List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).toList();
+
+
+        return showtimeRepository.findByRoomIdIn(roomIds)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
                 .map(showtimeMapper::toShowtimeResponse)
@@ -211,11 +223,15 @@ public class ShowtimeServiceImpl implements ShowtimeService {
             throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
         }
 
-//        if (!cinemaRepository.existsById(cinemaId)) {
-//            throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
-//        }
+        ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
+        if (cinemaApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+        }
 
-        return showtimeRepository.findByMovieIdAndRoomCinemaId(movieId, cinemaId)
+        CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
+        List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).toList();
+
+        return showtimeRepository.findByMovieIdAndRoomIdIn(movieId, roomIds)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
                 .map(showtimeMapper::toShowtimeResponse)

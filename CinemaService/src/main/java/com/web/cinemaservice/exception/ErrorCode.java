@@ -67,4 +67,13 @@ public enum ErrorCode {
     private final int code;
     private final String message;
     private final HttpStatusCode statusCode;
+
+    public static ErrorCode fromMessage(String message) {
+        for (ErrorCode errorCode : ErrorCode.values()) {
+            if (errorCode.getMessage().equals(message)) {
+                return errorCode;
+            }
+        }
+        return ErrorCode.UNCATEGORIZED_EXCEPTION;
+    }
 }

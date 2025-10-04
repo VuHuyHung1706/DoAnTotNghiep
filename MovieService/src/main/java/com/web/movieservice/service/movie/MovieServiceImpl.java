@@ -5,6 +5,7 @@ import com.web.movieservice.dto.response.*;
 import com.web.movieservice.entity.Actor;
 import com.web.movieservice.entity.Genre;
 import com.web.movieservice.entity.Movie;
+import com.web.movieservice.entity.Showtime;
 import com.web.movieservice.exception.AppException;
 import com.web.movieservice.exception.ErrorCode;
 import com.web.movieservice.mapper.MovieMapper;
@@ -176,20 +177,27 @@ public class MovieServiceImpl implements MovieService {
                     .collect(Collectors.toList());
         }
 
-        // Filter by cinemaId
-//        if (cinemaId != null) {
-//            if (!cinemaRepository.existsById(cinemaId)) {
-//                throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
-//            }
-//            List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomCinemaId(cinemaId);
-//            Set<Integer> movieIdsAtCinema = showtimesAtCinema.stream()
-//                    .map(Showtime::getMovieId)
-//                    .collect(Collectors.toSet());
-//
-//            movies = movies.stream()
-//                    .filter(movie -> movieIdsAtCinema.contains(movie.getId()))
-//                    .collect(Collectors.toList());
-//        }
+//         Filter by cinemaId
+        if (cinemaId != null) {
+            // Check cinema exists
+            ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
+            if (cinemaApiResponse.getCode() != 1000) {
+                throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+            }
+
+            CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
+
+            List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
+            List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomIdIn (roomIds);
+            Set<Integer> movieIdsAtCinema = showtimesAtCinema.stream()
+                    .map(Showtime::getMovieId)
+                    .collect(Collectors.toSet());
+
+
+            movies = movies.stream()
+                    .filter(movie -> movieIdsAtCinema.contains(movie.getId()))
+                    .collect(Collectors.toList());
+        }
 
         // Filter by genreIds
         if (genreIds != null && !genreIds.isEmpty()) {
@@ -220,81 +228,95 @@ public class MovieServiceImpl implements MovieService {
                 .collect(Collectors.toList());
     }
 
-//    @Override
-//    public List<MovieResponse> getMoviesByRoomId(Integer roomId) {
-//        LocalDateTime now = LocalDateTime.now();
-//
+    @Override
+    public List<MovieResponse> getMoviesByRoomId(Integer roomId) {
+        LocalDateTime now = LocalDateTime.now();
+
 //        if (!roomRepository.existsById(roomId)) {
 //            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
 //        }
-//
-//        List<Movie> movies = showtimeRepository.findByRoomId(roomId)
-//                .stream().distinct()
-//                .filter(showtime -> showtime.getStartTime().isAfter(now) || showtime.getEndTime().isAfter(now))
-//                .map(Showtime::getMovie)
-//                .toList();
-//
-//
-//        return movies.stream()
-//                .map(this::mapMovieToResponseWithStatus)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<MovieResponse> getNowShowingMovies() {
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        List<Movie> nowShowingMovies = showtimeRepository.findAll()
-//                .stream()
-//                .filter(showtime -> (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now))
-//                        && (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now)))
-//                .map(Showtime::getMovie)
-//                .distinct()
-//                .collect(Collectors.toList());
-//
-//        return nowShowingMovies.stream()
-//                .map(movieMapper::toMovieResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<MovieResponse> getUpcomingMovies() {
-//        LocalDateTime now = LocalDateTime.now();
-//
-//        List<Movie> upcomingMovies = showtimeRepository.findAll()
-//                .stream()
-//                .filter(showtime -> showtime.getStartTime().isAfter(now))
-//                .map(Showtime::getMovie)
-//                .distinct()
-//                .collect(Collectors.toList());
-//
-//        return upcomingMovies.stream()
-//                .map(movieMapper::toMovieResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public List<MovieResponse> getMoviesByCinemaId(Integer cinemaId) {
+
+        ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getRoomById(roomId);
+        if (cinemaApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+        }
+
+        List<Movie> movies = showtimeRepository.findByRoomId(roomId)
+                .stream().distinct()
+                .filter(showtime -> showtime.getStartTime().isAfter(now) || showtime.getEndTime().isAfter(now))
+                .map(Showtime::getMovie)
+                .toList();
+
+
+        return movies.stream()
+                .map(this::mapMovieToResponseWithStatus)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponse> getNowShowingMovies() {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Movie> nowShowingMovies = showtimeRepository.findAll()
+                .stream()
+                .filter(showtime -> (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now))
+                        && (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now)))
+                .map(Showtime::getMovie)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return nowShowingMovies.stream()
+                .map(movieMapper::toMovieResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponse> getUpcomingMovies() {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Movie> upcomingMovies = showtimeRepository.findAll()
+                .stream()
+                .filter(showtime -> showtime.getStartTime().isAfter(now))
+                .map(Showtime::getMovie)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return upcomingMovies.stream()
+                .map(movieMapper::toMovieResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponse> getMoviesByCinemaId(Integer cinemaId) {
 //        if (!cinemaRepository.existsById(cinemaId)) {
 //            throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
 //        }
-//
-//        LocalDateTime now = LocalDateTime.now();
-//
+
+        ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
+        if (cinemaApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+        }
+
+
+        LocalDateTime now = LocalDateTime.now();
+
 //        List<Showtime> showtimes = showtimeRepository.findByRoomCinemaId(cinemaId);
-//
-//        List<Movie> movies = showtimes.stream()
-//                .filter(showtime -> showtime.getStartTime().isAfter(now))
-//                .map(Showtime::getMovie)
-//                .distinct()
-//                .collect(Collectors.toList());
-//
-//        return movies.stream()
-//                .map(movieMapper::toMovieResponse)
-//                .collect(Collectors.toList());
-//    }
-//
-//
+        CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
+        List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
+        List<Showtime> showtimes = showtimeRepository.findByRoomIdIn (roomIds);
+
+        List<Movie> movies = showtimes.stream()
+                .filter(showtime -> showtime.getStartTime().isAfter(now))
+                .map(Showtime::getMovie)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return movies.stream()
+                .map(movieMapper::toMovieResponse)
+                .collect(Collectors.toList());
+    }
+
+
     public MovieResponse mapMovieToResponseWithStatus(Movie movie) {
         MovieResponse response = movieMapper.toMovieResponse(movie);
         LocalDateTime now = LocalDateTime.now();
@@ -312,4 +334,6 @@ public class MovieServiceImpl implements MovieService {
         response.setUpcoming(upcoming);
         return response;
     }
+
+
 }

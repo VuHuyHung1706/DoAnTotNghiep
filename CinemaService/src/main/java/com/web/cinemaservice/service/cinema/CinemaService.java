@@ -14,5 +14,5 @@ public interface CinemaService {
     CinemaResponse createCinema(CinemaRequest request);
     CinemaResponse updateCinema(Integer id, CinemaRequest request);
     void deleteCinema(Integer id);
-//    List<CinemaResponse> getCinemasByMovieId(Integer movieId);
+    List<CinemaResponse> getCinemasByMovieId(Integer movieId);
 }

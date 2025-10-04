@@ -29,6 +29,7 @@ import java.util.List;
 @Slf4j
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
+
     IdentityService identityService;
 
     ObjectMapper objectMapper;

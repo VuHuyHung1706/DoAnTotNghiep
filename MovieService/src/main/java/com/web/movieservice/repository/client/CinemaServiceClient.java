@@ -11,4 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface CinemaServiceClient {
     @GetMapping("/cinemas/{id}")
     ApiResponse<CinemaResponse> getCinemaById(@PathVariable Integer id);
+
+    @GetMapping("/rooms/{id}")
+    ApiResponse<CinemaResponse> getRoomById(@PathVariable Integer id);
+
 }

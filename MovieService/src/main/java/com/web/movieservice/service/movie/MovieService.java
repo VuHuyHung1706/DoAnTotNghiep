@@ -18,8 +18,8 @@ public interface MovieService {
     List<MovieResponse> searchMovies(String title);
     List<String> getCinemasFromMovie(String movieId);
     List<MovieResponse> searchMovies(String query, Integer cinemaId, List<Integer> genreIds, LocalDate date);
-//    List<MovieResponse> getMoviesByRoomId(Integer roomId);
-//    List<MovieResponse> getNowShowingMovies();
-//    List<MovieResponse> getUpcomingMovies();
-//    List<MovieResponse> getMoviesByCinemaId(Integer cinemaId);
+    List<MovieResponse> getMoviesByRoomId(Integer roomId);
+    List<MovieResponse> getNowShowingMovies();
+    List<MovieResponse> getUpcomingMovies();
+    List<MovieResponse> getMoviesByCinemaId(Integer cinemaId);
 }

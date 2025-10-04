@@ -3,20 +3,20 @@ package com.web.cinemaservice.service.cinema;
 import com.web.cinemaservice.dto.request.CinemaRequest;
 import com.web.cinemaservice.dto.response.ApiResponse;
 import com.web.cinemaservice.dto.response.CinemaResponse;
+import com.web.cinemaservice.dto.response.MovieResponse;
+import com.web.cinemaservice.dto.response.ShowtimeResponse;
 import com.web.cinemaservice.entity.Cinema;
 import com.web.cinemaservice.exception.AppException;
 import com.web.cinemaservice.exception.ErrorCode;
 import com.web.cinemaservice.mapper.CinemaMapper;
 import com.web.cinemaservice.repository.CinemaRepository;
 import com.web.cinemaservice.repository.client.MovieServiceClient;
-import com.web.cinemaservice.repository.client.ShowtimeServiceClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +27,9 @@ public class CinemaServiceImpl implements CinemaService {
 
     @Autowired
     private CinemaRepository cinemaRepository;
+
+    @Autowired
+    private MovieServiceClient movieServiceClient;
 
 //    @Autowired
 //    private MovieRepository movieRepository;
@@ -83,23 +86,39 @@ public class CinemaServiceImpl implements CinemaService {
         cinemaRepository.deleteById(id);
     }
 
-//    @Override
-//    public List<CinemaResponse> getCinemasByMovieId(Integer movieId) {
+    @Override
+    public List<CinemaResponse> getCinemasByMovieId(Integer movieId) {
+
 //        if (!movieRepository.existsById(movieId)) {
 //            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
 //        }
-//
+
+        ApiResponse<MovieResponse> movieApiResponse = movieServiceClient.getMovieById(movieId);
+        if (movieApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(movieApiResponse.getMessage()));
+        }
+
 //        List<Showtime> showtimes = showtimeRepository.findByMovieId(movieId);
-//
+
+        ApiResponse<List<ShowtimeResponse>> showtimesApiResponse = movieServiceClient.getShowtimesByMovieId(movieId);
+
+        if (showtimesApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(showtimesApiResponse.getMessage()));
+        }
+
+        List<ShowtimeResponse> showtimes = showtimesApiResponse.getResult();
 //        Set<Integer> cinemaIds = showtimes.stream()
 //                .map(showtime -> showtime.getRoom().getCinemaId())
 //                .collect(Collectors.toSet());
-//
-//        // Get cinemas
-//        List<Cinema> cinemas = cinemaRepository.findAllById(cinemaIds);
-//
-//        return cinemas.stream()
-//                .map(cinemaMapper::toCinemaResponse)
-//                .collect(Collectors.toList());
-//    }
+        List<Integer> roomIds = showtimes.stream()
+                .map(ShowtimeResponse::getRoomId)
+                .toList();
+
+        // Get cinemas
+        List<Cinema> cinemas = cinemaRepository.findDistinctByRooms_IdIn(roomIds);
+
+        return cinemas.stream()
+                .map(cinemaMapper::toCinemaResponse)
+                .collect(Collectors.toList());
+    }
 }

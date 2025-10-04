@@ -20,7 +20,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="ApiGateway" />
       </profile>
-      <profile name="Annotation profile for MovieService" enabled="true">
+      <profile name="Annotation profile for BookingService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -29,8 +29,9 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.6.3/mapstruct-processor-1.6.3.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.6.3/mapstruct-1.6.3.jar" />
         </processorPath>
-        <module name="MovieService" />
+        <module name="BookingService" />
         <module name="CinemaService" />
+        <module name="MovieService" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -40,6 +41,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="ApiGateway" options="-parameters" />
+      <module name="BookingService" options="-parameters" />
       <module name="CinemaService" options="-parameters" />
       <module name="MovieService" options="-parameters" />
       <module name="ShowtimeService" options="-parameters" />

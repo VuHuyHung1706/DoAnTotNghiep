@@ -38,8 +38,4 @@ public class Showtime {
     @JoinColumn(name = "movie_id", referencedColumnName = "id", insertable = false, updatable = false)
     @ToString.Exclude
     private Movie movie;
-
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Showtime> showtimes;
 }
