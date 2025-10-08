@@ -5,73 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed534c33-62ce-46c9-be05-0ecdbb506538" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/config/AuthenticationRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/config/CustomJwtDecoder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/config/JwtAuthenticationEntryPoint.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/config/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/config/VNPayConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/constant/PaymentStatus.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/BookingController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/PaymentController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/TicketController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/request/BookingRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/request/PaymentRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/request/ScanTicketRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/ActorResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/ApiResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/BookingResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/CustomerResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/GenreResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/PaymentResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/RoomResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/ScanTicketResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/SeatResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/ShowtimeResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/TicketDetailResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/dto/response/TicketResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/entity/Invoice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/entity/Ticket.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/exception/AppException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/exception/ErrorCode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/exception/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/mapper/TicketMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/InvoiceRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/TicketRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/CinemaServiceClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/MovieServiceClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/payment/VNPayService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/payment/VNPayServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/qr/QRCodeService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/qr/QRCodeServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/dto/response/ActorResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/dto/response/GenreResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/dto/response/MovieResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/dto/response/ShowtimeResponse.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ApiGateway/src/main/java/com/web/apigateway/configuration/AuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGateway/src/main/java/com/web/apigateway/configuration/AuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/config/CustomJwtDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/config/CustomJwtDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/exception/ErrorCode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/repository/CinemaRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/repository/CinemaRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/repository/client/MovieServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/repository/client/MovieServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/repository/client/ShowtimeServiceClient.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/service/cinema/CinemaService.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/service/cinema/CinemaService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/service/cinema/CinemaServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/java/com/web/cinemaservice/service/cinema/CinemaServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/entity/Showtime.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/entity/Showtime.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/exception/ErrorCode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/ShowtimeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/ShowtimeRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGateway/src/main/java/com/web/apigateway/configuration/WebClientConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGateway/src/main/java/com/web/apigateway/configuration/WebClientConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ApiGateway/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/ApiGateway/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/TicketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/TicketController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/mapper/TicketMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/mapper/TicketMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/CinemaServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/CinemaServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/MovieServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/repository/client/MovieServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BookingService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CinemaService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/CinemaService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/controller/MovieController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/controller/MovieController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/dto/response/ShowtimeResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/dto/response/ShowtimeResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/mapper/ShowtimeMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/mapper/ShowtimeMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/client/CinemaServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/client/CinemaServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/movie/MovieService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/movie/MovieService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/movie/MovieServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/movie/MovieServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MovieService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UserService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/UserService/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,6 +42,10 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
       <MavenGeneralSettings>
@@ -110,20 +67,40 @@
     "Application.CinemaServiceApplication.executor": "Debug",
     "Application.MovieServiceApplication.executor": "Debug",
     "Application.ShowtimeServiceApplication.executor": "Run",
-    "Application.UserServiceApplication.executor": "Run",
+    "Application.UserServiceApplication.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Debug",
+    "Spring Boot.BookingServiceApplication.executor": "Debug",
+    "Spring Boot.CinemaServiceApplication.executor": "Run",
+    "Spring Boot.MovieServiceApplication.executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/STUDY/DATN/DoAnTotNghiep/CinemaService/src/main/java/com/web/cinemaservice/dto/response",
+    "last_opened_file_path": "C:/Documents/DATN/DoAnTotNghiep",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "settings.editor.splitter.proportion": "0.28134558"
+    "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "settings.editor.splitter.proportion": "0.28134558",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\STUDY\DATN\DoAnTotNghiep\CinemaService\src\main\java\com\web\cinemaservice\dto\response" />
@@ -140,7 +117,17 @@
       <recent name="com.web.movieservice.entity" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.CinemaServiceApplication">
+  <component name="RunDashboard">
+    <option name="configurationTypes">
+      <set>
+        <option value="KtorApplicationConfigurationType" />
+        <option value="MicronautRunConfigurationType" />
+        <option value="QuarkusRunConfigurationType" />
+        <option value="SpringBootApplicationConfigurationType" />
+      </set>
+    </option>
+  </component>
+  <component name="RunManager" selected="Spring Boot.MovieServiceApplication">
     <configuration name="ApiGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.web.apigateway.ApiGatewayApplication" />
       <module name="ApiGateway" />
@@ -180,19 +167,6 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ShowtimeServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.web.showtimeservice.ShowtimeServiceApplication" />
-      <module name="ShowtimeService" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.web.showtimeservice.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="UserServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.web.userservice.UserServiceApplication" />
       <module name="UserService" />
@@ -206,15 +180,57 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ApiGateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.web.apigateway.ApiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookingServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="BookingService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.web.bookingservice.BookingServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CinemaServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="CinemaService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.web.cinemaservice.CinemaServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="MovieServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="MovieService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.web.movieservice.MovieServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="UserService" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.web.userservice.UserServiceApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.UserServiceApplication" />
         <item itemvalue="Application.CinemaServiceApplication" />
         <item itemvalue="Application.MovieServiceApplication" />
-        <item itemvalue="Application.ShowtimeServiceApplication" />
-        <item itemvalue="Application.UserServiceApplication" />
         <item itemvalue="Application.ApiGatewayApplication" />
       </list>
     </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -223,8 +239,13 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758800792671</updated>
+      <workItem from="1759659692492" duration="6210000" />
+      <workItem from="1759900949265" duration="16322000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -243,16 +264,6 @@
           <url>file://$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/service/AuthenticationServiceImpl.java</url>
           <line>90</line>
           <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/service/AuthenticationServiceImpl.java</url>
-          <line>153</line>
-          <option name="timeStamp" value="26" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/service/AuthenticationServiceImpl.java</url>
-          <line>208</line>
-          <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/movie/MovieServiceImpl.java</url>
@@ -274,9 +285,79 @@
           <line>92</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/service/AuthenticationServiceImpl.java</url>
+          <line>101</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/UserService/src/main/java/com/web/userservice/service/AuthenticationServiceImpl.java</url>
+          <line>104</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/BookingController.java</url>
+          <line>22</line>
+          <option name="timeStamp" value="41" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>64</line>
+          <option name="timeStamp" value="42" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>71</line>
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>85</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>72</line>
+          <option name="timeStamp" value="47" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>99</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>89</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>88</line>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>96</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/ApiGateway/src/main/java/com/web/apigateway/configuration/AuthenticationFilter.java</url>
+          <line>64</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/PaymentController.java</url>
+          <line>34</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/booking/BookingServiceImpl.java</url>
+          <line>189</line>
+          <option name="timeStamp" value="57" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/client/CinemaServiceClient.java</url>
-          <line>12</line>
+          <line>13</line>
           <properties class="com.web.movieservice.repository.client.CinemaServiceClient" method="getCinemaById">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
@@ -285,5 +366,10 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="SpringBootApplicationConfigurationType">
+        <watch expression="esponse roomResponse = roomResponseApiResponse.getResult();&#10;&#10;        showtimeR" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

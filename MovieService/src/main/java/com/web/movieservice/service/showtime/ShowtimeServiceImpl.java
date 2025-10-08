@@ -75,7 +75,22 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     public ShowtimeResponse getShowtimeById(Integer id) {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
-        return showtimeMapper.toShowtimeResponse(showtime);
+        ShowtimeResponse showtimeResponse = showtimeMapper.toShowtimeResponse(showtime);
+
+        ApiResponse<RoomResponse> roomResponseApiResponse = cinemaServiceClient.getRoomById(showtimeResponse.getRoomId());
+
+        if (roomResponseApiResponse.getCode() != 1000)
+        {
+            throw new AppException(ErrorCode.fromMessage(roomResponseApiResponse.getMessage()));
+        }
+
+        RoomResponse roomResponse = roomResponseApiResponse.getResult();
+
+        showtimeResponse.setCinemaName(roomResponse.getCinemaName());
+        showtimeResponse.setRoomName(roomResponse.getName());
+        showtimeResponse.setRoom(roomResponse);
+
+        return showtimeResponse;
     }
 
     @Override

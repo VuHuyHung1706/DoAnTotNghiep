@@ -15,6 +15,7 @@ public interface ShowtimeMapper {
     @Mapping(target = "movie", ignore = true)
     Showtime toShowtime(ShowtimeRequest request);
 
+    @Mapping(target = "movie", source = "movie")
     ShowtimeResponse toShowtimeResponse(Showtime showtime);
 
     @Mapping(target = "id", ignore = true)

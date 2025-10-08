@@ -20,4 +20,6 @@ public class ShowtimeResponse {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Integer ticketPrice;
+    private MovieResponse movie;
+    private RoomResponse room;
 }

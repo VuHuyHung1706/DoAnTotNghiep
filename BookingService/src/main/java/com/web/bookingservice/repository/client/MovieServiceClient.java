@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "movie-service", url = "${movie.service.url}")
 public interface MovieServiceClient {
 
-    @GetMapping("/{id}")
+    @GetMapping("/showtimes/{id}")
     ApiResponse<ShowtimeResponse> getShowtimeById(@PathVariable Integer id);
 }

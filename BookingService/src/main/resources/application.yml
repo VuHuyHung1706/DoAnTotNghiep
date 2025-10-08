@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/bookingdb
     username: root
-    password: Huu@123456
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -16,7 +16,7 @@ spring:
 
 vnpay:
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://localhost:8080/payments/vnpay/callback
+  return-url: http://localhost:8888/api/v1/booking-service/payments/vnpay/callback
   ipn-url: https://b8d0aa68f709.ngrok-free.app/payments/vnpay/ipn
   tmn-code: RTZSTG9H
   secret-key: 2AZN4DDW57TB4Q4OS8A50XQTCR625BAT

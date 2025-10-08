@@ -1,6 +1,8 @@
 package com.web.apigateway.configuration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.web.apigateway.dto.respose.ApiResponse;
 import com.web.apigateway.service.IdentityService;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import lombok.AccessLevel;
@@ -14,6 +16,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -36,13 +39,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @NonFinal
     private String[] publicEndpoints = {
-            "/identity/accounts/register",
-            "/identity/auth/login"
+            "/user-service/.*",
+            "/movie-service/.*",
+            "/cinema-service/.*",
+            "/booking-service/.*",
     };
 
     @NonFinal
     private String[] getPublicMethodEndpoints = {
-            "/movie-service/movies"
+//            "/movie-service/.*",
+//            "/cinema-service/.*",
+
     };
 
     @Value("${app.api-prefix}")
@@ -53,6 +60,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
         log.info("Entering the authentication gateway filter");
+
 
         if (isPublicEndpoint(exchange.getRequest()) || isGetPublicMethodEndpoint(exchange.getRequest()))
         {
@@ -81,9 +89,23 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     Mono<Void> unauthenticated(ServerHttpResponse response)
     {
-        String body = "unauthenticated";
+        ApiResponse<?> apiResponse = ApiResponse.builder()
+                .code(1401)
+                .message("Unauthenticated")
+                .build();
+
+        String body = null;
+        try {
+            body = objectMapper.writeValueAsString(apiResponse);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
+        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+        return response.writeWith(
+                Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
 
     private boolean isPublicEndpoint(ServerHttpRequest request){

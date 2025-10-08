@@ -236,9 +236,9 @@ public class MovieServiceImpl implements MovieService {
 //            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
 //        }
 
-        ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getRoomById(roomId);
-        if (cinemaApiResponse.getCode() != 1000) {
-            throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
+        ApiResponse<RoomResponse> roomApiResponse = cinemaServiceClient.getRoomById(roomId);
+        if (roomApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(roomApiResponse.getMessage()));
         }
 
         List<Movie> movies = showtimeRepository.findByRoomId(roomId)
