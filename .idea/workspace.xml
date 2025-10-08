@@ -5,18 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed534c33-62ce-46c9-be05-0ecdbb506538" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/dto/response/TicketResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/client/BookingServiceClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/TicketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/controller/TicketController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/mapper/TicketMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/mapper/TicketMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketService.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/BookingService/src/main/java/com/web/bookingservice/service/ticket/TicketServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/controller/ShowtimeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/controller/ShowtimeController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/ShowtimeRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/repository/ShowtimeRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/java/com/web/movieservice/service/showtime/ShowtimeServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MovieService/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/MovieService/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,11 +56,11 @@
     "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.ApiGatewayApplication.executor": "Debug",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
     "Spring Boot.BookingServiceApplication.executor": "Run",
-    "Spring Boot.CinemaServiceApplication.executor": "Debug",
-    "Spring Boot.MovieServiceApplication.executor": "Debug",
-    "Spring Boot.UserServiceApplication.executor": "Debug",
+    "Spring Boot.CinemaServiceApplication.executor": "Run",
+    "Spring Boot.MovieServiceApplication.executor": "Run",
+    "Spring Boot.UserServiceApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
@@ -119,7 +108,7 @@
       </set>
     </option>
   </component>
-  <component name="RunManager" selected="Spring Boot.BookingServiceApplication">
+  <component name="RunManager" selected="Spring Boot.MovieServiceApplication">
     <configuration name="ApiGatewayApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.web.apigateway.ApiGatewayApplication" />
       <module name="ApiGateway" />
@@ -233,7 +222,7 @@
       <updated>1758800792671</updated>
       <workItem from="1759659692492" duration="6210000" />
       <workItem from="1759900949265" duration="18176000" />
-      <workItem from="1759935415562" duration="9178000" />
+      <workItem from="1759935415562" duration="9958000" />
     </task>
     <servers />
   </component>

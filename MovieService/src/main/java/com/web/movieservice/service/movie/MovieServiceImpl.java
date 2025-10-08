@@ -53,14 +53,14 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieResponse> getAllMovie() {
         return movieRepository.findAll()
                 .stream()
-                .map(movieMapper::toMovieResponse)
+                .map(this::mapMovieToResponseWithStatus)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Page<MovieResponse> getAllMovies(Pageable pageable) {
         return movieRepository.findAll(pageable)
-                .map(movieMapper::toMovieResponse);
+                .map(this::mapMovieToResponseWithStatus);
     }
 
     @Override
