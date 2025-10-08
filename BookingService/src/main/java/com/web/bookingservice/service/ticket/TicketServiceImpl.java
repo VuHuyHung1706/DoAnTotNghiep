@@ -1,16 +1,14 @@
 package com.web.bookingservice.service.ticket;
 
 import com.web.bookingservice.dto.request.ScanTicketRequest;
-import com.web.bookingservice.dto.response.ApiResponse;
-import com.web.bookingservice.dto.response.ScanTicketResponse;
-import com.web.bookingservice.dto.response.ShowtimeResponse;
-import com.web.bookingservice.dto.response.TicketDetailResponse;
+import com.web.bookingservice.dto.response.*;
 import com.web.bookingservice.entity.Ticket;
 import com.web.bookingservice.exception.AppException;
 import com.web.bookingservice.exception.ErrorCode;
 import com.web.bookingservice.mapper.TicketMapper;
 import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
+import com.web.bookingservice.repository.client.CinemaServiceClient;
 import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.service.qr.QRCodeService;
 import jakarta.transaction.Transactional;
@@ -40,6 +38,8 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private QRCodeService qrCodeService;
+    @Autowired
+    private CinemaServiceClient cinemaServiceClient;
 
     @Override
     public List<TicketDetailResponse> getMyTickets() {
@@ -159,6 +159,27 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findByShowtimeIdAndStatus(showtimeId, true)
                 .stream()
                 .map(ticketMapper::toTicketDetailResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TicketResponse> getBookedTicketsByShowtimeId(Integer showtimeId) {
+        return ticketRepository.findByShowtimeIdAndStatus(showtimeId, true)
+                .stream()
+                .map(ticket -> {
+                    TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                    ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(response.getSeatId());
+                    response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Integer> getBookedSeatIdsByShowtimeId(Integer showtimeId) {
+        return ticketRepository.findByShowtimeIdAndStatus(showtimeId, true)
+                .stream()
+                .map(Ticket::getSeatId)
                 .collect(Collectors.toList());
     }
 }

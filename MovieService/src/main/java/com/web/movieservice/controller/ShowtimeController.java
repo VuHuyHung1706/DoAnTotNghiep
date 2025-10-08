@@ -2,7 +2,9 @@ package com.web.movieservice.controller;
 
 import com.web.movieservice.dto.request.ShowtimeRequest;
 import com.web.movieservice.dto.response.ApiResponse;
+import com.web.movieservice.dto.response.SeatResponse;
 import com.web.movieservice.dto.response.ShowtimeResponse;
+import com.web.movieservice.dto.response.TicketResponse;
 import com.web.movieservice.service.showtime.ShowtimeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,12 +69,12 @@ public class ShowtimeController {
                 .build();
     }
 
-//    @GetMapping("/{id}/available-seats")
-//    public ApiResponse<List<SeatResponse>> getAvailableSeats(@PathVariable Integer id) {
-//        return ApiResponse.<List<SeatResponse>>builder()
-//                .result(showtimeService.getAvailableSeats(id))
-//                .build();
-//    }
+    @GetMapping("/{id}/available-seats")
+    public ApiResponse<List<SeatResponse>> getAvailableSeats(@PathVariable Integer id) {
+        return ApiResponse.<List<SeatResponse>>builder()
+                .result(showtimeService.getAvailableSeats(id))
+                .build();
+    }
 
     @GetMapping("/movie/{movieId}")
     public ApiResponse<List<ShowtimeResponse>> getShowtimesByMovieId(@PathVariable Integer movieId) {
@@ -106,10 +108,19 @@ public class ShowtimeController {
                 .build();
     }
 
-//    @GetMapping("/{id}/booked-tickets")
-//    public ApiResponse<List<TicketResponse>> getBookedTickets(@PathVariable Integer id) {
-//        return ApiResponse.<List<TicketResponse>>builder()
-//                .result(showtimeService.getBookedTickets(id))
-//                .build();
-//    }
+    @GetMapping("/{id}/booked-tickets")
+    public ApiResponse<List<TicketResponse>> getBookedTickets(@PathVariable Integer id) {
+        return ApiResponse.<List<TicketResponse>>builder()
+                .result(showtimeService.getBookedTickets(id))
+                .build();
+    }
+
+    @PostMapping("/search-by-date-and-room")
+    public ApiResponse<List<ShowtimeResponse>> searchShowtimesByDateAndRoom(
+            @RequestBody ShowtimeRequest request
+    ) {
+        return ApiResponse.<List<ShowtimeResponse>>builder()
+                .result(showtimeService.getShowtimesByDateAndRoomId(request.getStartTime().toLocalDate(), request.getRoomId()))
+                .build();
+    }
 }

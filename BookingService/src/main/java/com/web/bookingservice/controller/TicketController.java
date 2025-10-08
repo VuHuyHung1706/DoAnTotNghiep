@@ -4,6 +4,7 @@ import com.web.bookingservice.dto.request.ScanTicketRequest;
 import com.web.bookingservice.dto.response.ApiResponse;
 import com.web.bookingservice.dto.response.ScanTicketResponse;
 import com.web.bookingservice.dto.response.TicketDetailResponse;
+import com.web.bookingservice.dto.response.TicketResponse;
 import com.web.bookingservice.service.ticket.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,20 @@ public class TicketController {
     public ApiResponse<List<TicketDetailResponse>> getTicketsByShowtime(@PathVariable Integer showtimeId) {
         return ApiResponse.<List<TicketDetailResponse>>builder()
                 .result(ticketService.getTicketsByShowtime(showtimeId))
+                .build();
+    }
+
+    @GetMapping("/showtime/{showtimeId}/booked")
+    public ApiResponse<List<TicketResponse>> getBookedTicketsByShowtimeId(@PathVariable Integer showtimeId) {
+        return ApiResponse.<List<TicketResponse>>builder()
+                .result(ticketService.getBookedTicketsByShowtimeId(showtimeId))
+                .build();
+    }
+
+    @GetMapping("/showtime/{showtimeId}/booked-seat-ids")
+    public ApiResponse<List<Integer>> getBookedSeatIdsByShowtimeId(@PathVariable Integer showtimeId) {
+        return ApiResponse.<List<Integer>>builder()
+                .result(ticketService.getBookedSeatIdsByShowtimeId(showtimeId))
                 .build();
     }
 }

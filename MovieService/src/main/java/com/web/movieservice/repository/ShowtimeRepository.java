@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,4 +27,15 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
     List<Showtime> findByMovieIdAndRoomIdIn(Integer movieId, List<Integer> roomIds);
     List<Showtime> findByMovieIdAndRoomId(Integer movieId, Integer roomId);
     List<Showtime> findByRoomId(Integer roomId);
+    @Query(value = "SELECT * FROM showtimes s " +
+            "WHERE DAY(s.start_time) = DAY(:date) " +
+            "AND MONTH(s.start_time) = MONTH(:date) " +
+            "AND YEAR(s.start_time) = YEAR(:date) " +
+            "AND (s.room_id = :roomId) " +
+            "ORDER BY s.start_time",
+            nativeQuery = true)
+    List<Showtime> findShowtimesByDateAndRoom(
+            @Param("date") LocalDate date,
+            @Param("roomId") Integer roomId
+    );
 }

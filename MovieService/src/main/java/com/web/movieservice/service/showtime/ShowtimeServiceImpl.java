@@ -1,10 +1,7 @@
 package com.web.movieservice.service.showtime;
 
 import com.web.movieservice.dto.request.ShowtimeRequest;
-import com.web.movieservice.dto.response.ApiResponse;
-import com.web.movieservice.dto.response.CinemaResponse;
-import com.web.movieservice.dto.response.RoomResponse;
-import com.web.movieservice.dto.response.ShowtimeResponse;
+import com.web.movieservice.dto.response.*;
 import com.web.movieservice.entity.Movie;
 import com.web.movieservice.entity.Showtime;
 import com.web.movieservice.exception.AppException;
@@ -12,6 +9,7 @@ import com.web.movieservice.exception.ErrorCode;
 import com.web.movieservice.mapper.ShowtimeMapper;
 import com.web.movieservice.repository.MovieRepository;
 import com.web.movieservice.repository.ShowtimeRepository;
+import com.web.movieservice.repository.client.BookingServiceClient;
 import com.web.movieservice.repository.client.CinemaServiceClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,6 +49,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     private CinemaServiceClient cinemaServiceClient;
 
     @Autowired
+    private BookingServiceClient bookingServiceClient;
+
+    @Autowired
     private ShowtimeMapper showtimeMapper;
 
 //    @Autowired
@@ -61,14 +64,14 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     public List<ShowtimeResponse> getAllShowtimes() {
         return showtimeRepository.findAll()
                 .stream()
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Page<ShowtimeResponse> getAllShowtimes(Pageable pageable) {
         return showtimeRepository.findAll(pageable)
-                .map(showtimeMapper::toShowtimeResponse);
+                .map(this::mapToShowtimeResponseWithDetails);
     }
 
     @Override
@@ -171,29 +174,39 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     }
 
 
-//    @Override
-//    public List<SeatResponse> getAvailableSeats(Integer showtimeId) {
-//        Showtime showtime = showtimeRepository.findById(showtimeId)
-//                .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
-//
-//        // Get all seats in the room
+    @Override
+    public List<SeatResponse> getAvailableSeats(Integer showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        // Get all seats
 //        List<Seat> allSeats = seatRepository.findByRoomIdOrderByName(showtime.getRoomId());
-//
-//        // Get booked seats for this showtime
+
+        ApiResponse<RoomResponse> roomResponses = cinemaServiceClient.getRoomById(showtime.getRoomId());
+        if (roomResponses.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(roomResponses.getMessage()));
+        }
+
+        List<SeatResponse> allSeats = roomResponses.getResult().getSeats();
+
+        // Get booked seats
 //        List<Ticket> bookedTickets = ticketRepository.findByShowtimeIdAndStatus(showtimeId, true);
 //        List<Integer> bookedSeatIds = bookedTickets.stream()
 //                .map(Ticket::getSeatId)
 //                .collect(Collectors.toList());
-//
-//        // Filter available seats
-//        List<Seat> availableSeats = allSeats.stream()
-//                .filter(seat -> !bookedSeatIds.contains(seat.getId()))
-//                .collect(Collectors.toList());
-//
-//        return availableSeats.stream()
-//                .map(seatMapper::toSeatResponse)
-//                .collect(Collectors.toList());
-//    }
+
+        ApiResponse<List<Integer>> bookedSeatIdsResponse = bookingServiceClient.getBookedSeatIdsByShowtimeId(showtimeId);
+        if (bookedSeatIdsResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(bookedSeatIdsResponse.getMessage()));
+        }
+
+        List<Integer> bookedSeatIds = bookedSeatIdsResponse.getResult();
+
+        // Filter available seats
+        return allSeats.stream()
+                .filter(seat -> !bookedSeatIds.contains(seat.getId()))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<ShowtimeResponse> getShowtimesByMovieId(Integer movieId) {
@@ -206,7 +219,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         return showtimeRepository.findByMovieId(movieId)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
 
@@ -226,7 +239,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         return showtimeRepository.findByRoomIdIn(roomIds)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
 
@@ -249,7 +262,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         return showtimeRepository.findByMovieIdAndRoomIdIn(movieId, roomIds)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
 
@@ -270,20 +283,22 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         return showtimeRepository.findByMovieIdAndRoomId(movieId, roomId)
                 .stream()
                 .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
-//    public List<TicketResponse> getBookedTickets(Integer showtimeId) {
-//        Showtime showtime = showtimeRepository.findById(showtimeId)
-//                .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
-//
-//        // Get booked seats for this showtime
-//        List<Ticket> bookedTickets = ticketRepository.findByShowtimeIdAndStatus(showtimeId, true);
-//
-//        return bookedTickets.stream()
-//                .map(ticketMapper::toTicketResponse)
-//                .collect(Collectors.toList());
-//    }
+
+    public List<TicketResponse> getBookedTickets(Integer showtimeId) {
+        Showtime showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
+
+        ApiResponse<List<TicketResponse>> listApiResponse = bookingServiceClient.getBookedTicketsByShowtimeId(showtimeId);
+
+        if (listApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(listApiResponse.getMessage()));
+        }
+
+        return listApiResponse.getResult();
+    }
 
     @Override
     public List<ShowtimeResponse> getShowtimesShowing() {
@@ -295,8 +310,33 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 .collect(Collectors.toList());
 
         return showtimes.stream()
-                .map(showtimeMapper::toShowtimeResponse)
+                .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<ShowtimeResponse> getShowtimesByDateAndRoomId(LocalDate date, Integer roomId)
+    {
+        List<Showtime> showtimes = showtimeRepository.findShowtimesByDateAndRoom(date, roomId);
+        return showtimes.stream()
+                .map(this::mapToShowtimeResponseWithDetails)
+                .collect(Collectors.toList());
+    };
+
+    private ShowtimeResponse mapToShowtimeResponseWithDetails(Showtime showtime) {
+        ShowtimeResponse showtimeResponse = showtimeMapper.toShowtimeResponse(showtime);
+
+        ApiResponse<RoomResponse> roomResponseApiResponse = cinemaServiceClient.getRoomById(showtimeResponse.getRoomId());
+        if (roomResponseApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(roomResponseApiResponse.getMessage()));
+        }
+        RoomResponse roomResponse = roomResponseApiResponse.getResult();
+        showtimeResponse.setCinemaName(roomResponse.getCinemaName());
+        showtimeResponse.setRoomName(roomResponse.getName());
+        showtimeResponse.setRoom(roomResponse);
+
+        return showtimeResponse;
     }
 
 }

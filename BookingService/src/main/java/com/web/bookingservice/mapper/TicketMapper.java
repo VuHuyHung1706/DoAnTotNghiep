@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TicketMapper {
 
+    @Mapping(target = "seatName", ignore = true)
+    @Mapping(target = "customer", ignore = true)
     TicketResponse toTicketResponse(Ticket ticket);
 
     TicketDetailResponse toTicketDetailResponse(Ticket ticket);
