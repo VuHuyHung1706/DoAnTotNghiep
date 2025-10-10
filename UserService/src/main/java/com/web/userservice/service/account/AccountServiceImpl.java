@@ -164,4 +164,12 @@ public class AccountServiceImpl implements AccountService {
 
         return managerMapper.toManagerResponse(manager);
     }
+
+    @Override
+    public CustomerResponse getCustomerByUsername(String username) {
+        Customer customer = customerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return customerMapper.toCustomerResponse(customer);
+    }
 }

@@ -1,5 +1,6 @@
 package com.web.userservice.entity;
 
+import com.web.userservice.enums.Position;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +28,10 @@ public class Manager {
 
     @Column(name = "phone")
     private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "position")
+    private Position position;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "username", referencedColumnName = "username")

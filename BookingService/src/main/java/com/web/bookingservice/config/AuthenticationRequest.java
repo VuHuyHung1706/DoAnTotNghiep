@@ -13,7 +13,7 @@ public class AuthenticationRequest implements RequestInterceptor {
     public void apply(RequestTemplate requestTemplate) {
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
-        log.info("CinemaService - Header: {}", authHeader);
+        log.info("BookingService - Header: {}", authHeader);
 
         if (StringUtils.hasText(authHeader))
         {

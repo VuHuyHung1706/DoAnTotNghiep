@@ -218,7 +218,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeRepository.findByMovieId(movieId)
                 .stream()
-                .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
@@ -238,7 +238,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeRepository.findByRoomIdIn(roomIds)
                 .stream()
-                .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
+                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
@@ -261,7 +261,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeRepository.findByMovieIdAndRoomIdIn(movieId, roomIds)
                 .stream()
-                .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
+                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
@@ -282,7 +282,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeRepository.findByMovieIdAndRoomId(movieId, roomId)
                 .stream()
-                .filter(showtime -> (showtime.getStartTime().isEqual(now) || showtime.getStartTime().isAfter(now)))
+                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }

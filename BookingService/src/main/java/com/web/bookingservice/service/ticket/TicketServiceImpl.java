@@ -10,6 +10,7 @@ import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
 import com.web.bookingservice.repository.client.CinemaServiceClient;
 import com.web.bookingservice.repository.client.MovieServiceClient;
+import com.web.bookingservice.repository.client.UserServiceClient;
 import com.web.bookingservice.service.qr.QRCodeService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,12 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private QRCodeService qrCodeService;
+
     @Autowired
     private CinemaServiceClient cinemaServiceClient;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
     @Override
     public List<TicketDetailResponse> getMyTickets() {
@@ -133,12 +138,14 @@ public class TicketServiceImpl implements TicketService {
         ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
 
 
-        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(30))) {
-            return ScanTicketResponse.builder()
-                    .success(false)
-                    .message("Too early to scan ticket. Showtime starts at " + showtimeResponse.getResult().getStartTime())
-                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
-                    .build();
+        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(60))) {
+
+            throw new AppException(ErrorCode.TICKET_NOT_READY);
+//            return ScanTicketResponse.builder()
+//                    .success(false)
+//                    .message("Too early to scan ticket. Showtime starts at " + showtimeResponse.getResult().getStartTime())
+//                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
+//                    .build();
         }
 
         // Mark ticket as scanned
@@ -170,6 +177,9 @@ public class TicketServiceImpl implements TicketService {
                     TicketResponse response = ticketMapper.toTicketResponse(ticket);
                     ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(response.getSeatId());
                     response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    ApiResponse<CustomerResponse> customerResponseApiResponse = userServiceClient.getCustomerByUsername(ticket.getInvoice().getUsername());
+                    CustomerResponse customerResponse = customerResponseApiResponse.getResult();
+                    response.setCustomer(customerResponseApiResponse.getResult());
                     return response;
                 })
                 .collect(Collectors.toList());

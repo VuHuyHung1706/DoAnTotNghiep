@@ -2,6 +2,7 @@ package com.web.userservice.config;
 
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Manager;
+import com.web.userservice.enums.Position;
 import com.web.userservice.repository.AccountRepository;
 import com.web.userservice.repository.ManagerRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,8 @@ public class AppConfig {
 
     static final String ADMIN_USER_NAME = "admin";
     static final String ADMIN_PASSWORD = "admin";
+    static final String STAFF_USER_NAME = "staff";
+    static final String STAFF_PASSWORD = "staff";
 
     @Bean
     @ConditionalOnProperty(
@@ -41,11 +44,31 @@ public class AppConfig {
                 Manager adminManager = Manager.builder()
                         .firstName("Admin")
                         .lastName("System")
+                        .position(Position.MANAGER)
                         .account(adminAccount)
                         .build();
 
                 managerRepository.save(adminManager);
             }
-        };
+
+            if (accountRepository.findByUsername(STAFF_USER_NAME).isEmpty()) {
+                Account staffAccount = Account.builder()
+                        .username(STAFF_USER_NAME)
+                        .password(passwordEncoder.encode(STAFF_PASSWORD))
+                        .status(true)
+                        .build();
+
+                staffAccount = accountRepository.save(staffAccount);
+
+                Manager staff = Manager.builder()
+                        .firstName("Staff")
+                        .lastName("Staff")
+                        .position(Position.STAFF)
+                        .account(staffAccount)
+                        .build();
+
+                managerRepository.save(staff);
+            }
+            };
     }
 }

@@ -68,4 +68,11 @@ public class AccountController {
                 .result(accountService.getManager())
                 .build();
     }
+
+    @GetMapping("customer/{username}")
+    public ApiResponse<CustomerResponse> getCustomerByUserName(@PathVariable String username) {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(accountService.getCustomerByUsername(username))
+                .build();
+    }
 }

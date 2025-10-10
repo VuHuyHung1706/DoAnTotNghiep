@@ -13,6 +13,7 @@ import com.web.userservice.dto.resquest.*;
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Customer;
 import com.web.userservice.entity.InvalidatedToken;
+import com.web.userservice.enums.Position;
 import com.web.userservice.exception.AppException;
 import com.web.userservice.exception.ErrorCode;
 import com.web.userservice.repository.AccountRepository;
@@ -257,7 +258,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         var manager = managerRepository.findByAccountUsername(account.getUsername());
         if (manager.isPresent()) {
-            stringJoiner.add("ROLE_MANAGER");
+            Position position = manager.get().getPosition();
+            if (position == Position.MANAGER) {
+                stringJoiner.add("ROLE_MANAGER");
+            } else if (position == Position.STAFF) {
+                stringJoiner.add("ROLE_STAFF");
+            } else {
+                // Default to STAFF if position is null
+                stringJoiner.add("ROLE_STAFF");
+            }
         } else {
             stringJoiner.add("ROLE_CUSTOMER");
         }

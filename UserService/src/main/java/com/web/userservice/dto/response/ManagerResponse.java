@@ -1,10 +1,10 @@
 package com.web.userservice.dto.response;
 
+import com.web.userservice.enums.Position;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Data
@@ -19,6 +19,7 @@ public class ManagerResponse {
     private String email;
     private String phone;
     private Boolean gender;
+    private Position position;
     private LocalDate dateOfBirth;
     private String address;
     private String idCard;

@@ -35,6 +35,7 @@ public enum ErrorCode {
     TICKET_ALREADY_SCANNED(1010, "Ticket has already been scanned", HttpStatus.BAD_REQUEST),
     INVALID_QR_CODE(1011, "Invalid QR code", HttpStatus.BAD_REQUEST),
     TICKET_NOT_ACTIVE(1012, "Ticket is not active", HttpStatus.BAD_REQUEST),
+    TICKET_NOT_READY(1013, "Ticket is not ready", HttpStatus.BAD_REQUEST),
 
     USERNAME_NOT_BLANK(9000, "Username cannot be blank", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_BLANK(9000, "Password cannot be blank", HttpStatus.BAD_REQUEST),
