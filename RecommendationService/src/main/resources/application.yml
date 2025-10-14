@@ -28,10 +28,14 @@ booking:
   service:
     url: http://localhost:8083
 
+user:
+  service:
+    url: http://localhost:8080
+
 # Recommendation algorithm parameters
 recommendation:
   max-results: 10
-  min-similarity-score: 0.3
+  min-similarity-score: 0.1
   genre-weight: 0.4
   actor-weight: 0.3
   rating-weight: 0.3
