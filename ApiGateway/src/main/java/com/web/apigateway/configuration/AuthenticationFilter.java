@@ -43,6 +43,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/movie-service/.*",
             "/cinema-service/.*",
             "/booking-service/.*",
+            "/recommendation-service/.*"
     };
 
     @NonFinal

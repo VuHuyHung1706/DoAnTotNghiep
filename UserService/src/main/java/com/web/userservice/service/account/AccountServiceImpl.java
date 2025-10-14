@@ -172,4 +172,11 @@ public class AccountServiceImpl implements AccountService {
 
         return customerMapper.toCustomerResponse(customer);
     }
+
+    @Override
+    public CustomerResponse getCustomerById(Integer id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return customerMapper.toCustomerResponse(customer);
+    }
 }

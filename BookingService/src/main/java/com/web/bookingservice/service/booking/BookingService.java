@@ -10,4 +10,5 @@ public interface BookingService {
     BookingResponse bookTickets(BookingRequest request);
     BookingResponse getBookingById(Integer invoiceId);
     List<BookingResponse> getMyBookings();
+    List<BookingResponse> getMyBookingsByUsername(String username);
 }

@@ -16,5 +16,5 @@ public interface AccountService {
     CustomerResponse getMyProfile();
     ManagerResponse getManager();
     CustomerResponse getCustomerByUsername(String username);
-
+    CustomerResponse getCustomerById(Integer id);
 }

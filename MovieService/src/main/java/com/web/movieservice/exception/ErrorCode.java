@@ -26,6 +26,7 @@ public enum ErrorCode {
     SEAT_NOT_EXISTED(1004, "Seat not found", HttpStatus.NOT_FOUND),
     INVOICE_NOT_EXISTED(1004, "Invoice not found", HttpStatus.NOT_FOUND),
     TICKET_NOT_EXISTED(1004, "Ticket not found", HttpStatus.NOT_FOUND),
+    REVIEW_NOT_EXISTED(1004, "Review not found", HttpStatus.NOT_FOUND),
 
     UNAUTHENTICATED(1006, "Authentication failed", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
@@ -35,6 +36,7 @@ public enum ErrorCode {
     TICKET_ALREADY_SCANNED(1010, "Ticket has already been scanned", HttpStatus.BAD_REQUEST),
     INVALID_QR_CODE(1011, "Invalid QR code", HttpStatus.BAD_REQUEST),
     TICKET_NOT_ACTIVE(1012, "Ticket is not active", HttpStatus.BAD_REQUEST),
+    REVIEW_ALREADY_EXISTS(1013, "You have already reviewed this movie", HttpStatus.BAD_REQUEST),
 
     USERNAME_NOT_BLANK(9000, "Username cannot be blank", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_BLANK(9000, "Password cannot be blank", HttpStatus.BAD_REQUEST),
@@ -52,6 +54,9 @@ public enum ErrorCode {
     MOVIE_ID_NOT_NULL(9000, "Movie ID cannot be null", HttpStatus.BAD_REQUEST),
     START_TIME_NOT_NULL(9000, "Start time cannot be null", HttpStatus.BAD_REQUEST),
     DURATION_NOT_NULL(9000, "Duration cannot be null", HttpStatus.BAD_REQUEST),
+    RATING_NOT_NULL(9000, "Rating cannot be null", HttpStatus.BAD_REQUEST),
+    RATING_MIN(9000, "Rating must be at least 1", HttpStatus.BAD_REQUEST),
+    RATING_MAX(9000, "Rating must be at most 5", HttpStatus.BAD_REQUEST),
 
     DURATION_MIN(9000, "Duration must be at least 1 minute", HttpStatus.BAD_REQUEST),
     TOTAL_SEATS_MIN(9000, "Total seats must be at least 1", HttpStatus.BAD_REQUEST),

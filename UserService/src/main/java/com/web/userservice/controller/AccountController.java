@@ -75,4 +75,11 @@ public class AccountController {
                 .result(accountService.getCustomerByUsername(username))
                 .build();
     }
+
+    @GetMapping("customer/{id}")
+    public ApiResponse<CustomerResponse> getCustomerById(@PathVariable Integer id) {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(accountService.getCustomerById(id))
+                .build();
+    }
 }

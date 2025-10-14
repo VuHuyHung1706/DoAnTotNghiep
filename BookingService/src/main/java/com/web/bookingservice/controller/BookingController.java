@@ -38,4 +38,11 @@ public class BookingController {
                 .result(bookingService.getMyBookings())
                 .build();
     }
+
+    @GetMapping("/user/{username}")
+    public ApiResponse<List<BookingResponse>> getBookingByUsername(@PathVariable String username) {
+        return ApiResponse.<List<BookingResponse>>builder()
+                .result(bookingService.getMyBookingsByUsername(username))
+                .build();
+    }
 }
