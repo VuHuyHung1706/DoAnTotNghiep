@@ -119,7 +119,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 request.getRoomId(), request.getStartTime(), request.getEndTime());
 
         if (!conflictingShowtimes.isEmpty()) {
-            throw new AppException(ErrorCode.INVALID_KEY); // You might want to create a specific error for this
+            throw new AppException(ErrorCode.SHOWTIME_CONFLICTING); // You might want to create a specific error for this
         }
 
         Showtime showtime = showtimeMapper.toShowtime(request);

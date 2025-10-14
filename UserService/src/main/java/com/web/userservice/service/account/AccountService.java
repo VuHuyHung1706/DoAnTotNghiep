@@ -17,4 +17,5 @@ public interface AccountService {
     ManagerResponse getManager();
     CustomerResponse getCustomerByUsername(String username);
     CustomerResponse getCustomerById(Integer id);
+    void resetPassword(String username);
 }

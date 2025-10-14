@@ -179,4 +179,13 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return customerMapper.toCustomerResponse(customer);
     }
+
+    @Override
+    public void resetPassword(String username) {
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        account.setPassword(passwordEncoder.encode("12345678"));
+        accountRepository.save(account);
+    }
 }

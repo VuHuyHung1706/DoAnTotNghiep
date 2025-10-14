@@ -138,15 +138,15 @@ public class TicketServiceImpl implements TicketService {
         ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
 
 
-        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(60))) {
-
-            throw new AppException(ErrorCode.TICKET_NOT_READY);
-//            return ScanTicketResponse.builder()
-//                    .success(false)
-//                    .message("Too early to scan ticket. Showtime starts at " + showtimeResponse.getResult().getStartTime())
-//                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
-//                    .build();
-        }
+//        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(60))) {
+//
+//            throw new AppException(ErrorCode.TICKET_NOT_READY);
+////            return ScanTicketResponse.builder()
+////                    .success(false)
+////                    .message("Too early to scan ticket. Showtime starts at " + showtimeResponse.getResult().getStartTime())
+////                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
+////                    .build();
+//        }
 
         // Mark ticket as scanned
         ticket.setIsScanned(true);

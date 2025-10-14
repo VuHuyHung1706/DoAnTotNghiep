@@ -82,4 +82,12 @@ public class AccountController {
                 .result(accountService.getCustomerById(id))
                 .build();
     }
+
+    @PostMapping("reset-password/customer/{username}")
+    public ApiResponse<String> resetPassword(@PathVariable String username) {
+        accountService.resetPassword(username);
+        return ApiResponse.<String>builder()
+                .result("Reset password success")
+                .build();
+    }
 }
