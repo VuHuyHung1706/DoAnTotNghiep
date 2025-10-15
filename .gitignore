@@ -2,41 +2,41 @@
 *
 
 # ✅ Giữ lại file .gitignore chính
-!.gitignore
+.gitignore
 
 # ✅ Giữ lại thư mục của các microservice
-!ApiGateway/
-!BookingService/
-!CinemaService/
-!UserService/
-!MovieService/
-!RecommendationService/
+#!ApiGateway/
+#!BookingService/
+#!CinemaService/
+#!UserService/
+#!MovieService/
+#!RecommendationService/
 
 
 # ✅ Bên trong mỗi microservice, giữ lại src và pom.xml
-ApiGateway/*
-!ApiGateway/pom.xml
-!ApiGateway/src/**
-
-BookingService/*
-!BookingService/pom.xml
-!BookingService/src/**
-
-CinemaService/*
-!CinemaService/pom.xml
-!CinemaService/src/**
-
-UserService/*
-!UserService/pom.xml
-!UserService/src/**
-
-MovieService/*
-!MovieService/pom.xml
-!MovieService/src/**
-
-RecommendationService/*
-!RecommendationService/pom.xml
-!RecommendationService/src/**
+#ApiGateway/*
+#!ApiGateway/pom.xml
+#!ApiGateway/src/**
+#
+##BookingService/*
+#!BookingService/pom.xml
+#!BookingService/src/**
+#
+#CinemaService/*
+#!CinemaService/pom.xml
+#!CinemaService/src/**
+#
+#UserService/*
+#!UserService/pom.xml
+#!UserService/src/**
+#
+#MovieService/*
+#!MovieService/pom.xml
+#!MovieService/src/**
+#
+#RecommendationService/*
+#!RecommendationService/pom.xml
+#!RecommendationService/src/**
 
 # 🛠 Bỏ qua các thư mục build, IDE...
 **/target/
