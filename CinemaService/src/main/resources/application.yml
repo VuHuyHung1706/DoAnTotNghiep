@@ -1,0 +1,30 @@
+server:
+  port: 8082
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/cinemadb
+    username: root
+    password: Huu@123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+movie:
+  service:
+    url: http://localhost:8081
+
+showtime:
+  service:
+    url: http://localhost:8083
+
+jwt:
+  signerKey: "YlYC92Q2NQlTEWXqxCMLhICbRb561RUicb+iEvw2sOTdWNOUavYJorDKyItY+0awM6rExXLQuDDCImefylr/wYQdTksaXc0mpJkQcg87vys="
+  #  valid-duration: 86400 # in second
+  #  refreshable-duration: 259200 # in seconds
+  valid-duration: 1
+  refreshable-duration: 2

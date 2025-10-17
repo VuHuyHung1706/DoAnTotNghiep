@@ -1,0 +1,52 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/recommendationdb
+    username: root
+    password: Huu@123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: vuhuyhung17062002@gmail.com
+    password: skwk jbiz qydz gqsc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  signerKey: "YlYC92Q2NQlTEWXqxCMLhICbRb561RUicb+iEvw2sOTdWNOUavYJorDKyItY+0awM6rExXLQuDDCImefylr/wYQdTksaXc0mpJkQcg87vys="
+  valid-duration: 1
+  refreshable-duration: 2
+
+# Inter-service communication URLs
+user:
+  service:
+    url: http://localhost:8080
+
+movie:
+  service:
+    url: http://localhost:8081
+
+booking:
+  service:
+    url: http://localhost:8083
+
+# Recommendation algorithm parameters
+recommendation:
+  max-results: 10
+  min-similarity-score: 0.0
+  genre-weight: 0.4
+  actor-weight: 0.3
+  rating-weight: 0.3

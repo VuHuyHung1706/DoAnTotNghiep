@@ -1,5 +1,6 @@
 package com.web.recommendationservice.repository.client;
 
+import com.web.recommendationservice.config.AuthenticationRequest;
 import com.web.recommendationservice.dto.response.ApiResponse;
 import com.web.recommendationservice.dto.response.MovieResponse;
 import com.web.recommendationservice.dto.response.ReviewResponse;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "movie-service", url = "${movie.service.url}")
+@FeignClient(name = "movie-service", url = "${movie.service.url}", configuration = AuthenticationRequest.class)
 public interface MovieServiceClient {
 
     @GetMapping("/movies/all")

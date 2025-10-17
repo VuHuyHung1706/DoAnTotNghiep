@@ -9,11 +9,12 @@ import com.web.bookingservice.exception.AppException;
 import com.web.bookingservice.exception.ErrorCode;
 import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
+import com.web.bookingservice.repository.client.RecommendationServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import lombok.extern.slf4j.Slf4j;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -21,8 +22,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 @Service
 public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
+
+    @Autowired
+    private RecommendationServiceClient  recommendationServiceClient;
 
     @Value("${vnpay.pay-url}")
     private String vnp_PayUrl;
@@ -171,6 +176,14 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                     invoice.setPaymentStatus(PaymentStatus.PAID);
                     invoice.setPaidAt(LocalDateTime.now());
                     invoiceRepository.save(invoice);
+                    try
+                    {
+                        recommendationServiceClient.updatePreferences(invoice.getUsername());
+                    }
+                    catch (AppException e)
+                    {
+                        log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
+                    }
                 } else {
                     // Payment failed
                     ticketRepository.deleteAll(ticketRepository.findByInvoiceId(invoice.getId()));
@@ -178,6 +191,7 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                 }
                 return "00".equals(vnp_ResponseCode);
             }
+
         }
         return false;
     }

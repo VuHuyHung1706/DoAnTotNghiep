@@ -1,11 +1,9 @@
 package com.web.recommendationservice.service.recommendation;
 
 import com.web.recommendationservice.dto.response.*;
-import com.web.recommendationservice.entity.RecommendationHistory;
 import com.web.recommendationservice.entity.UserPreference;
 import com.web.recommendationservice.exception.AppException;
 import com.web.recommendationservice.exception.ErrorCode;
-import com.web.recommendationservice.repository.RecommendationHistoryRepository;
 import com.web.recommendationservice.repository.UserPreferenceRepository;
 import com.web.recommendationservice.repository.client.BookingServiceClient;
 import com.web.recommendationservice.repository.client.MovieServiceClient;
@@ -32,9 +30,6 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Autowired
     private UserPreferenceRepository userPreferenceRepository;
-
-    @Autowired
-    private RecommendationHistoryRepository recommendationHistoryRepository;
 
     @Autowired
     private ContentBasedFilterService contentBasedFilterService;
@@ -104,103 +99,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     @Override
-    public List<RecommendationResponse> getRecommendationsForUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // Update user preferences based on latest interactions
-        updateUserPreferencesInternal(username);
-
-        // Get user preferences
-        List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
-
-        if (userPreferences.isEmpty()) {
-            throw new AppException(ErrorCode.NO_USER_HISTORY);
-        }
-
-        // Get all available movies
-        ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
-        List<MovieResponse> allMovies = moviesResponse.getResult();
-
-        if (allMovies == null || allMovies.isEmpty()) {
-            throw new AppException(ErrorCode.INSUFFICIENT_DATA);
-        }
-
-        // Get movies user has already watched (from bookings)
-        Set<Integer> watchedMovieIds = getWatchedMovieIds(username);
-
-        // Filter out already watched movies
-        List<MovieResponse> candidateMovies = allMovies.stream()
-                .filter(movie -> !watchedMovieIds.contains(movie.getId()))
-                .collect(Collectors.toList());
-
-        // Calculate similarity scores for each candidate movie
-        List<RecommendationResponse> recommendations = new ArrayList<>();
-
-        for (MovieResponse movie : candidateMovies) {
-            double similarityScore = contentBasedFilterService.calculateSimilarityScore(
-                    movie, userPreferences);
-
-            if (similarityScore >= minSimilarityScore) {
-                String reason = contentBasedFilterService.generateRecommendationReason(
-                        movie, userPreferences);
-
-                recommendations.add(RecommendationResponse.builder()
-                        .movie(movie)
-                        .similarityScore(similarityScore)
-                        .reason(reason)
-                        .build());
-            }
-        }
-
-        // Sort by similarity score (descending) and limit results
-        recommendations.sort((r1, r2) -> Double.compare(r2.getSimilarityScore(), r1.getSimilarityScore()));
-
-        List<RecommendationResponse> topRecommendations = recommendations.stream()
-                .limit(maxResults)
-                .collect(Collectors.toList());
-
-        // Save recommendation history
-        for (RecommendationResponse recommendation : topRecommendations) {
-            if (!recommendationHistoryRepository.existsByUsernameAndMovieId(
-                    username, recommendation.getMovie().getId())) {
-
-                RecommendationHistory history = RecommendationHistory.builder()
-                        .username(username)
-                        .movieId(recommendation.getMovie().getId())
-                        .similarityScore(recommendation.getSimilarityScore())
-                        .recommendedAt(LocalDateTime.now())
-                        .build();
-
-                recommendationHistoryRepository.save(history);
-            }
-        }
-
-        return topRecommendations;
-    }
-
-    @Override
-    public void updateUserPreferences() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        updateUserPreferencesInternal(username);
-    }
-
-    @Override
-    public void trackRecommendationClick(Integer movieId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        List<RecommendationHistory> histories = recommendationHistoryRepository
-                .findByUsername(username);
-
-        for (RecommendationHistory history : histories) {
-            if (history.getMovieId().equals(movieId) && !history.getWasClicked()) {
-                history.setWasClicked(true);
-                recommendationHistoryRepository.save(history);
-                break;
-            }
-        }
-    }
-
-    private void updateUserPreferencesInternal(String username) {
+    public void updateUserPreferencesInternal(String username) {
         // Get user's booking history
         ApiResponse<List<BookingResponse>> bookingsResponse = bookingServiceClient.getBookingByUsername(username);
         List<BookingResponse> bookings = bookingsResponse.getResult();

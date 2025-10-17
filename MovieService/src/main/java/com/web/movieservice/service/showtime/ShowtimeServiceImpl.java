@@ -11,6 +11,8 @@ import com.web.movieservice.repository.MovieRepository;
 import com.web.movieservice.repository.ShowtimeRepository;
 import com.web.movieservice.repository.client.BookingServiceClient;
 import com.web.movieservice.repository.client.CinemaServiceClient;
+import com.web.movieservice.repository.client.RecommendationServiceClient;
+import com.web.movieservice.service.recommendation.SendRecommendationMail;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,12 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
     @Autowired
     private MovieRepository movieRepository;
+
+    @Autowired
+    private RecommendationServiceClient recommendationServiceClient;
+
+    @Autowired
+    private SendRecommendationMail sendRecommendtionMail;
 
 //    @Autowired
 //    private RoomRepository roomRepository;
@@ -111,7 +119,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
             request.setEndTime(endTimeOnMovie);
         }
         else if (request.getEndTime().isBefore(endTimeOnMovie)) {
-            throw new AppException(ErrorCode.INVALID_KEY);
+            throw new AppException(ErrorCode.SHOWTIME_INVALID_TIME);
         }
 
         // Check for conflicting showtimes in the same room
@@ -124,8 +132,19 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         Showtime showtime = showtimeMapper.toShowtime(request);
         showtime.setEndTime(request.getEndTime());
-
+        showtime.setMovie(movie);
         showtime = showtimeRepository.save(showtime);
+
+        ApiResponse<List<UserRecommendationResponse>> userRecommendationResponse = recommendationServiceClient.getUsersForMovie(showtime.getMovieId());
+
+        if (userRecommendationResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(userRecommendationResponse.getMessage()));
+        }
+
+        LinkedList<UserRecommendationResponse> userRecommendationList =  userRecommendationResponse.getResult().stream().collect(Collectors.toCollection(LinkedList::new));
+
+        sendRecommendtionMail.startAsyncTask(userRecommendationList, showtime);
+
         return showtimeMapper.toShowtimeResponse(showtime);
     }
 

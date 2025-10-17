@@ -16,13 +16,6 @@ public class RecommendationController {
     @Autowired
     private RecommendationService recommendationService;
 
-    @GetMapping
-    public ApiResponse<List<RecommendationResponse>> getRecommendations() {
-        return ApiResponse.<List<RecommendationResponse>>builder()
-                .result(recommendationService.getRecommendationsForUser())
-                .build();
-    }
-
     @GetMapping("/users-for-movie/{movieId}")
     public ApiResponse<List<UserRecommendationResponse>> getUsersForMovie(@PathVariable Integer movieId) {
         return ApiResponse.<List<UserRecommendationResponse>>builder()
@@ -30,19 +23,12 @@ public class RecommendationController {
                 .build();
     }
 
-    @PostMapping("/update-preferences")
-    public ApiResponse<Void> updatePreferences() {
-        recommendationService.updateUserPreferences();
+    @PostMapping("/update-preferences/{username}")
+    public ApiResponse<Void> updatePreferences(@PathVariable String username) {
+        recommendationService.updateUserPreferencesInternal(username);
         return ApiResponse.<Void>builder()
                 .message("User preferences updated successfully")
                 .build();
     }
 
-    @PostMapping("/track-click/{movieId}")
-    public ApiResponse<Void> trackClick(@PathVariable Integer movieId) {
-        recommendationService.trackRecommendationClick(movieId);
-        return ApiResponse.<Void>builder()
-                .message("Click tracked successfully")
-                .build();
-    }
 }

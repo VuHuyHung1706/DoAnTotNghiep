@@ -39,17 +39,20 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @NonFinal
     private String[] publicEndpoints = {
-            "/user-service/.*",
-            "/movie-service/.*",
-            "/cinema-service/.*",
-            "/booking-service/.*",
-            "/recommendation-service/.*"
+              "/user-service/.*",
+              "/movie-service/movies.*",
+              "/movie-service/genres.*",
+              "/cinema-service/.*",
+              "/booking-service/payments/vnpay/callback.*"
+//             "/booking-service/payments.*",
+//            "/recommendation-service/.*"
+//              "user-service/auth/.*"
     };
 
     @NonFinal
     private String[] getPublicMethodEndpoints = {
-//            "/movie-service/.*",
-//            "/cinema-service/.*",
+            "/movie-service/showtimes.*",
+            //            "/cinema-service/.*",
 
     };
 
@@ -60,8 +63,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-        log.info("Entering the authentication gateway filter");
-
 
         if (isPublicEndpoint(exchange.getRequest()) || isGetPublicMethodEndpoint(exchange.getRequest()))
         {
@@ -72,11 +73,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         {
             return unauthenticated(exchange.getResponse());
         }
-        String token = authHeader.get(0).replace("Bear" , "");
+        String token = authHeader.get(0).replace("Bearer " , "");
         log.info("Token: {}", token);
 
         identityService.introspect(token).subscribe(introspectResponseApiResponse
-        ->
+                ->
         {
             log.info("Result: {}", introspectResponseApiResponse.getResult().getValid());
         });

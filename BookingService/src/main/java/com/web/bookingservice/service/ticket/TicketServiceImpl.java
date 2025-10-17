@@ -9,7 +9,6 @@ import com.web.bookingservice.mapper.TicketMapper;
 import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
 import com.web.bookingservice.repository.client.CinemaServiceClient;
-import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.repository.client.UserServiceClient;
 import com.web.bookingservice.service.qr.QRCodeService;
 import jakarta.transaction.Transactional;
@@ -30,9 +29,6 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private InvoiceRepository invoiceRepository;
-
-    @Autowired
-    private MovieServiceClient  movieServiceClient;
 
     @Autowired
     private TicketMapper ticketMapper;
@@ -135,7 +131,7 @@ public class TicketServiceImpl implements TicketService {
         // Check if showtime has started (optional validation)
         LocalDateTime now = LocalDateTime.now();
 
-        ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
+//        ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
 
 
 //        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(60))) {

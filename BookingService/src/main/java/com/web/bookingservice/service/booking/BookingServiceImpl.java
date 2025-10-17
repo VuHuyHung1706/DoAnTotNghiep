@@ -29,30 +29,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class BookingServiceImpl implements BookingService {
-
-//    @Autowired
-//    private ShowtimeRepository showtimeRepository;
-//
-//    @Autowired
-//    private SeatRepository seatRepository;
-
-    @Autowired
-    private MovieServiceClient movieServiceClient;
-
-    @Autowired
-    private CinemaServiceClient cinemaServiceClient;
-
     @Autowired
     private TicketRepository ticketRepository;
 
     @Autowired
     private InvoiceRepository invoiceRepository;
-
-//    @Autowired
-//    private ShowtimeMapper showtimeMapper;
-//
-//    @Autowired
-//    private SeatMapper seatMapper;
 
     @Autowired
     private TicketMapper ticketMapper;
@@ -60,13 +41,15 @@ public class BookingServiceImpl implements BookingService {
     @Autowired
     private QRCodeService qrCodeService;
 
+    @Autowired
+    private CinemaServiceClient cinemaServiceClient;
+
+    @Autowired
+    private MovieServiceClient movieServiceClient;
+
     @Override
     public BookingResponse bookTickets(BookingRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // Validate showtime exists
-//        Showtime showtime = showtimeRepository.findById(request.getShowtimeId())
-//                .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
         ApiResponse<ShowtimeResponse> showtimeResponseApiResponse = movieServiceClient.getShowtimeById(request.getShowtimeId());
         if (showtimeResponseApiResponse.getCode() != 1000) {

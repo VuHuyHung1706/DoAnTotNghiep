@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Gợi ý phim hay cho bạn 🎬</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f7f9fb;font-family:'Segoe UI',Roboto,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0"
+       style="max-width:640px;margin:0 auto;background-color:#ffffff;
+                border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.08);">
+    <tr>
+        <td style="background-color:#1485f1;padding:16px 24px;text-align:center;
+                 color:#fff;font-size:20px;font-weight:600;">
+            🎬 Phim nổi bật phù hợp dành cho bạn
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <img src="${poster}" alt="${movieTitle}" width="100%"
+                 style="display:block;width:100%;height:auto;">
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:24px;">
+            <h2 style="margin:0 0 12px;font-size:24px;color:#111827;">${movieTitle}</h2>
+            <p style="margin:0 0 16px;color:#4b5563;font-size:15px;line-height:1.6;">${description}</p>
+            <p style="margin:4px 0;"><strong>🎞 Thời lượng:</strong> ${duration} phút</p>
+            <p style="margin:4px 0;"><strong>🌐 Ngôn ngữ:</strong> ${language}</p>
+            <p style="margin:4px 0;"><strong>🏢 Rạp:</strong> ${cinemaName}</p>
+            <p style="margin:4px 0;"><strong>🏠 Phòng chiếu:</strong> ${roomName}</p>
+            <p style="margin:4px 0;"><strong>🕒 Suất chiếu gần nhất:</strong> ${startTime}</p>
+            <p style="margin:4px 0;"><strong>💰 Giá vé:</strong> ${ticketPrice}</p>
+
+            <div style="margin-top:20px;">
+                <a href="${trailer}" target="_blank"
+                   style="display:inline-block;padding:10px 18px;margin-right:8px;border-radius:6px;
+                    text-decoration:none;background:#e2e8f0;color:#1e40af;font-weight:600;">
+                    ▶️ Xem trailer
+                </a>
+                <a href="${bookingUrl}" target="_blank"
+                   style="display:inline-block;padding:10px 18px;border-radius:6px;text-decoration:none;
+                    background:#1e90ff;color:#ffffff;font-weight:600;">
+                    🎟️ Đặt vé ngay
+                </a>
+            </div>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:16px 24px;text-align:center;font-size:13px;
+                 color:#6b7280;background:#f3f4f6;">
+            <p style="margin:0 0 6px;">📍 HHK — Trải nghiệm điện ảnh tuyệt vời nhất</p>
+            <p style="margin:0;font-size:12px;">Nếu bạn không muốn nhận email đề xuất,
+                vui lòng <a href="#" style="color:#1e90ff;text-decoration:none;">lọc mail vào mục spam</a>.</p>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

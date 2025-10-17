@@ -84,7 +84,12 @@
             <artifactId>javase</artifactId>
             <version>3.5.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.web</groupId>
+            <artifactId>MovieService</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>

@@ -62,7 +62,8 @@ public enum ErrorCode {
     TOTAL_SEATS_MIN(9000, "Số lượng ghế phải ít nhất là 1", HttpStatus.BAD_REQUEST),
     SEAT_SELECTION_REQUIRED(9000, "Phải chọn ít nhất một ghế", HttpStatus.BAD_REQUEST),
 
-    SHOWTIME_CONFLICTING(9100, "Ca chiếu bị xung đột với một ca chiếu khác", HttpStatus.BAD_REQUEST);
+    SHOWTIME_CONFLICTING(9100, "Ca chiếu bị xung đột với một ca chiếu khác", HttpStatus.BAD_REQUEST),
+    SHOWTIME_INVALID_TIME(9100, "Thời gian của phim phải nhỏ hơn khoảng thời gian bắt đầu và kết thúc ca chiếu", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

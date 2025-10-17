@@ -1,27 +1,27 @@
 package com.web.recommendationservice.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Collection;
+@Slf4j
+@Configuration
+public class AuthenticationRequest implements RequestInterceptor {
+    @Override
+    public void apply(RequestTemplate requestTemplate) {
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        var authHeader = servletRequestAttributes.getRequest().getHeader("Authorization");
+        log.info("Recommendation Service - Header: {}", servletRequestAttributes.getRequest());
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class AuthenticationRequest {
-    private String username;
-    private Collection<? extends GrantedAuthority> authorities;
-
-    public static AuthenticationRequest fromSecurityContext() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        return AuthenticationRequest.builder()
-                .username(authentication.getName())
-                .authorities(authentication.getAuthorities())
-                .build();
+        if (StringUtils.hasText(authHeader))
+        {
+            requestTemplate.header("Authorization", authHeader);
+        }
     }
 }

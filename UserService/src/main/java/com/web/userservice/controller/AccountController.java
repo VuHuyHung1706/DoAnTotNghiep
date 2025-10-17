@@ -76,12 +76,12 @@ public class AccountController {
                 .build();
     }
 
-    @GetMapping("customer/{id}")
-    public ApiResponse<CustomerResponse> getCustomerById(@PathVariable Integer id) {
-        return ApiResponse.<CustomerResponse>builder()
-                .result(accountService.getCustomerById(id))
-                .build();
-    }
+//    @GetMapping("customer/{id}")
+//    public ApiResponse<CustomerResponse> getCustomerById(@PathVariable Integer id) {
+//        return ApiResponse.<CustomerResponse>builder()
+//                .result(accountService.getCustomerById(id))
+//                .build();
+//    }
 
     @PostMapping("reset-password/customer/{username}")
     public ApiResponse<String> resetPassword(@PathVariable String username) {
