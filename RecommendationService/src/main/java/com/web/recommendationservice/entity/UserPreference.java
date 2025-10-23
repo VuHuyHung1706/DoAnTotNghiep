@@ -37,10 +37,6 @@ public class UserPreference {
     @Builder.Default
     private Double preferenceScore = 1.0;
 
-    @Column(name = "interaction_count")
-    @Builder.Default
-    private Integer interactionCount = 1;
-
     @Column(name = "last_updated")
     @Builder.Default
     private LocalDateTime lastUpdated = LocalDateTime.now();

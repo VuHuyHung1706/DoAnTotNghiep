@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 public class UserRecommendationResponse {
     private String username;
     private Double similarityScore;
-    private String reason;
 }

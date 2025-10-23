@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ContentBasedFilterServiceImpl implements ContentBasedFilterService {
+    public class ContentBasedFilterServiceImpl implements ContentBasedFilterService {
 
     @Value("${recommendation.genre-weight}")
     private double genreWeight;
@@ -86,76 +86,5 @@ public class ContentBasedFilterServiceImpl implements ContentBasedFilterService 
         // Normalize to 0-1 range
         double totalWeight = genreWeight + actorWeight + ratingWeight;
         return totalScore / totalWeight;
-    }
-
-    @Override
-    public String generateRecommendationReason(MovieResponse movie, List<UserPreference> userPreferences) {
-        List<String> reasons = new ArrayList<>();
-
-        // Get top genre preferences
-        List<UserPreference> topGenres = userPreferences.stream()
-                .filter(pref -> pref.getGenreId() != null)
-                .sorted((p1, p2) -> Double.compare(p2.getPreferenceScore(), p1.getPreferenceScore()))
-                .limit(3)
-                .collect(Collectors.toList());
-
-        // Get top actor preferences
-        List<UserPreference> topActors = userPreferences.stream()
-                .filter(pref -> pref.getActorId() != null)
-                .sorted((p1, p2) -> Double.compare(p2.getPreferenceScore(), p1.getPreferenceScore()))
-                .limit(3)
-                .collect(Collectors.toList());
-
-        // Check for matching genres
-        if (movie.getGenres() != null) {
-            Set<Integer> topGenreIds = topGenres.stream()
-                    .map(UserPreference::getGenreId)
-                    .collect(Collectors.toSet());
-
-            List<String> matchingGenres = movie.getGenres().stream()
-                    .filter(genre -> topGenreIds.contains(genre.getId()))
-                    .map(GenreResponse::getName)
-                    .collect(Collectors.toList());
-
-            if (!matchingGenres.isEmpty()) {
-                if (matchingGenres.size() == 1) {
-                    reasons.add("Bạn thích thể loại " + matchingGenres.get(0));
-                } else {
-                    reasons.add("Bạn thích thể loại " + String.join(", ", matchingGenres));
-                }
-            }
-        }
-
-        // Check for matching actors
-        if (movie.getActors() != null) {
-            Set<Integer> topActorIds = topActors.stream()
-                    .map(UserPreference::getActorId)
-                    .collect(Collectors.toSet());
-
-            List<String> matchingActors = movie.getActors().stream()
-                    .filter(actor -> topActorIds.contains(actor.getId()))
-                    .map(actor -> actor.getFirstName() + " " + actor.getLastName())
-                    .collect(Collectors.toList());
-
-            if (!matchingActors.isEmpty()) {
-                if (matchingActors.size() == 1) {
-                    reasons.add("Có diễn viên " + matchingActors.get(0));
-                } else {
-                    reasons.add("Có các diễn viên " + String.join(", ", matchingActors));
-                }
-            }
-        }
-
-        // Add rating information if high
-        if (movie.getAverageRating() != null && movie.getAverageRating() >= 4.0) {
-            reasons.add("Đánh giá cao (" + String.format("%.1f", movie.getAverageRating()) + "/5)");
-        }
-
-        // Combine reasons
-        if (reasons.isEmpty()) {
-            return "Phim được đề xuất dựa trên sở thích của bạn";
-        }
-
-        return String.join(" • ", reasons);
     }
 }

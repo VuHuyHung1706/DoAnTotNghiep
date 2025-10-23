@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface ContentBasedFilterService {
     double calculateSimilarityScore(MovieResponse movie, List<UserPreference> userPreferences);
-    String generateRecommendationReason(MovieResponse movie, List<UserPreference> userPreferences);
 }

@@ -135,15 +135,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setMovie(movie);
         showtime = showtimeRepository.save(showtime);
 
-        ApiResponse<List<UserRecommendationResponse>> userRecommendationResponse = recommendationServiceClient.getUsersForMovie(showtime.getMovieId());
-
-        if (userRecommendationResponse.getCode() != 1000) {
-            throw new AppException(ErrorCode.fromMessage(userRecommendationResponse.getMessage()));
-        }
-
-        LinkedList<UserRecommendationResponse> userRecommendationList =  userRecommendationResponse.getResult().stream().collect(Collectors.toCollection(LinkedList::new));
-
-        sendRecommendtionMail.startAsyncTask(userRecommendationList, showtime);
+        sendRecommendtionMail.startAsyncTask(showtime.getMovieId(), showtime);
 
         return showtimeMapper.toShowtimeResponse(showtime);
     }

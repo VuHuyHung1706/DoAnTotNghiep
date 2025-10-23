@@ -6,5 +6,5 @@ import com.web.movieservice.entity.Showtime;
 import java.util.LinkedList;
 
 public interface SendRecommendationMail {
-    public void startAsyncTask(LinkedList<UserRecommendationResponse> userRecommendationResponse, Showtime showtime);
+    void startAsyncTask(Integer movieId, Showtime showtime);
 }

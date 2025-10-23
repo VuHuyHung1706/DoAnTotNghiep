@@ -79,13 +79,9 @@ public class RecommendationServiceImpl implements RecommendationService {
                     movie, userPreferences);
 
             if (similarityScore >= minSimilarityScore) {
-                String reason = contentBasedFilterService.generateRecommendationReason(
-                        movie, userPreferences);
-
                 userRecommendations.add(UserRecommendationResponse.builder()
                         .username(username)
                         .similarityScore(similarityScore)
-                        .reason(reason)
                         .build());
             }
         }
@@ -141,10 +137,14 @@ public class RecommendationServiceImpl implements RecommendationService {
                 ApiResponse<MovieResponse> movieResponse = movieServiceClient.getMovieById(review.getMovieId());
                 MovieResponse movie = movieResponse.getResult();
 
-                if (movie != null) {
+                if (movie != null && review.getRating() != 0) {
                     // Weight based on rating (1-5 scale)
-                    double weight = review.getRating() / 5.0 * 2.0; // Scale to 0.4-2.0
-
+                    double weight = 0;
+                    if (review.getRating() >= 4)
+                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0
+                    else  {
+                        weight = review.getRating() / -5.0;
+                    }
                     // Process genres with rating weight
                     if (movie.getGenres() != null) {
                         for (GenreResponse genre : movie.getGenres()) {
@@ -170,7 +170,6 @@ public class RecommendationServiceImpl implements RecommendationService {
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
                 pref.setPreferenceScore(genrePref.getPreferenceScore());
-                pref.setInteractionCount(genrePref.getInteractionCount());
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
@@ -186,7 +185,6 @@ public class RecommendationServiceImpl implements RecommendationService {
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
                 pref.setPreferenceScore(actorPref.getPreferenceScore());
-                pref.setInteractionCount(actorPref.getInteractionCount());
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
@@ -204,12 +202,10 @@ public class RecommendationServiceImpl implements RecommendationService {
                     .genreId(genre.getId())
                     .genreName(genre.getName())
                     .preferenceScore(weight)
-                    .interactionCount(1)
                     .build();
             preferences.put(genre.getId(), pref);
         } else {
             pref.setPreferenceScore(pref.getPreferenceScore() + weight);
-            pref.setInteractionCount(pref.getInteractionCount() + 1);
         }
     }
 
@@ -222,12 +218,10 @@ public class RecommendationServiceImpl implements RecommendationService {
                     .actorId(actor.getId())
                     .actorName(actorName)
                     .preferenceScore(weight)
-                    .interactionCount(1)
                     .build();
             preferences.put(actor.getId(), pref);
         } else {
             pref.setPreferenceScore(pref.getPreferenceScore() + weight);
-            pref.setInteractionCount(pref.getInteractionCount() + 1);
         }
     }
 
