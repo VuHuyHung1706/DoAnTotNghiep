@@ -269,4 +269,54 @@ public class BookingServiceImpl implements BookingService {
 
         return bookings;
     }
+
+    @Override
+    public List<BookingResponse> getMyPaidBookingsByUsername(String username) {
+        // Get all invoices for the user
+        List<Invoice> invoices = invoiceRepository.findByUsernameAndPaymentStatus(username, PaymentStatus.PAID);
+
+        if (invoices.isEmpty()) {
+            return new ArrayList<>(); // No bookings found
+        }
+
+        List<BookingResponse> bookings = new ArrayList<>();
+
+        for (Invoice invoice : invoices) {
+            // Get tickets for this invoice
+            List<Ticket> tickets = ticketRepository.findByInvoiceId(invoice.getId());
+
+            if (tickets.isEmpty()) {
+                continue; // Skip if no tickets found
+            }
+
+            // Get showtime from first ticket (all tickets should have same showtime)
+            ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(tickets.get(0).getShowtimeId());
+
+            // Get seats
+            List<SeatResponse> seats = new ArrayList<>();
+            for (Ticket ticket : tickets) {
+                ApiResponse<SeatResponse> seatResponses = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                if (seatResponses.getCode() != 1000) {
+                    throw new AppException(ErrorCode.fromMessage(seatResponses.getMessage()));
+                }
+                seats.add(seatResponses.getResult());
+            }
+            BookingResponse booking = BookingResponse.builder()
+                    .invoiceId(invoice.getId())
+                    .username(invoice.getUsername())
+                    .totalAmount(invoice.getTotalAmount())
+                    .paymentStatus(invoice.getPaymentStatus())
+                    .vnpayTransactionId(invoice.getVnpayTransactionId())
+                    .bookingTime(invoice.getCreatedAt() != null ? invoice.getCreatedAt() : LocalDateTime.now())
+                    .paidAt(invoice.getPaidAt())
+                    .showtime(showtimeResponse.getResult())
+                    .seats(seats)
+                    .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                    .build();
+
+            bookings.add(booking);
+        }
+
+        return bookings;
+    }
 }

@@ -14,7 +14,7 @@ public interface BookingServiceClient {
     @GetMapping("/bookings/my-bookings")
     ApiResponse<List<BookingResponse>> getMyBookings();
 
-    @GetMapping("/bookings/user/{username}")
-    ApiResponse<List<BookingResponse>> getBookingByUsername(@PathVariable String username);
+    @GetMapping("/bookings/user/paid-booking/{username}")
+    ApiResponse<List<BookingResponse>> getPaidBookingByUsername(@PathVariable String username);
 
 }

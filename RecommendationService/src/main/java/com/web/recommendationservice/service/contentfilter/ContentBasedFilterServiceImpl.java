@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-    public class ContentBasedFilterServiceImpl implements ContentBasedFilterService {
+public class ContentBasedFilterServiceImpl implements ContentBasedFilterService {
 
     @Value("${recommendation.genre-weight}")
     private double genreWeight;
@@ -41,50 +41,80 @@ import java.util.stream.Collectors;
                         Double::sum
                 ));
 
-        // Calculate genre similarity
-        double genreSimilarity = 0.0;
-        if (movie.getGenres() != null && !movie.getGenres().isEmpty() && !genreScores.isEmpty()) {
-            double maxGenreScore = Collections.max(genreScores.values());
-            
+        // Build user preference vector and movie feature vector
+        Map<String, Double> userVector = new HashMap<>();
+        Map<String, Double> movieVector = new HashMap<>();
+
+        // Add genre features to vectors
+        if (movie.getGenres() != null) {
             for (GenreResponse genre : movie.getGenres()) {
-                if (genreScores.containsKey(genre.getId())) {
-                    // Normalize score to 0-1 range
-                    genreSimilarity += genreScores.get(genre.getId()) / maxGenreScore;
-                }
+                String key = "genre_" + genre.getId();
+                movieVector.put(key, genreWeight);
+                userVector.put(key, genreScores.getOrDefault(genre.getId(), 0.0) * genreWeight);
             }
-            // Average across all genres in the movie
-            genreSimilarity = genreSimilarity / movie.getGenres().size();
         }
 
-        // Calculate actor similarity
-        double actorSimilarity = 0.0;
-        if (movie.getActors() != null && !movie.getActors().isEmpty() && !actorScores.isEmpty()) {
-            double maxActorScore = Collections.max(actorScores.values());
-            
+        // Add all user genre preferences to user vector
+        for (Map.Entry<Integer, Double> entry : genreScores.entrySet()) {
+            String key = "genre_" + entry.getKey();
+            if (!userVector.containsKey(key)) {
+                userVector.put(key, entry.getValue() * genreWeight);
+                movieVector.put(key, 0.0);
+            }
+        }
+
+        // Add actor features to vectors
+        if (movie.getActors() != null) {
             for (ActorResponse actor : movie.getActors()) {
-                if (actorScores.containsKey(actor.getId())) {
-                    // Normalize score to 0-1 range
-                    actorSimilarity += actorScores.get(actor.getId()) / maxActorScore;
-                }
+                String key = "actor_" + actor.getId();
+                movieVector.put(key, actorWeight);
+                userVector.put(key, actorScores.getOrDefault(actor.getId(), 0.0) * actorWeight);
             }
-            // Average across all actors in the movie
-            actorSimilarity = actorSimilarity / movie.getActors().size();
+        }
+        // Add all user actor preferences to user vector
+        for (Map.Entry<Integer, Double> entry : actorScores.entrySet()) {
+            String key = "actor_" + entry.getKey();
+            if (!userVector.containsKey(key)) {
+                userVector.put(key, entry.getValue() * actorWeight);
+                movieVector.put(key, 0.0);
+            }
         }
 
-        // Calculate rating boost (movies with higher ratings get a boost)
-        double ratingBoost = 0.0;
+        // Add rating feature to vectors
         if (movie.getAverageRating() != null && movie.getAverageRating() > 0) {
-            // Normalize rating to 0-1 range (assuming 5-star scale)
-            ratingBoost = movie.getAverageRating() / 5.0;
+            movieVector.put("rating", movie.getAverageRating() * ratingWeight);
+            userVector.put("rating", 5.0 * ratingWeight); // Assume user prefers highly rated movies
         }
 
-        // Weighted combination of all factors
-        double totalScore = (genreSimilarity * genreWeight) + 
-                           (actorSimilarity * actorWeight) + 
-                           (ratingBoost * ratingWeight);
+        // Calculate cosine similarity: (x·i) / (||x|| · ||i||)
+        double dotProduct = 0.0;
+        double userMagnitude = 0.0;
+        double movieMagnitude = 0.0;
 
-        // Normalize to 0-1 range
-        double totalWeight = genreWeight + actorWeight + ratingWeight;
-        return totalScore / totalWeight;
+        // Get all unique keys from both vectors
+        Set<String> allKeys = new HashSet<>();
+        allKeys.addAll(userVector.keySet());
+        allKeys.addAll(movieVector.keySet());
+
+        // Calculate dot product and magnitudes
+        for (String key : allKeys) {
+            double userValue = userVector.getOrDefault(key, 0.0);
+            double movieValue = movieVector.getOrDefault(key, 0.0);
+
+            dotProduct += userValue * movieValue;
+            userMagnitude += userValue * userValue;
+            movieMagnitude += movieValue * movieValue;
+        }
+
+        // Calculate final cosine similarity
+        userMagnitude = Math.sqrt(userMagnitude);
+        movieMagnitude = Math.sqrt(movieMagnitude);
+
+        // Avoid division by zero
+        if (userMagnitude == 0.0 || movieMagnitude == 0.0) {
+            return 0.0;
+        }
+
+        return dotProduct / (userMagnitude * movieMagnitude);
     }
 }

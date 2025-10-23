@@ -12,5 +12,6 @@ import java.util.List;
 public interface InvoiceRepository extends JpaRepository<Invoice, Integer> {
     List<Invoice> findByUsername(String username);
     Invoice findByVnpayTransactionId(String vnpayTransactionId);
+    List<Invoice> findByUsernameAndPaymentStatus(String username, PaymentStatus paymentStatus);
     List<Invoice> findByPaymentStatusAndPaidAtBetween(PaymentStatus paymentStatus, LocalDateTime start, LocalDateTime end);
 }

@@ -97,7 +97,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Override
     public void updateUserPreferencesInternal(String username) {
         // Get user's booking history
-        ApiResponse<List<BookingResponse>> bookingsResponse = bookingServiceClient.getBookingByUsername(username);
+        ApiResponse<List<BookingResponse>> bookingsResponse = bookingServiceClient.getPaidBookingByUsername(username);
         List<BookingResponse> bookings = bookingsResponse.getResult();
 
         // Get user's reviews
@@ -137,11 +137,11 @@ public class RecommendationServiceImpl implements RecommendationService {
                 ApiResponse<MovieResponse> movieResponse = movieServiceClient.getMovieById(review.getMovieId());
                 MovieResponse movie = movieResponse.getResult();
 
-                if (movie != null && review.getRating() != 0) {
+                if (movie != null && review.getRating() != 0 && review.getRating() != 3) {
                     // Weight based on rating (1-5 scale)
                     double weight = 0;
                     if (review.getRating() >= 4)
-                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0
+                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0 && review.getRating() != 3
                     else  {
                         weight = review.getRating() / -5.0;
                     }
@@ -169,7 +169,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
-                pref.setPreferenceScore(genrePref.getPreferenceScore());
+                pref.setPreferenceScore(genrePref.getPreferenceScore() / bookings.size());
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
@@ -184,7 +184,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
-                pref.setPreferenceScore(actorPref.getPreferenceScore());
+                pref.setPreferenceScore(actorPref.getPreferenceScore() / bookings.size()) ;
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
@@ -229,7 +229,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         Set<Integer> watchedIds = new HashSet<>();
 
         try {
-            ApiResponse<List<BookingResponse>> bookingsResponse = bookingServiceClient.getBookingByUsername(username);
+            ApiResponse<List<BookingResponse>> bookingsResponse = bookingServiceClient.getPaidBookingByUsername(username);
             List<BookingResponse> bookings = bookingsResponse.getResult();
 
             if (bookings != null) {
