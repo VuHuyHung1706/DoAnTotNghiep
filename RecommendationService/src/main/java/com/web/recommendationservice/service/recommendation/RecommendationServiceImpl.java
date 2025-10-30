@@ -7,6 +7,7 @@ import com.web.recommendationservice.exception.ErrorCode;
 import com.web.recommendationservice.repository.UserPreferenceRepository;
 import com.web.recommendationservice.repository.client.BookingServiceClient;
 import com.web.recommendationservice.repository.client.MovieServiceClient;
+import com.web.recommendationservice.service.collaborativefilter.ItemItemCollaborativeFilterService;
 import com.web.recommendationservice.service.contentfilter.ContentBasedFilterService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +35,123 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Autowired
     private ContentBasedFilterService contentBasedFilterService;
 
+    @Autowired
+    private ItemItemCollaborativeFilterService itemItemCFService;
+
     @Value("${recommendation.max-results}")
     private int maxResults;
 
     @Value("${recommendation.min-similarity-score}")
     private double minSimilarityScore;
+
+    @Value("${recommendation.cf.enabled:true}")
+    private boolean cfEnabled;
+
+    @Value("${recommendation.cf.weight:0.5}")
+    private double cfWeight;
+
+    @Override
+    public List<RecommendationResponse> getMovieRecommendationsForUser(String username) {
+        // Get all movies
+        ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
+        List<MovieResponse> allMovies = moviesResponse.getResult();
+
+        if (allMovies == null || allMovies.isEmpty()) {
+            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
+        }
+
+        // Get all reviews for collaborative filtering
+        ApiResponse<List<ReviewResponse>> reviewsResponse = movieServiceClient.getReviewsByUsername(username);
+        List<ReviewResponse> userReviews = reviewsResponse.getResult();
+
+        if (userReviews == null || userReviews.isEmpty()) {
+            throw new AppException(ErrorCode.INSUFFICIENT_DATA);
+        }
+
+        // Get movies already watched by user
+        Set<Integer> watchedMovieIds = getWatchedMovieIds(username);
+
+        List<RecommendationResponse> recommendations = new ArrayList<>();
+
+        if (cfEnabled) {
+            // Use Item-Item Collaborative Filtering
+            // Note: We need all reviews from all users, not just current user
+            // For now, we'll work with available data
+            Map<Integer, Double> cfRecommendations = itemItemCFService.getRecommendations(
+                    username, allMovies, userReviews, maxResults * 2);
+
+            // Get user preferences for content-based filtering
+            List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
+
+            // Combine CF and Content-Based recommendations (Hybrid approach)
+            for (Map.Entry<Integer, Double> entry : cfRecommendations.entrySet()) {
+                Integer movieId = entry.getKey();
+                Double cfScore = entry.getValue();
+
+                // Skip already watched movies
+                if (watchedMovieIds.contains(movieId)) {
+                    continue;
+                }
+
+                // Get movie details
+                MovieResponse movie = allMovies.stream()
+                        .filter(m -> m.getId().equals(movieId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (movie == null) {
+                    continue;
+                }
+
+                // Calculate content-based score
+                double cbScore = 0.0;
+                if (!userPreferences.isEmpty()) {
+                    cbScore = contentBasedFilterService.calculateSimilarityScore(movie, userPreferences);
+                }
+
+                // Hybrid score: weighted combination
+                double hybridScore = (cfWeight * cfScore / 5.0) + ((1 - cfWeight) * cbScore);
+
+                recommendations.add(RecommendationResponse.builder()
+                        .movieId(movieId)
+                        .movieTitle(movie.getTitle())
+                        .similarityScore(hybridScore)
+                        .predictedRating(cfScore)
+                        .recommendationType("ITEM_ITEM_CF")
+                        .build());
+            }
+        } else {
+            // Fallback to pure content-based filtering
+            List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
+
+            if (userPreferences.isEmpty()) {
+                throw new AppException(ErrorCode.INSUFFICIENT_DATA);
+            }
+
+            for (MovieResponse movie : allMovies) {
+                if (watchedMovieIds.contains(movie.getId())) {
+                    continue;
+                }
+
+                double score = contentBasedFilterService.calculateSimilarityScore(movie, userPreferences);
+
+                if (score >= minSimilarityScore) {
+                    recommendations.add(RecommendationResponse.builder()
+                            .movieId(movie.getId())
+                            .movieTitle(movie.getTitle())
+                            .similarityScore(score)
+                            .recommendationType("CONTENT_BASED")
+                            .build());
+                }
+            }
+        }
+
+        // Sort by score and limit results
+        return recommendations.stream()
+                .sorted((r1, r2) -> Double.compare(r2.getSimilarityScore(), r1.getSimilarityScore()))
+                .limit(maxResults)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<UserRecommendationResponse> getUsersForMovie(Integer movieId) {

@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/recommendationdb
     username: root
-    password: Huu@123456
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -50,3 +50,19 @@ recommendation:
   genre-weight: 0.4
   actor-weight: 0.3
   rating-weight: 0.3
+  # Default rating for purchased tickets without explicit review (3 stars)
+  default-rating: 3.0
+  # Enable/disable utility matrix integration with content-based filtering
+  use-utility-matrix: true
+  # Weight for utility matrix score (0.0 = pure content-based, 1.0 = pure utility matrix)
+  utility-matrix-weight: 0.3
+  # Number of similar movies to consider for utility matrix calculation
+  similar-movies-count: 10
+  cf:
+    enabled: true
+    # Weight for CF in hybrid recommendation (0.0 = pure content-based, 1.0 = pure CF)
+    weight: 0.5
+    # Minimum number of common users required to calculate movie similarity
+    min-common-users: 2
+    # Number of similar movies (neighbors) to consider for prediction
+    neighbor-size: 5

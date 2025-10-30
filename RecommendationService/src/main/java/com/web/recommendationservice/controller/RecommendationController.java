@@ -23,6 +23,13 @@ public class RecommendationController {
                 .build();
     }
 
+    @GetMapping("/movies-for-user/{username}")
+    public ApiResponse<List<RecommendationResponse>> getMoviesForUser(@PathVariable String username) {
+        return ApiResponse.<List<RecommendationResponse>>builder()
+                .result(recommendationService.getMovieRecommendationsForUser(username))
+                .build();
+    }
+
     @PostMapping("/update-preferences/{username}")
     public ApiResponse<Void> updatePreferences(@PathVariable String username) {
         recommendationService.updateUserPreferencesInternal(username);

@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class RecommendationResponse {
-    private MovieResponse movie;
+    private Integer movieId;
+    private String movieTitle;
     private Double similarityScore;
+    private Double predictedRating;
+    private String recommendationType;
     private String reason;
 }
