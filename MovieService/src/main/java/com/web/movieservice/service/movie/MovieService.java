@@ -21,5 +21,6 @@ public interface MovieService {
     List<MovieResponse> getMoviesByRoomId(Integer roomId);
     List<MovieResponse> getNowShowingMovies();
     List<MovieResponse> getUpcomingMovies();
+    List<MovieResponse> getRecommendationMovies(String username);
     List<MovieResponse> getMoviesByCinemaId(Integer cinemaId);
 }

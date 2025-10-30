@@ -1,4 +1,4 @@
-package com.web.recommendationservice.dto.response;
+package com.web.movieservice.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RecommendationResponse {
+public class MovieRecommendationResponse {
     private Integer movieId;
     private String movieTitle;
-    private Double similarityScore;
     private Double predictedRating;
-    private String recommendationType;
-    private String reason;
 }

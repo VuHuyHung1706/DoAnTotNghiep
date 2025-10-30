@@ -116,6 +116,14 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewResponse> getAll() {
+        List<Review> reviews = reviewRepository.findAll();
+        return reviews.stream()
+                .map(r -> reviewMapper.toReviewResponse(r))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<ReviewResponse> getReviewsByMovieId(Integer movieId) {
         if (!movieRepository.existsById(movieId)) {
             throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);

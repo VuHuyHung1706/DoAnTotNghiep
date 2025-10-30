@@ -78,8 +78,7 @@ public class ItemItemCollaborativeFilterServiceImpl implements ItemItemCollabora
     @Override
     public Map<Integer, Double> getRecommendations(String username,
                                                    List<MovieResponse> allMovies,
-                                                   List<ReviewResponse> allReviews,
-                                                   int topN) {
+                                                   List<ReviewResponse> allReviews) {
         // Build user-item ratings matrix
         Map<String, Map<Integer, Integer>> userRatingsMatrix = buildRatingsMatrix(allReviews);
 
@@ -114,7 +113,6 @@ public class ItemItemCollaborativeFilterServiceImpl implements ItemItemCollabora
         // Sort by predicted rating and return top N
         return predictedRatings.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
-                .limit(topN)
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
@@ -158,7 +156,7 @@ public class ItemItemCollaborativeFilterServiceImpl implements ItemItemCollabora
         similarMovies.sort((a, b) -> Double.compare(b.similarity, a.similarity));
         List<MovieSimilarity> neighbors = similarMovies.stream()
                 .limit(neighborSize)
-                .collect(Collectors.toList());
+                .toList();
 
         // Calculate weighted average
         double weightedSum = 0.0;

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -102,6 +103,14 @@ public class MovieController {
     public ApiResponse<List<MovieResponse>> getUpcomingMovies() {
         return ApiResponse.<List<MovieResponse>>builder()
                 .result(movieService.getUpcomingMovies())
+                .build();
+    }
+
+    @GetMapping("/recommendations")
+    public ApiResponse<List<MovieResponse>> getRecommendationMovies() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ApiResponse.<List<MovieResponse>>builder()
+                .result(movieService.getRecommendationMovies(username))
                 .build();
     }
 }

@@ -14,14 +14,19 @@ import com.web.movieservice.repository.GenreRepository;
 import com.web.movieservice.repository.MovieRepository;
 import com.web.movieservice.repository.ShowtimeRepository;
 import com.web.movieservice.repository.client.CinemaServiceClient;
+import com.web.movieservice.repository.client.RecommendationServiceClient;
+import com.web.movieservice.service.review.ReviewService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +53,11 @@ public class MovieServiceImpl implements MovieService {
 
     @Autowired
     private MovieMapper movieMapper;
+
+    @Autowired
+    private RecommendationServiceClient recommendationServiceClient;
+    @Autowired
+    private ReviewService reviewService;
 
     @Override
     public List<MovieResponse> getAllMovie() {
@@ -283,6 +293,28 @@ public class MovieServiceImpl implements MovieService {
 
         return upcomingMovies.stream()
                 .map(movieMapper::toMovieResponse)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<MovieResponse> getRecommendationMovies(String username) {
+
+        List<Integer> recommendationMovieIds = new ArrayList<>();
+        try {
+            ApiResponse<List<MovieRecommendationResponse>> recommendationsResponse = recommendationServiceClient.getMoviesForUser(username);
+            List<MovieRecommendationResponse> recommendations = recommendationsResponse.getResult();
+            recommendationMovieIds = recommendations.stream().map(MovieRecommendationResponse::getMovieId).toList();
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        List<Movie> movies = movieRepository.findByIdIn(recommendationMovieIds);
+
+        return movies.stream()
+                .map(movie -> {
+                    MovieResponse movieResponse = movieMapper.toMovieResponse(movie);
+                    movieResponse.setRating(reviewService.getMovieRating(movie.getId()).getAverageRating());
+                    return movieResponse;
+                })
                 .collect(Collectors.toList());
     }
 

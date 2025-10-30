@@ -16,6 +16,8 @@ public interface ReviewService {
 
     ReviewResponse getReviewById(Integer reviewId);
 
+    List<ReviewResponse> getAll();
+
     List<ReviewResponse> getReviewsByMovieId(Integer movieId);
 
     List<ReviewResponse> getReviewsByUsername(String username);

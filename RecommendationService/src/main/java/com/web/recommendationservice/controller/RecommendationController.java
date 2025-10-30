@@ -1,7 +1,7 @@
 package com.web.recommendationservice.controller;
 
 import com.web.recommendationservice.dto.response.ApiResponse;
-import com.web.recommendationservice.dto.response.RecommendationResponse;
+import com.web.recommendationservice.dto.response.MovieRecommendationResponse;
 import com.web.recommendationservice.dto.response.UserRecommendationResponse;
 import com.web.recommendationservice.service.recommendation.RecommendationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +24,8 @@ public class RecommendationController {
     }
 
     @GetMapping("/movies-for-user/{username}")
-    public ApiResponse<List<RecommendationResponse>> getMoviesForUser(@PathVariable String username) {
-        return ApiResponse.<List<RecommendationResponse>>builder()
+    public ApiResponse<List<MovieRecommendationResponse>> getMoviesForUser(@PathVariable String username) {
+        return ApiResponse.<List<MovieRecommendationResponse>>builder()
                 .result(recommendationService.getMovieRecommendationsForUser(username))
                 .build();
     }

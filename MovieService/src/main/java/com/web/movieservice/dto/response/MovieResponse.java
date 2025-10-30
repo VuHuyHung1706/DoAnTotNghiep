@@ -25,4 +25,5 @@ public class MovieResponse {
     private Set<ActorResponse> actors;
     private boolean nowShowing;
     private boolean upcoming;
+    private Double rating;
 }

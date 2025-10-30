@@ -22,4 +22,8 @@ public interface MovieServiceClient {
 
     @GetMapping("/reviews/user/{username}")
     ApiResponse<List<ReviewResponse>> getReviewsByUsername(@PathVariable String username);
+
+    @GetMapping("/reviews/all")
+    ApiResponse<List<ReviewResponse>> getAllReviews();
+
 }

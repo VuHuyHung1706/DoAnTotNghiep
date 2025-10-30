@@ -1,0 +1,16 @@
+package com.web.recommendationservice.dto.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class MovieRecommendationResponse {
+    private Integer movieId;
+    private String movieTitle;
+    private Double predictedRating;
+}

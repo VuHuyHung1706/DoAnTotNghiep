@@ -54,6 +54,13 @@ public class ReviewController {
                 .build();
     }
 
+    @GetMapping("/all")
+    public ApiResponse<List<ReviewResponse>> getAllReviews() {
+        return ApiResponse.<List<ReviewResponse>>builder()
+                .result(reviewService.getAll())
+                .build();
+    }
+
     @GetMapping("/movie/{movieId}")
     public ApiResponse<List<ReviewResponse>> getReviewsByMovieId(@PathVariable Integer movieId) {
         return ApiResponse.<List<ReviewResponse>>builder()

@@ -12,7 +12,6 @@ import com.web.recommendationservice.service.contentfilter.ContentBasedFilterSer
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -38,8 +37,13 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Autowired
     private ItemItemCollaborativeFilterService itemItemCFService;
 
+    @Value("${recommendation.default-rating}")
+    private double defaultRating;
+
+
     @Value("${recommendation.max-results}")
     private int maxResults;
+
 
     @Value("${recommendation.min-similarity-score}")
     private double minSimilarityScore;
@@ -47,11 +51,8 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.cf.enabled:true}")
     private boolean cfEnabled;
 
-    @Value("${recommendation.cf.weight:0.5}")
-    private double cfWeight;
-
     @Override
-    public List<RecommendationResponse> getMovieRecommendationsForUser(String username) {
+    public List<MovieRecommendationResponse> getMovieRecommendationsForUser(String username) {
         // Get all movies
         ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
         List<MovieResponse> allMovies = moviesResponse.getResult();
@@ -61,94 +62,46 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         // Get all reviews for collaborative filtering
-        ApiResponse<List<ReviewResponse>> reviewsResponse = movieServiceClient.getReviewsByUsername(username);
-        List<ReviewResponse> userReviews = reviewsResponse.getResult();
+        ApiResponse<List<ReviewResponse>> reviewsResponse = movieServiceClient.getAllReviews();
 
-        if (userReviews == null || userReviews.isEmpty()) {
-            throw new AppException(ErrorCode.INSUFFICIENT_DATA);
-        }
+        List<ReviewResponse> allReviews = reviewsResponse.getResult();
 
         // Get movies already watched by user
         Set<Integer> watchedMovieIds = getWatchedMovieIds(username);
 
-        List<RecommendationResponse> recommendations = new ArrayList<>();
+        List<MovieRecommendationResponse> recommendations = new ArrayList<>();
 
-        if (cfEnabled) {
-            // Use Item-Item Collaborative Filtering
-            // Note: We need all reviews from all users, not just current user
-            // For now, we'll work with available data
-            Map<Integer, Double> cfRecommendations = itemItemCFService.getRecommendations(
-                    username, allMovies, userReviews, maxResults * 2);
+        Map<Integer, Double> cfRecommendations = itemItemCFService.getRecommendations(
+                username, allMovies, allReviews);
 
-            // Get user preferences for content-based filtering
-            List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
+        for (Map.Entry<Integer, Double> entry : cfRecommendations.entrySet()) {
+            Integer movieId = entry.getKey();
+            Double cfScore = entry.getValue();
 
-            // Combine CF and Content-Based recommendations (Hybrid approach)
-            for (Map.Entry<Integer, Double> entry : cfRecommendations.entrySet()) {
-                Integer movieId = entry.getKey();
-                Double cfScore = entry.getValue();
-
-                // Skip already watched movies
-                if (watchedMovieIds.contains(movieId)) {
-                    continue;
-                }
-
-                // Get movie details
-                MovieResponse movie = allMovies.stream()
-                        .filter(m -> m.getId().equals(movieId))
-                        .findFirst()
-                        .orElse(null);
-
-                if (movie == null) {
-                    continue;
-                }
-
-                // Calculate content-based score
-                double cbScore = 0.0;
-                if (!userPreferences.isEmpty()) {
-                    cbScore = contentBasedFilterService.calculateSimilarityScore(movie, userPreferences);
-                }
-
-                // Hybrid score: weighted combination
-                double hybridScore = (cfWeight * cfScore / 5.0) + ((1 - cfWeight) * cbScore);
-
-                recommendations.add(RecommendationResponse.builder()
-                        .movieId(movieId)
-                        .movieTitle(movie.getTitle())
-                        .similarityScore(hybridScore)
-                        .predictedRating(cfScore)
-                        .recommendationType("ITEM_ITEM_CF")
-                        .build());
-            }
-        } else {
-            // Fallback to pure content-based filtering
-            List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
-
-            if (userPreferences.isEmpty()) {
-                throw new AppException(ErrorCode.INSUFFICIENT_DATA);
+            // Skip already watched movies
+            if (watchedMovieIds.contains(movieId)) {
+                continue;
             }
 
-            for (MovieResponse movie : allMovies) {
-                if (watchedMovieIds.contains(movie.getId())) {
-                    continue;
-                }
+            // Get movie details
+            MovieResponse movie = allMovies.stream()
+                    .filter(m -> m.getId().equals(movieId))
+                    .findFirst()
+                    .orElse(null);
 
-                double score = contentBasedFilterService.calculateSimilarityScore(movie, userPreferences);
-
-                if (score >= minSimilarityScore) {
-                    recommendations.add(RecommendationResponse.builder()
-                            .movieId(movie.getId())
-                            .movieTitle(movie.getTitle())
-                            .similarityScore(score)
-                            .recommendationType("CONTENT_BASED")
-                            .build());
-                }
+            if (movie == null) {
+                continue;
             }
+
+            recommendations.add(MovieRecommendationResponse.builder()
+                    .movieId(movieId)
+                    .movieTitle(movie.getTitle())
+                    .predictedRating(cfScore)
+                    .build());
         }
-
         // Sort by score and limit results
         return recommendations.stream()
-                .sorted((r1, r2) -> Double.compare(r2.getSimilarityScore(), r1.getSimilarityScore()))
+                .sorted((r1, r2) -> Double.compare(r2.getPredictedRating(), r1.getPredictedRating()))
                 .limit(maxResults)
                 .collect(Collectors.toList());
     }
@@ -202,9 +155,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         // Sort by similarity score (descending) and limit results
         userRecommendations.sort((u1, u2) -> Double.compare(u2.getSimilarityScore(), u1.getSimilarityScore()));
 
-        return userRecommendations.stream()
-                .limit(maxResults)
-                .collect(Collectors.toList());
+        return new ArrayList<>(userRecommendations);
     }
 
     @Override
@@ -226,54 +177,60 @@ public class RecommendationServiceImpl implements RecommendationService {
             for (BookingResponse booking : bookings) {
                 if (booking.getShowtime() != null && booking.getShowtime().getMovie() != null) {
                     MovieResponse movie = booking.getShowtime().getMovie();
+                    ReviewResponse review = reviews.stream()
+                            .filter(r -> r.getMovieId().equals(movie.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    double rating = (review != null) ? Double.valueOf(review.getRating()) : defaultRating;
 
                     // Process genres
                     if (movie.getGenres() != null) {
                         for (GenreResponse genre : movie.getGenres()) {
-                            updateGenrePreference(genrePreferences, genre, 1.0);
+                            updateGenrePreference(genrePreferences, genre, rating);
                         }
                     }
 
                     // Process actors
                     if (movie.getActors() != null) {
                         for (ActorResponse actor : movie.getActors()) {
-                            updateActorPreference(actorPreferences, actor, 1.0);
+                            updateActorPreference(actorPreferences, actor, rating);
                         }
                     }
                 }
             }
         }
 
-        // Process reviews (higher weight for reviewed movies)
-        if (reviews != null) {
-            for (ReviewResponse review : reviews) {
-                ApiResponse<MovieResponse> movieResponse = movieServiceClient.getMovieById(review.getMovieId());
-                MovieResponse movie = movieResponse.getResult();
-
-                if (movie != null && review.getRating() != 0 && review.getRating() != 3) {
-                    // Weight based on rating (1-5 scale)
-                    double weight = 0;
-                    if (review.getRating() >= 4)
-                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0 && review.getRating() != 3
-                    else  {
-                        weight = review.getRating() / -5.0;
-                    }
-                    // Process genres with rating weight
-                    if (movie.getGenres() != null) {
-                        for (GenreResponse genre : movie.getGenres()) {
-                            updateGenrePreference(genrePreferences, genre, weight);
-                        }
-                    }
-
-                    // Process actors with rating weight
-                    if (movie.getActors() != null) {
-                        for (ActorResponse actor : movie.getActors()) {
-                            updateActorPreference(actorPreferences, actor, weight);
-                        }
-                    }
-                }
-            }
-        }
+//        // Process reviews (higher weight for reviewed movies)
+//        if (reviews != null) {
+//            for (ReviewResponse review : reviews) {
+//                ApiResponse<MovieResponse> movieResponse = movieServiceClient.getMovieById(review.getMovieId());
+//                MovieResponse movie = movieResponse.getResult();
+//
+//                if (movie != null && review.getRating() != 0 && review.getRating() != 3) {
+//                    // Weight based on rating (1-5 scale)
+//                    double weight = 0;
+//                    if (review.getRating() >= 4)
+//                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0 && review.getRating() != 3
+//                    else  {
+//                        weight = review.getRating() / -5.0;
+//                    }
+//                    // Process genres with rating weight
+//                    if (movie.getGenres() != null) {
+//                        for (GenreResponse genre : movie.getGenres()) {
+//                            updateGenrePreference(genrePreferences, genre, weight);
+//                        }
+//                    }
+//
+//                    // Process actors with rating weight
+//                    if (movie.getActors() != null) {
+//                        for (ActorResponse actor : movie.getActors()) {
+//                            updateActorPreference(actorPreferences, actor, weight);
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         // Save or update preferences in database
         for (UserPreference genrePref : genrePreferences.values()) {

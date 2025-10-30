@@ -19,8 +19,8 @@ public class ContentBasedFilterServiceImpl implements ContentBasedFilterService 
     @Value("${recommendation.actor-weight}")
     private double actorWeight;
 
-    @Value("${recommendation.rating-weight}")
-    private double ratingWeight;
+//    @Value("${recommendation.rating-weight}")
+//    private double ratingWeight;
 
     @Override
     public double calculateSimilarityScore(MovieResponse movie, List<UserPreference> userPreferences) {
@@ -80,11 +80,6 @@ public class ContentBasedFilterServiceImpl implements ContentBasedFilterService 
             }
         }
 
-        // Add rating feature to vectors
-        if (movie.getAverageRating() != null && movie.getAverageRating() > 0) {
-            movieVector.put("rating", movie.getAverageRating() * ratingWeight);
-            userVector.put("rating", 5.0 * ratingWeight); // Assume user prefers highly rated movies
-        }
 
         // Calculate cosine similarity: (x·i) / (||x|| · ||i||)
         double dotProduct = 0.0;
