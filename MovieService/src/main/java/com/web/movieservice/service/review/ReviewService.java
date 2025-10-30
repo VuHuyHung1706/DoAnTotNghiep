@@ -23,4 +23,6 @@ public interface ReviewService {
     MovieRatingResponse getMovieRating(Integer movieId);
 
     ReviewResponse getUserReviewForMovie(Integer movieId);
+
+    void createDefaultReview(String username, Integer movieId);
 }

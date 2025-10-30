@@ -15,6 +15,7 @@ public interface ReviewMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "movie", ignore = true)
+    @Mapping(target = "isDefault", ignore = true)
     Review toReview(ReviewRequest request);
 
     ReviewResponse toReviewResponse(Review review);
@@ -25,5 +26,6 @@ public interface ReviewMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "movie", ignore = true)
+    @Mapping(target = "isDefault", ignore = true)
     void updateReview(@MappingTarget Review review, ReviewRequest request);
 }

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,17 +46,23 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
         }
 
-        // Check if user already reviewed this movie
-        if (reviewRepository.existsByMovieIdAndUsername(request.getMovieId(), username)) {
-            throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
+        Optional<Review> existingReview = reviewRepository.findByMovieIdAndUsername(request.getMovieId(), username);
+
+        if (existingReview.isPresent()) {
+            if (existingReview.get().getIsDefault() == 1) {
+                reviewRepository.deleteById(existingReview.get().getId());
+            } else {
+                // If it's already a real review, throw error
+                throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
+            }
         }
 
         Review review = reviewMapper.toReview(request);
         review.setUsername(username);
+        review.setIsDefault(0);
 
         review = reviewRepository.save(review);
 
-//        return mapReviewToResponse(review);
         return reviewMapper.toReviewResponse(review);
     }
 
@@ -71,10 +78,14 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        if (review.getIsDefault() == 1) {
+            throw new AppException(ErrorCode.CANNOT_UPDATE_DEFAULT_REVIEW);
+        }
+
         reviewMapper.updateReview(review, request);
         review = reviewRepository.save(review);
 
-    return reviewMapper.toReviewResponse(review);
+        return reviewMapper.toReviewResponse(review);
     }
 
     @Override
@@ -89,6 +100,10 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
+        if (review.getIsDefault() == 1) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_DEFAULT_REVIEW);
+        }
+
         reviewRepository.deleteById(reviewId);
     }
 
@@ -97,7 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_EXISTED));
 
-    return reviewMapper.toReviewResponse(review);
+        return reviewMapper.toReviewResponse(review);
     }
 
     @Override
@@ -106,7 +121,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
         }
 
-        List<Review> reviews = reviewRepository.findByMovieId(movieId);
+        List<Review> reviews = reviewRepository.findNonDefaultReviewsByMovieId(movieId);
 
         return reviews.stream()
                 .map(reviewMapper::toReviewResponse)
@@ -118,6 +133,7 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviews = reviewRepository.findByUsername(username);
 
         return reviews.stream()
+                .filter(review -> review.getIsDefault() == 0)
                 .map(reviewMapper::toReviewResponse)
                 .collect(Collectors.toList());
     }
@@ -142,9 +158,35 @@ public class ReviewServiceImpl implements ReviewService {
     public ReviewResponse getUserReviewForMovie(Integer movieId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Review review = reviewRepository.findByMovieIdAndUsername(movieId, username)
-                .orElseThrow(() -> new AppException(ErrorCode.REVIEW_NOT_EXISTED));
+        Optional<Review> existingReview = reviewRepository.findByMovieIdAndUsername(movieId, username);
 
-        return reviewMapper.toReviewResponse(review);
+        return existingReview.map(reviewMapper::toReviewResponse).orElse(null);
+    }
+
+    @Override
+    public void createDefaultReview(String username, Integer movieId) {
+        // Check if movie exists
+        if (!movieRepository.existsById(movieId)) {
+            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
+        }
+
+        // Check if user already has a review for this movie
+        Optional<Review> existingReview = reviewRepository.findByMovieIdAndUsername(movieId, username);
+
+        if (existingReview.isPresent()) {
+            // User already has a review, don't create default
+            return;
+        }
+
+        // Create default review with rating 3
+        Review defaultReview = Review.builder()
+                .movieId(movieId)
+                .username(username)
+                .rating(3)
+                .isDefault(1)
+                .comment(null)
+                .build();
+
+        reviewRepository.save(defaultReview);
     }
 }

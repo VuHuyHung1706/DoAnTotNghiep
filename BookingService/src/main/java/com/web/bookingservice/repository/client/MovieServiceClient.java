@@ -5,9 +5,14 @@ import com.web.bookingservice.dto.response.ShowtimeResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "movie-service", url = "${movie.service.url}")
 public interface MovieServiceClient {
     @GetMapping("/showtimes/{id}")
     ApiResponse<ShowtimeResponse> getShowtimeById(@PathVariable Integer id);
+
+    @PostMapping("/reviews/default")
+    ApiResponse<Void> createDefaultReview(@RequestParam String username, @RequestParam Integer movieId);
 }

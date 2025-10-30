@@ -30,6 +30,10 @@ public class Review {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
+    @Column(name = "is_default", nullable = false)
+    @Builder.Default
+    private Integer isDefault = 0;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

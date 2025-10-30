@@ -4,11 +4,14 @@ import com.web.bookingservice.config.VNPayConfig;
 import com.web.bookingservice.constant.PaymentStatus;
 import com.web.bookingservice.dto.request.PaymentRequest;
 import com.web.bookingservice.dto.response.PaymentResponse;
+import com.web.bookingservice.dto.response.ShowtimeResponse;
 import com.web.bookingservice.entity.Invoice;
+import com.web.bookingservice.entity.Ticket;
 import com.web.bookingservice.exception.AppException;
 import com.web.bookingservice.exception.ErrorCode;
 import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
+import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.repository.client.RecommendationServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +32,9 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
 
     @Autowired
     private RecommendationServiceClient  recommendationServiceClient;
+
+    @Autowired
+    private MovieServiceClient movieServiceClient;
 
     @Value("${vnpay.pay-url}")
     private String vnp_PayUrl;
@@ -176,13 +183,18 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                     invoice.setPaymentStatus(PaymentStatus.PAID);
                     invoice.setPaidAt(LocalDateTime.now());
                     invoiceRepository.save(invoice);
-                    try
-                    {
+
+                    try {
                         recommendationServiceClient.updatePreferences(invoice.getUsername());
-                    }
-                    catch (AppException e)
-                    {
+                    } catch (AppException e) {
                         log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
+                    }
+
+                    try {
+                        createDefaultReviewsForInvoice(invoice);
+                    } catch (Exception e) {
+                        log.error("[ERROR] Create default reviews for invoice {} FAIL: {}",
+                                invoice.getId(), e.getMessage());
                     }
                 } else {
                     // Payment failed
@@ -194,5 +206,36 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
 
         }
         return false;
+    }
+
+    private void createDefaultReviewsForInvoice(Invoice invoice) {
+        // Get all tickets for this invoice
+        List<Ticket> tickets = ticketRepository.findByInvoiceId(invoice.getId());
+
+        // Get unique movie IDs from the tickets
+        Set<Integer> movieIds = tickets.stream()
+                .map(ticket -> {
+                    try {
+                        ShowtimeResponse showtime = movieServiceClient.getShowtimeById(ticket.getShowtimeId()).getResult();
+                        return showtime.getMovieId();
+                    } catch (Exception e) {
+                        log.error("[ERROR] Failed to get showtime {} for ticket {}: {}",
+                                ticket.getShowtimeId(), ticket.getId(), e.getMessage());
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+
+        // Create default review for each unique movie
+        for (Integer movieId : movieIds) {
+            try {
+                movieServiceClient.createDefaultReview(invoice.getUsername(), movieId);
+                log.info("Created default review for user {} and movie {}", invoice.getUsername(), movieId);
+            } catch (Exception e) {
+                log.error("[ERROR] Failed to create default review for user {} and movie {}: {}",
+                        invoice.getUsername(), movieId, e.getMessage());
+            }
+        }
     }
 }

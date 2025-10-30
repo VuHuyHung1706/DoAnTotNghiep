@@ -90,4 +90,14 @@ public class ReviewController {
                 .build();
     }
 
+    @PostMapping("/default")
+    public ApiResponse<Void> createDefaultReview(
+            @RequestParam String username,
+            @RequestParam Integer movieId) {
+        reviewService.createDefaultReview(username, movieId);
+        return ApiResponse.<Void>builder()
+                .message("Default review created successfully")
+                .build();
+    }
+
 }

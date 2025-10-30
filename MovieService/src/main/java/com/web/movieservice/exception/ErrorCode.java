@@ -37,6 +37,8 @@ public enum ErrorCode {
     INVALID_QR_CODE(1011, "Mã QR không hợp lệ", HttpStatus.BAD_REQUEST),
     TICKET_NOT_ACTIVE(1012, "Vé chưa được kích hoạt", HttpStatus.BAD_REQUEST),
     REVIEW_ALREADY_EXISTS(1013, "Bạn đã đánh giá phim này rồi", HttpStatus.BAD_REQUEST),
+    CANNOT_UPDATE_DEFAULT_REVIEW(1014, "Không thể cập nhật đánh giá mặc định", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_DEFAULT_REVIEW(1015, "Không thể xóa đánh giá mặc định", HttpStatus.BAD_REQUEST),
 
     USERNAME_NOT_BLANK(9000, "Tên đăng nhập không được để trống", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_BLANK(9000, "Mật khẩu không được để trống", HttpStatus.BAD_REQUEST),
