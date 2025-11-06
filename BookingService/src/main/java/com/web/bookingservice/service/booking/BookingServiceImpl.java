@@ -2,10 +2,7 @@ package com.web.bookingservice.service.booking;
 
 import com.web.bookingservice.constant.PaymentStatus;
 import com.web.bookingservice.dto.request.BookingRequest;
-import com.web.bookingservice.dto.response.ApiResponse;
-import com.web.bookingservice.dto.response.BookingResponse;
-import com.web.bookingservice.dto.response.SeatResponse;
-import com.web.bookingservice.dto.response.ShowtimeResponse;
+import com.web.bookingservice.dto.response.*;
 import com.web.bookingservice.entity.Invoice;
 import com.web.bookingservice.entity.Ticket;
 import com.web.bookingservice.exception.AppException;
@@ -110,6 +107,15 @@ public class BookingServiceImpl implements BookingService {
             tickets.add(ticket);
         }
 
+        List<TicketResponse> ticketResponses = tickets.stream()
+                .map(ticket -> {
+                    TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                    ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                    response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
         // Build response
         return BookingResponse.builder()
                 .invoiceId(invoice.getId())
@@ -121,7 +127,7 @@ public class BookingServiceImpl implements BookingService {
                 .paidAt(invoice.getPaidAt())
                 .showtime(showtimeResponseApiResponse.getResult())
                 .seats(seats)
-                .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                .tickets(ticketResponses)
                 .build();
     }
 
@@ -138,13 +144,9 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Get showtime from first ticket (all tickets should have same showtime)
-//        Showtime showtime = tickets.get(0).getShowtime();
         ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(tickets.get(0).getShowtimeId());
 
         // Get seats
-//        List<Seat> seats = tickets.stream()
-//                .map(Ticket::getSeat)
-//                .collect(Collectors.toList());
         List<SeatResponse> seats = new ArrayList<>();
         for (Ticket ticket : tickets) {
             ApiResponse<SeatResponse> seatResponses = cinemaServiceClient.getSeatById(ticket.getSeatId());
@@ -153,6 +155,15 @@ public class BookingServiceImpl implements BookingService {
             }
             seats.add(seatResponses.getResult());
         }
+
+        List<TicketResponse> ticketResponses = tickets.stream()
+                .map(ticket -> {
+                    TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                    ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                    response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    return response;
+                })
+                .collect(Collectors.toList());
 
         return BookingResponse.builder()
                 .invoiceId(invoice.getId())
@@ -164,7 +175,7 @@ public class BookingServiceImpl implements BookingService {
                 .paidAt(invoice.getPaidAt())
                 .showtime(showtimeResponse.getResult())
                 .seats(seats)
-                .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                .tickets(ticketResponses)
                 .build();
     }
 
@@ -201,6 +212,16 @@ public class BookingServiceImpl implements BookingService {
                 }
                 seats.add(seatResponses.getResult());
             }
+
+            List<TicketResponse> ticketResponses = tickets.stream()
+                    .map(ticket -> {
+                        TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                        ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                        response.setSeatName(seatResponseApiResponse.getResult().getName());
+                        return response;
+                    })
+                    .collect(Collectors.toList());
+
             BookingResponse booking = BookingResponse.builder()
                     .invoiceId(invoice.getId())
                     .username(invoice.getUsername())
@@ -211,7 +232,7 @@ public class BookingServiceImpl implements BookingService {
                     .paidAt(invoice.getPaidAt())
                     .showtime(showtimeResponse.getResult())
                     .seats(seats)
-                    .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                    .tickets(ticketResponses)
                     .build();
 
             bookings.add(booking);
@@ -251,6 +272,16 @@ public class BookingServiceImpl implements BookingService {
                 }
                 seats.add(seatResponses.getResult());
             }
+
+            List<TicketResponse> ticketResponses = tickets.stream()
+                    .map(ticket -> {
+                        TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                        ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                        response.setSeatName(seatResponseApiResponse.getResult().getName());
+                        return response;
+                    })
+                    .collect(Collectors.toList());
+
             BookingResponse booking = BookingResponse.builder()
                     .invoiceId(invoice.getId())
                     .username(invoice.getUsername())
@@ -261,7 +292,7 @@ public class BookingServiceImpl implements BookingService {
                     .paidAt(invoice.getPaidAt())
                     .showtime(showtimeResponse.getResult())
                     .seats(seats)
-                    .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                    .tickets(ticketResponses)
                     .build();
 
             bookings.add(booking);
@@ -301,6 +332,16 @@ public class BookingServiceImpl implements BookingService {
                 }
                 seats.add(seatResponses.getResult());
             }
+
+            List<TicketResponse> ticketResponses = tickets.stream()
+                    .map(ticket -> {
+                        TicketResponse response = ticketMapper.toTicketResponse(ticket);
+                        ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                        response.setSeatName(seatResponseApiResponse.getResult().getName());
+                        return response;
+                    })
+                    .collect(Collectors.toList());
+
             BookingResponse booking = BookingResponse.builder()
                     .invoiceId(invoice.getId())
                     .username(invoice.getUsername())
@@ -311,7 +352,7 @@ public class BookingServiceImpl implements BookingService {
                     .paidAt(invoice.getPaidAt())
                     .showtime(showtimeResponse.getResult())
                     .seats(seats)
-                    .tickets(tickets.stream().map(ticketMapper::toTicketResponse).collect(Collectors.toList()))
+                    .tickets(ticketResponses)
                     .build();
 
             bookings.add(booking);

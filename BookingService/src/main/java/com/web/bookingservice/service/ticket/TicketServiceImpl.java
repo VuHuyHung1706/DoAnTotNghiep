@@ -46,11 +46,16 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketDetailResponse> getMyTickets() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Get all invoices for the user and then get tickets
         return invoiceRepository.findByUsername(username)
                 .stream()
                 .flatMap(invoice -> ticketRepository.findByInvoiceId(invoice.getId()).stream())
-                .map(ticketMapper::toTicketDetailResponse)
+                .map(ticket -> {
+                    TicketDetailResponse response = ticketMapper.toTicketDetailResponse(ticket);
+                    // Fetch seat name from CinemaService
+                    ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                    response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -65,7 +70,11 @@ public class TicketServiceImpl implements TicketService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        return ticketMapper.toTicketDetailResponse(ticket);
+        TicketDetailResponse response = ticketMapper.toTicketDetailResponse(ticket);
+        ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+        response.setSeatName(seatResponseApiResponse.getResult().getName());
+
+        return response;
     }
 
     @Override
@@ -121,10 +130,14 @@ public class TicketServiceImpl implements TicketService {
         }
 
         if (ticket.getIsScanned()) {
+            TicketDetailResponse ticketDetail = ticketMapper.toTicketDetailResponse(ticket);
+            ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+            ticketDetail.setSeatName(seatResponseApiResponse.getResult().getName());
+
             return ScanTicketResponse.builder()
                     .success(false)
                     .message("Ticket already scanned at " + ticket.getScannedAt())
-                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
+                    .ticket(ticketDetail)
                     .build();
         }
 
@@ -149,10 +162,14 @@ public class TicketServiceImpl implements TicketService {
         ticket.setScannedAt(now);
         ticketRepository.save(ticket);
 
+        TicketDetailResponse ticketDetail = ticketMapper.toTicketDetailResponse(ticket);
+        ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+        ticketDetail.setSeatName(seatResponseApiResponse.getResult().getName());
+
         return ScanTicketResponse.builder()
                 .success(true)
                 .message("Ticket scanned successfully")
-                .ticket(ticketMapper.toTicketDetailResponse(ticket))
+                .ticket(ticketDetail)
                 .scannedAt(now)
                 .build();
     }
@@ -161,7 +178,13 @@ public class TicketServiceImpl implements TicketService {
     public List<TicketDetailResponse> getTicketsByShowtime(Integer showtimeId) {
         return ticketRepository.findByShowtimeIdAndStatus(showtimeId, true)
                 .stream()
-                .map(ticketMapper::toTicketDetailResponse)
+                .map(ticket -> {
+                    TicketDetailResponse response = ticketMapper.toTicketDetailResponse(ticket);
+                    // Fetch seat name from CinemaService
+                    ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+                    response.setSeatName(seatResponseApiResponse.getResult().getName());
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 

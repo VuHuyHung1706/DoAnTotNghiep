@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
 
     @Autowired
-    private RecommendationServiceClient  recommendationServiceClient;
+    private RecommendationServiceClient recommendationServiceClient;
 
     @Autowired
     private MovieServiceClient movieServiceClient;
@@ -190,12 +190,6 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                         log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
                     }
 
-                    try {
-                        createDefaultReviewsForInvoice(invoice);
-                    } catch (Exception e) {
-                        log.error("[ERROR] Create default reviews for invoice {} FAIL: {}",
-                                invoice.getId(), e.getMessage());
-                    }
                 } else {
                     // Payment failed
                     ticketRepository.deleteAll(ticketRepository.findByInvoiceId(invoice.getId()));

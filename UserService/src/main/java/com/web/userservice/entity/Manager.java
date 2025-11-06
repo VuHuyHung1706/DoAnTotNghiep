@@ -33,7 +33,7 @@ public class Manager {
     @Column(name = "position")
     private Position position;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch     = FetchType.LAZY)
     @JoinColumn(name = "username", referencedColumnName = "username")
     @ToString.Exclude
     private Account account;

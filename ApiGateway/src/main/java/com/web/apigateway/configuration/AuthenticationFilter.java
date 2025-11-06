@@ -52,6 +52,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private String[] getPublicMethodEndpoints = {
             "/movie-service/showtimes.*",
+            "/movie-service/reviews.*",
             //            "/cinema-service/.*",
 
     };
