@@ -19,9 +19,6 @@ public class ContentBasedFilterServiceImpl implements ContentBasedFilterService 
     @Value("${recommendation.actor-weight}")
     private double actorWeight;
 
-//    @Value("${recommendation.rating-weight}")
-//    private double ratingWeight;
-
     @Override
     public double calculateSimilarityScore(MovieResponse movie, List<UserPreference> userPreferences) {
         // Separate genre and actor preferences

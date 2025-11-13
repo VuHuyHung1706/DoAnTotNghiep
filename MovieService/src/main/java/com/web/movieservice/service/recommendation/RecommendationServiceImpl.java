@@ -11,6 +11,8 @@ import com.web.movieservice.repository.client.CinemaServiceClient;
 import com.web.movieservice.repository.client.RecommendationServiceClient;
 import com.web.movieservice.repository.client.UserServiceClient;
 import com.web.movieservice.service.mail.MailService;
+import com.web.movieservice.worker.UpdateUserPreferenceWorker;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class SendRecommendationMailImpl implements SendRecommendationMail {
+public class RecommendationServiceImpl implements RecommendationService {
     @Autowired
     private UserServiceClient userServiceClient;
 
@@ -37,7 +39,7 @@ public class SendRecommendationMailImpl implements SendRecommendationMail {
 
     @Override
     @Async
-    public void startAsyncTask(Integer movieId, Showtime showtime) {
+    public void startSendMailAsyncTask(Integer movieId, Showtime showtime) {
         log.info("[INFO] Bắt đầu thực thi tác vụ gửi recommendation mails. Thread: " + Thread.currentThread().getName());
         log.info("-------STEP1: Lấy danh sách user để đề xuất phim. Thread: " + Thread.currentThread().getName() + "----------");
         ApiResponse<List<UserRecommendationResponse>> userRecommendationResponse = recommendationServiceClient.getUsersForMovie(movieId);
@@ -72,4 +74,16 @@ public class SendRecommendationMailImpl implements SendRecommendationMail {
         }
         log.info("[INFO] Kết thúc thực thi tác vụ gửi recommendation mails. Thread: " + Thread.currentThread().getName());
     }
+
+    @Override
+    @Async
+    public void updateUserPreferenceTask(String username) {
+        try {
+            recommendationServiceClient.updatePreferences(username);
+        } catch (Exception e) {
+            log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

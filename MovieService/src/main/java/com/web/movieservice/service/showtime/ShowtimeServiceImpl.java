@@ -12,7 +12,7 @@ import com.web.movieservice.repository.ShowtimeRepository;
 import com.web.movieservice.repository.client.BookingServiceClient;
 import com.web.movieservice.repository.client.CinemaServiceClient;
 import com.web.movieservice.repository.client.RecommendationServiceClient;
-import com.web.movieservice.service.recommendation.SendRecommendationMail;
+import com.web.movieservice.service.recommendation.RecommendationService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     private RecommendationServiceClient recommendationServiceClient;
 
     @Autowired
-    private SendRecommendationMail sendRecommendtionMail;
+    private RecommendationService sendRecommendtionMail;
 
 //    @Autowired
 //    private RoomRepository roomRepository;
@@ -135,7 +134,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         showtime.setMovie(movie);
         showtime = showtimeRepository.save(showtime);
 
-        sendRecommendtionMail.startAsyncTask(showtime.getMovieId(), showtime);
+        sendRecommendtionMail.startSendMailAsyncTask(showtime.getMovieId(), showtime);
 
         return showtimeMapper.toShowtimeResponse(showtime);
     }

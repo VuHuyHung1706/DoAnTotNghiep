@@ -51,7 +51,7 @@ recommendation:
   actor-weight: 1
 #  rating-weight: 0.3
   # Default rating for purchased tickets without explicit review (3 stars)
-  default-rating: 3.0
+  default-rating: 0
   # Enable/disable utility matrix integration with content-based filtering
   use-utility-matrix: true
   # Weight for utility matrix score (0.0 = pure content-based, 1.0 = pure utility matrix)

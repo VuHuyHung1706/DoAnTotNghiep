@@ -201,36 +201,16 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
 
-//        // Process reviews (higher weight for reviewed movies)
-//        if (reviews != null) {
-//            for (ReviewResponse review : reviews) {
-//                ApiResponse<MovieResponse> movieResponse = movieServiceClient.getMovieById(review.getMovieId());
-//                MovieResponse movie = movieResponse.getResult();
-//
-//                if (movie != null && review.getRating() != 0 && review.getRating() != 3) {
-//                    // Weight based on rating (1-5 scale)
-//                    double weight = 0;
-//                    if (review.getRating() >= 4)
-//                        weight = review.getRating() / 5.0; // Scale to 0.1-1.0 && review.getRating() != 3
-//                    else  {
-//                        weight = review.getRating() / -5.0;
-//                    }
-//                    // Process genres with rating weight
-//                    if (movie.getGenres() != null) {
-//                        for (GenreResponse genre : movie.getGenres()) {
-//                            updateGenrePreference(genrePreferences, genre, weight);
-//                        }
-//                    }
-//
-//                    // Process actors with rating weight
-//                    if (movie.getActors() != null) {
-//                        for (ActorResponse actor : movie.getActors()) {
-//                            updateActorPreference(actorPreferences, actor, weight);
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        // Sum the user preference score
+
+        double sumPerferenceScores = 0;
+        for (UserPreference userPreference : genrePreferences.values()) {
+            sumPerferenceScores = sumPerferenceScores + userPreference.getPreferenceScore();
+        }
+
+        for (UserPreference userPreference : actorPreferences.values()) {
+            sumPerferenceScores = sumPerferenceScores + userPreference.getPreferenceScore();
+        }
 
         // Save or update preferences in database
         for (UserPreference genrePref : genrePreferences.values()) {
@@ -239,11 +219,12 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
-                pref.setPreferenceScore(genrePref.getPreferenceScore() / bookings.size());
+                pref.setPreferenceScore(genrePref.getPreferenceScore() / sumPerferenceScores);
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
                 genrePref.setUsername(username);
+                genrePref.setPreferenceScore(genrePref.getPreferenceScore() / sumPerferenceScores);
                 userPreferenceRepository.save(genrePref);
             }
         }
@@ -254,11 +235,12 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
-                pref.setPreferenceScore(actorPref.getPreferenceScore() / bookings.size()) ;
+                pref.setPreferenceScore(actorPref.getPreferenceScore() / sumPerferenceScores) ;
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
                 actorPref.setUsername(username);
+                actorPref.setPreferenceScore(actorPref.getPreferenceScore() / sumPerferenceScores);
                 userPreferenceRepository.save(actorPref);
             }
         }
