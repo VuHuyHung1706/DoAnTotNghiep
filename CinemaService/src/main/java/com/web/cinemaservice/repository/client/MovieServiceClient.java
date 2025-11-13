@@ -17,4 +17,7 @@ public interface MovieServiceClient {
 
     @GetMapping("showtimes/movie/{movieId}")
     ApiResponse<List<ShowtimeResponse>> getShowtimesByMovieId(@PathVariable Integer movieId);
+
+    @GetMapping("showtimes/room/{roomId}/exists")
+    ApiResponse<Boolean> hasShowtimesByRoomId(@PathVariable Integer roomId);
 }

@@ -1,9 +1,11 @@
 package com.web.movieservice.service.movie;
 
 import com.web.movieservice.dto.request.MovieRequest;
+import com.web.movieservice.dto.request.MovieRequestMultipart;
 import com.web.movieservice.dto.response.MovieResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +15,10 @@ public interface MovieService {
     Page<MovieResponse> getAllMovies(Pageable pageable);
     MovieResponse getMovieById(Integer id);
     MovieResponse createMovie(MovieRequest request);
+    MovieResponse createMovieWithUpload(MovieRequestMultipart request);
     MovieResponse updateMovie(Integer id, MovieRequest request);
+    MovieResponse updateMovieWithUpload(Integer id, MovieRequestMultipart request);
+    MovieResponse uploadPoster(Integer id, MultipartFile posterFile);
     void deleteMovie(Integer id);
     List<MovieResponse> searchMovies(String title);
     List<String> getCinemasFromMovie(String movieId);

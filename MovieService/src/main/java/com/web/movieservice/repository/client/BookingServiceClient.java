@@ -17,4 +17,10 @@ public interface BookingServiceClient {
 
     @GetMapping("/tickets/showtime/{showtimeId}/booked-seat-ids")
     ApiResponse<List<Integer>> getBookedSeatIdsByShowtimeId(@PathVariable Integer showtimeId);
+
+    @GetMapping("/tickets/showtime/{showtimeId}/exists")
+    ApiResponse<Boolean> hasTicketsByShowtimeId(@PathVariable Integer showtimeId);
+
+    @GetMapping("/tickets/seat/{seatId}/exists")
+    ApiResponse<Boolean> hasTicketsBySeatId(@PathVariable Integer seatId);
 }

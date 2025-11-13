@@ -40,6 +40,17 @@ public enum ErrorCode {
     CANNOT_UPDATE_DEFAULT_REVIEW(1014, "Không thể cập nhật đánh giá mặc định", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_DEFAULT_REVIEW(1015, "Không thể xóa đánh giá mặc định", HttpStatus.BAD_REQUEST),
 
+    CANNOT_DELETE_MOVIE_HAS_SHOWTIMES(1020, "Không thể xóa phim vì còn suất chiếu liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_MOVIE_HAS_REVIEWS(1021, "Không thể xóa phim vì còn đánh giá liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_SHOWTIME_HAS_TICKETS(1022, "Không thể xóa suất chiếu vì đã có vé được đặt", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ACTOR_HAS_MOVIES(1023, "Không thể xóa diễn viên vì còn phim liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_GENRE_HAS_MOVIES(1024, "Không thể xóa thể loại vì còn phim liên quan", HttpStatus.BAD_REQUEST),
+
+    FILE_EMPTY(1016, "File không được để trống", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(1017, "Định dạng file không hợp lệ. Chỉ chấp nhận file ảnh", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(1018, "Kích thước file vượt quá giới hạn 5MB", HttpStatus.BAD_REQUEST),
+    FILE_UPLOAD_FAILED(1019, "Upload file thất bại", HttpStatus.INTERNAL_SERVER_ERROR),
+
     USERNAME_NOT_BLANK(9000, "Tên đăng nhập không được để trống", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_BLANK(9000, "Mật khẩu không được để trống", HttpStatus.BAD_REQUEST),
     FIRST_NAME_NOT_BLANK(9000, "Tên không được để trống", HttpStatus.BAD_REQUEST),

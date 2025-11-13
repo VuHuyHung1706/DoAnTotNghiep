@@ -83,6 +83,12 @@ public class CinemaServiceImpl implements CinemaService {
         if (!cinemaRepository.existsById(id)) {
             throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
         }
+
+        Cinema cinema = cinemaRepository.findById(id).get();
+        if (!cinema.getRooms().isEmpty()) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_CINEMA_HAS_ROOMS);
+        }
+
         cinemaRepository.deleteById(id);
     }
 

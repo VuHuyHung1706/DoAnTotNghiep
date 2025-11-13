@@ -23,6 +23,24 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
+    @GetMapping("/showtime/{showtimeId}/exists")
+    public ApiResponse<Boolean> hasTicketsByShowtimeId(@PathVariable Integer showtimeId) {
+        boolean exists = ticketService.hasTicketsByShowtimeId(showtimeId);
+        return ApiResponse.<Boolean>builder()
+                .code(1000)
+                .result(exists)
+                .build();
+    }
+
+    @GetMapping("/seat/{seatId}/exists")
+    public ApiResponse<Boolean> hasTicketsBySeatId(@PathVariable Integer seatId) {
+        boolean exists = ticketService.hasTicketsBySeatId(seatId);
+        return ApiResponse.<Boolean>builder()
+                .code(1000)
+                .result(exists)
+                .build();
+    }
+
     @GetMapping("/my-tickets")
     public ApiResponse<List<TicketDetailResponse>> getMyTickets() {
         return ApiResponse.<List<TicketDetailResponse>>builder()

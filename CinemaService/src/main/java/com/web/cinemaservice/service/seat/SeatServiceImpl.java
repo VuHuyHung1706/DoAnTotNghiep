@@ -39,14 +39,14 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public SeatResponse getSeatById(Integer id) {
         Seat seat = seatRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.SEAT_NOT_EXISTED));
         return seatMapper.toSeatResponse(seat);
     }
 
     @Override
     public SeatResponse createSeat(SeatRequest request) {
         if (!roomRepository.existsById(request.getRoomId())) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
         }
 
         Seat seat = seatMapper.toSeat(request);
@@ -71,8 +71,12 @@ public class SeatServiceImpl implements SeatService {
     @Override
     public void deleteSeat(Integer id) {
         if (!seatRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.SEAT_NOT_EXISTED);
         }
+
+        // For now, database constraints will handle this validation
+        // If explicit check is needed, add BookingServiceClient similar to RoomService
+
         seatRepository.deleteById(id);
     }
 }

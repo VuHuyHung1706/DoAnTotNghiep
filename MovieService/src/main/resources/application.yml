@@ -14,6 +14,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -33,6 +39,9 @@ jwt:
   valid-duration: 1
   refreshable-duration: 2
 
+file:
+  upload-dir: uploads/posters
+  base-url: http://localhost:8081
 
 cinema:
   service:

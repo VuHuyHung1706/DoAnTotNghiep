@@ -36,6 +36,11 @@ public enum ErrorCode {
     INVALID_QR_CODE(1011, "Invalid QR code", HttpStatus.BAD_REQUEST),
     TICKET_NOT_ACTIVE(1012, "Ticket is not active", HttpStatus.BAD_REQUEST),
 
+    CANNOT_DELETE_CINEMA_HAS_ROOMS(1020, "Không thể xóa rạp vì còn phòng chiếu liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ROOM_HAS_SHOWTIMES(1021, "Không thể xóa phòng vì còn suất chiếu liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_ROOM_HAS_SEATS(1022, "Không thể xóa phòng vì còn ghế liên quan", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_SEAT_HAS_TICKETS(1023, "Không thể xóa ghế vì đã có vé được đặt", HttpStatus.BAD_REQUEST),
+
     USERNAME_NOT_BLANK(9000, "Username cannot be blank", HttpStatus.BAD_REQUEST),
     PASSWORD_NOT_BLANK(9000, "Password cannot be blank", HttpStatus.BAD_REQUEST),
     FIRST_NAME_NOT_BLANK(9000, "First name cannot be blank", HttpStatus.BAD_REQUEST),
@@ -55,8 +60,7 @@ public enum ErrorCode {
 
     DURATION_MIN(9000, "Duration must be at least 1 minute", HttpStatus.BAD_REQUEST),
     TOTAL_SEATS_MIN(9000, "Total seats must be at least 1", HttpStatus.BAD_REQUEST),
-    SEAT_SELECTION_REQUIRED(9000, "At least one seat must be selected", HttpStatus.BAD_REQUEST)    ;
-
+    SEAT_SELECTION_REQUIRED(9000, "At least one seat must be selected", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

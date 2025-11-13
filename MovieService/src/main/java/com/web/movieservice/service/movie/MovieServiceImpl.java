@@ -1,6 +1,7 @@
 package com.web.movieservice.service.movie;
 
 import com.web.movieservice.dto.request.MovieRequest;
+import com.web.movieservice.dto.request.MovieRequestMultipart;
 import com.web.movieservice.dto.response.*;
 import com.web.movieservice.entity.Actor;
 import com.web.movieservice.entity.Genre;
@@ -16,6 +17,7 @@ import com.web.movieservice.repository.ShowtimeRepository;
 import com.web.movieservice.repository.client.CinemaServiceClient;
 import com.web.movieservice.repository.client.RecommendationServiceClient;
 import com.web.movieservice.service.review.ReviewService;
+import com.web.movieservice.service.file.FileUploadService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,6 +61,9 @@ public class MovieServiceImpl implements MovieService {
     private RecommendationServiceClient recommendationServiceClient;
     @Autowired
     private ReviewService reviewService;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @Override
     public List<MovieResponse> getAllMovie() {
@@ -111,6 +117,29 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    public MovieResponse createMovieWithUpload(MovieRequestMultipart request) {
+        // Convert multipart request to regular movie request
+        MovieRequest movieRequest = MovieRequest.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .duration(request.getDuration())
+                .language(request.getLanguage())
+                .trailer(request.getTrailer())
+                .releaseDate(request.getReleaseDate())
+                .genreIds(request.getGenreIds())
+                .actorIds(request.getActorIds())
+                .build();
+
+        // Upload poster file if provided
+        if (request.getPosterFile() != null && !request.getPosterFile().isEmpty()) {
+            String posterUrl = fileUploadService.uploadFile(request.getPosterFile());
+            movieRequest.setPoster(posterUrl);
+        }
+
+        return createMovie(movieRequest);
+    }
+
+    @Override
     public MovieResponse updateMovie(Integer id, MovieRequest request) {
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
@@ -144,10 +173,74 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public void deleteMovie(Integer id) {
-        if (!movieRepository.existsById(id)) {
-            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
+    public MovieResponse updateMovieWithUpload(Integer id, MovieRequestMultipart request) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+
+        // Upload new poster if provided and delete old one
+        if (request.getPosterFile() != null && !request.getPosterFile().isEmpty()) {
+            // Delete old poster if exists
+            if (movie.getPoster() != null && !movie.getPoster().isEmpty()) {
+                fileUploadService.deleteFile(movie.getPoster());
+            }
+
+            // Upload new poster
+            String newPosterUrl = fileUploadService.uploadFile(request.getPosterFile());
+            movie.setPoster(newPosterUrl);
         }
+
+        // Update other fields
+        MovieRequest movieRequest = MovieRequest.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .duration(request.getDuration())
+                .language(request.getLanguage())
+                .poster(movie.getPoster()) // Keep existing or new poster URL
+                .trailer(request.getTrailer())
+                .releaseDate(request.getReleaseDate())
+                .genreIds(request.getGenreIds())
+                .actorIds(request.getActorIds())
+                .build();
+
+        return updateMovie(id, movieRequest);
+    }
+
+    @Override
+    public MovieResponse uploadPoster(Integer id, MultipartFile posterFile) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+
+        // Delete old poster if exists
+        if (movie.getPoster() != null && !movie.getPoster().isEmpty()) {
+            fileUploadService.deleteFile(movie.getPoster());
+        }
+
+        // Upload new poster
+        String newPosterUrl = fileUploadService.uploadFile(posterFile);
+        movie.setPoster(newPosterUrl);
+
+        movie = movieRepository.save(movie);
+        return movieMapper.toMovieResponse(movie);
+    }
+
+    @Override
+    public void deleteMovie(Integer id) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+
+        List<Showtime> showtimes = showtimeRepository.findByMovieId(id);
+        if (!showtimes.isEmpty()) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_MOVIE_HAS_SHOWTIMES);
+        }
+
+        if (!movie.getReviews().isEmpty()) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_MOVIE_HAS_REVIEWS);
+        }
+
+        if (movie.getPoster() != null && !movie.getPoster().isEmpty()) {
+            fileUploadService.deleteFile(movie.getPoster());
+        }
+
         movieRepository.deleteById(id);
     }
 
@@ -187,7 +280,7 @@ public class MovieServiceImpl implements MovieService {
                     .collect(Collectors.toList());
         }
 
-//         Filter by cinemaId
+        // Filter by cinemaId
         if (cinemaId != null) {
             // Check cinema exists
             ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
@@ -195,14 +288,11 @@ public class MovieServiceImpl implements MovieService {
                 throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
             }
 
-            CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
-
-            List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
-            List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomIdIn (roomIds);
+            List<Integer> roomIds = cinemaApiResponse.getResult().getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
+            List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomIdIn(roomIds);
             Set<Integer> movieIdsAtCinema = showtimesAtCinema.stream()
                     .map(Showtime::getMovieId)
                     .collect(Collectors.toSet());
-
 
             movies = movies.stream()
                     .filter(movie -> movieIdsAtCinema.contains(movie.getId()))
@@ -218,7 +308,7 @@ public class MovieServiceImpl implements MovieService {
                     .collect(Collectors.toList());
         }
 
-        // --- Filter by date
+        // Filter by date
         if (date != null) {
             LocalDateTime from = date.atStartOfDay();
             LocalDateTime to = date.plusDays(1).atStartOfDay().minusSeconds(1);
@@ -242,10 +332,6 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieResponse> getMoviesByRoomId(Integer roomId) {
         LocalDateTime now = LocalDateTime.now();
 
-//        if (!roomRepository.existsById(roomId)) {
-//            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
-//        }
-
         ApiResponse<RoomResponse> roomApiResponse = cinemaServiceClient.getRoomById(roomId);
         if (roomApiResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(roomApiResponse.getMessage()));
@@ -256,7 +342,6 @@ public class MovieServiceImpl implements MovieService {
                 .filter(showtime -> showtime.getStartTime().isAfter(now) || showtime.getEndTime().isAfter(now))
                 .map(Showtime::getMovie)
                 .toList();
-
 
         return movies.stream()
                 .map(this::mapMovieToResponseWithStatus)
@@ -295,9 +380,9 @@ public class MovieServiceImpl implements MovieService {
                 .map(movieMapper::toMovieResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<MovieResponse> getRecommendationMovies(String username) {
-
         List<Integer> recommendationMovieIds = new ArrayList<>();
         try {
             ApiResponse<List<MovieRecommendationResponse>> recommendationsResponse = recommendationServiceClient.getMoviesForUser(username);
@@ -320,22 +405,16 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<MovieResponse> getMoviesByCinemaId(Integer cinemaId) {
-//        if (!cinemaRepository.existsById(cinemaId)) {
-//            throw new AppException(ErrorCode.CINEMA_NOT_EXISTED);
-//        }
-
         ApiResponse<CinemaResponse> cinemaApiResponse = cinemaServiceClient.getCinemaById(cinemaId);
         if (cinemaApiResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(cinemaApiResponse.getMessage()));
         }
 
-
         LocalDateTime now = LocalDateTime.now();
 
-//        List<Showtime> showtimes = showtimeRepository.findByRoomCinemaId(cinemaId);
         CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
         List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
-        List<Showtime> showtimes = showtimeRepository.findByRoomIdIn (roomIds);
+        List<Showtime> showtimes = showtimeRepository.findByRoomIdIn(roomIds);
 
         List<Movie> movies = showtimes.stream()
                 .filter(showtime -> showtime.getStartTime().isAfter(now))
@@ -347,7 +426,6 @@ public class MovieServiceImpl implements MovieService {
                 .map(movieMapper::toMovieResponse)
                 .collect(Collectors.toList());
     }
-
 
     public MovieResponse mapMovieToResponseWithStatus(Movie movie) {
         MovieResponse response = movieMapper.toMovieResponse(movie);
@@ -366,6 +444,4 @@ public class MovieServiceImpl implements MovieService {
         response.setUpcoming(upcoming);
         return response;
     }
-
-
 }

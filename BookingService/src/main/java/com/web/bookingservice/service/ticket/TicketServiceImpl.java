@@ -144,19 +144,6 @@ public class TicketServiceImpl implements TicketService {
         // Check if showtime has started (optional validation)
         LocalDateTime now = LocalDateTime.now();
 
-//        ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
-
-
-//        if (now.isBefore(showtimeResponse.getResult().getStartTime().minusMinutes(60))) {
-//
-//            throw new AppException(ErrorCode.TICKET_NOT_READY);
-////            return ScanTicketResponse.builder()
-////                    .success(false)
-////                    .message("Too early to scan ticket. Showtime starts at " + showtimeResponse.getResult().getStartTime())
-////                    .ticket(ticketMapper.toTicketDetailResponse(ticket))
-////                    .build();
-//        }
-
         // Mark ticket as scanned
         ticket.setIsScanned(true);
         ticket.setScannedAt(now);
@@ -210,5 +197,15 @@ public class TicketServiceImpl implements TicketService {
                 .stream()
                 .map(Ticket::getSeatId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasTicketsByShowtimeId(Integer showtimeId) {
+        return !ticketRepository.findByShowtimeIdAndStatus(showtimeId, true).isEmpty();
+    }
+
+    @Override
+    public boolean hasTicketsBySeatId(Integer seatId) {
+        return !ticketRepository.findBySeatIdAndStatus(seatId, true).isEmpty();
     }
 }

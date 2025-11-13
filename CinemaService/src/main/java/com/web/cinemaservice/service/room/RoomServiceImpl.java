@@ -1,6 +1,7 @@
 package com.web.cinemaservice.service.room;
 
 import com.web.cinemaservice.dto.request.RoomRequest;
+import com.web.cinemaservice.dto.response.ApiResponse;
 import com.web.cinemaservice.dto.response.RoomResponse;
 import com.web.cinemaservice.entity.Room;
 import com.web.cinemaservice.exception.AppException;
@@ -8,6 +9,8 @@ import com.web.cinemaservice.exception.ErrorCode;
 import com.web.cinemaservice.mapper.RoomMapper;
 import com.web.cinemaservice.repository.CinemaRepository;
 import com.web.cinemaservice.repository.RoomRepository;
+
+import com.web.cinemaservice.repository.client.MovieServiceClient;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +32,9 @@ public class RoomServiceImpl implements RoomService {
 
     @Autowired
     private RoomMapper roomMapper;
+
+    @Autowired
+    private MovieServiceClient movieServiceClient;
 
     @Override
     public List<RoomResponse> getAllRooms() {
@@ -89,6 +95,22 @@ public class RoomServiceImpl implements RoomService {
         if (!roomRepository.existsById(id)) {
             throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
         }
+
+        Room room = roomRepository.findById(id).get();
+        if (!room.getSeats().isEmpty()) {
+            throw new AppException(ErrorCode.CANNOT_DELETE_ROOM_HAS_SEATS);
+        }
+
+        try {
+            ApiResponse<Boolean> hasShowtimesResponse = movieServiceClient.hasShowtimesByRoomId(id);
+            if (hasShowtimesResponse.getCode() == 1000 && hasShowtimesResponse.getResult()) {
+                throw new AppException(ErrorCode.CANNOT_DELETE_ROOM_HAS_SHOWTIMES);
+            }
+        } catch (Exception e) {
+            // If movie service is down or error, prevent deletion for safety
+            throw new AppException(ErrorCode.CANNOT_DELETE_ROOM_HAS_SHOWTIMES);
+        }
+
         roomRepository.deleteById(id);
     }
 }
