@@ -110,7 +110,7 @@ public class ItemItemCollaborativeFilterServiceImpl implements ItemItemCollabora
             }
         }
 
-        // Sort by predicted rating and return top N
+        // Sort by predicted rating
         return predictedRatings.entrySet().stream()
                 .sorted(Map.Entry.<Integer, Double>comparingByValue().reversed())
                 .collect(Collectors.toMap(
@@ -141,10 +141,11 @@ public class ItemItemCollaborativeFilterServiceImpl implements ItemItemCollabora
             // Calculate similarity between target movie and rated movie
             double similarity = calculateMovieSimilarity(targetMovieId, ratedMovieId,
                     userRatingsMatrix);
+//            if (similarity > 0) {
+//                similarMovies.add(new MovieSimilarity(ratedMovieId, rating, similarity));
+//            }
+            similarMovies.add(new MovieSimilarity(ratedMovieId, rating, similarity));
 
-            if (similarity > 0) {
-                similarMovies.add(new MovieSimilarity(ratedMovieId, rating, similarity));
-            }
         }
 
         // Need at least one similar movie

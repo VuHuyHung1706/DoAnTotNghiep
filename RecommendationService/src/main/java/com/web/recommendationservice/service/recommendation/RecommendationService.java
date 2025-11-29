@@ -8,5 +8,7 @@ import java.util.List;
 public interface RecommendationService {
     void updateUserPreferencesInternal(String username);
     List<UserRecommendationResponse> getUsersForMovie(Integer movieId);
-    List<MovieRecommendationResponse> getMovieRecommendationsForUser(String username);
+    List<MovieRecommendationResponse> getMovieRecommendations(String username);
+    List<MovieRecommendationResponse> getMovieRecommendationsUsingItemItem(String username);
+    List<MovieRecommendationResponse> getMovieRecommendationsUsingCB(String username);
 }

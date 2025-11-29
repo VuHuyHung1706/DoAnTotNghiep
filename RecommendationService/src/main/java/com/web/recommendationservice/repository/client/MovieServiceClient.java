@@ -16,7 +16,7 @@ public interface MovieServiceClient {
 
     @GetMapping("/movies/all")
     ApiResponse<List<MovieResponse>> getAllMovies();
-
+    
     @GetMapping("/movies/{id}")
     ApiResponse<MovieResponse> getMovieById(@PathVariable Integer id);
 

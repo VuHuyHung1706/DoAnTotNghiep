@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class MovieRecommendationResponse {
     private Integer movieId;
     private String movieTitle;
+    private Double similarityScore;
     private Double predictedRating;
 }

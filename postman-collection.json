@@ -1,0 +1,1595 @@
+{
+  "info": {
+    "name": "Cinema Management System API",
+    "description": "Complete API collection for the cinema management microservices",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:8080/auth/google/login?code=YOUR_GOOGLE_CODE",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["auth", "google", "login"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "YOUR_GOOGLE_CODE"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Introspect Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"your_jwt_token_here\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/introspect",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["auth", "introspect"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your_refresh_token_here\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/refresh",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"your_jwt_token_here\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/auth/logout",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account Management",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/accounts/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "register"]
+            }
+          }
+        },
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/accounts/send-otp",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "send-otp"]
+            }
+          }
+        },
+        {
+          "name": "Complete Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/accounts/complete-register?otp=123456",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "complete-register"],
+              "query": [
+                {
+                  "key": "otp",
+                  "value": "123456"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"oldpassword\",\n  \"newPassword\": \"newpassword\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/accounts/change-password",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"phoneNumber\": \"0123456789\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/accounts/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/accounts/customer/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "customer", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Manager Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/accounts/manager/profile",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "manager", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer by Username",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/accounts/customer/testuser",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "customer", "testuser"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:8080/accounts/reset-password/customer/testuser",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["accounts", "reset-password", "customer", "testuser"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cinemas",
+      "item": [
+        {
+          "name": "Get All Cinemas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/cinemas/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Cinemas (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/cinemas?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Cinema by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/cinemas/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Cinema",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cinema 1\",\n  \"address\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"phone\": \"0123456789\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/cinemas",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas"]
+            }
+          }
+        },
+        {
+          "name": "Update Cinema",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cinema 1 Updated\",\n  \"address\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"phone\": \"0123456789\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/cinemas/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Cinema",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/cinemas/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["cinemas", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rooms",
+      "item": [
+        {
+          "name": "Get All Rooms",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/rooms/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Rooms (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/rooms?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Rooms by Cinema ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/rooms/cinema/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms", "cinema", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Room by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/rooms/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Room A\",\n  \"cinemaId\": 1,\n  \"capacity\": 100\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/rooms",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms"]
+            }
+          }
+        },
+        {
+          "name": "Update Room",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Room A Updated\",\n  \"cinemaId\": 1,\n  \"capacity\": 120\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/rooms/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Room",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/rooms/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["rooms", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seats",
+      "item": [
+        {
+          "name": "Get Seats by Room ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/seats/room/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["seats", "room", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Seat by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/seats/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["seats", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomId\": 1,\n  \"seatRow\": \"A\",\n  \"seatNumber\": 1,\n  \"seatType\": \"STANDARD\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/seats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["seats"]
+            }
+          }
+        },
+        {
+          "name": "Update Seat",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roomId\": 1,\n  \"seatRow\": \"A\",\n  \"seatNumber\": 1,\n  \"seatType\": \"VIP\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/seats/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["seats", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Seat",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/seats/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["seats", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "Get All Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Movies (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Movie by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Movie Title\",\n  \"description\": \"Movie Description\",\n  \"duration\": 120,\n  \"rating\": \"PG-13\",\n  \"releaseDate\": \"2024-01-01\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/movies",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies"]
+            }
+          }
+        },
+        {
+          "name": "Update Movie",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated Description\",\n  \"duration\": 130,\n  \"rating\": \"R\",\n  \"releaseDate\": \"2024-01-01\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/movies/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Movie",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/movies/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Search Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/search?title=Avatar",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "search"],
+              "query": [
+                {
+                  "key": "title",
+                  "value": "Avatar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Advanced Search Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/search-advanced?query=Avatar&cinemaId=1&date=2024-01-01",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "search-advanced"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "Avatar"
+                },
+                {
+                  "key": "cinemaId",
+                  "value": "1"
+                },
+                {
+                  "key": "date",
+                  "value": "2024-01-01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Movies by Room ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/room/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "room", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Now Showing Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/now-showing",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "now-showing"]
+            }
+          }
+        },
+        {
+          "name": "Get Upcoming Movies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/movies/upcoming",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "upcoming"]
+            }
+          }
+        },
+        {
+          "name": "Get Recommended Movies",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/movies/recommendations",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["movies", "recommendations"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Showtimes",
+      "item": [
+        {
+          "name": "Get All Showtimes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Showtimes (Paginated)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes?page=0&size=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Showtime by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Showtime",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"movieId\": 1,\n  \"roomId\": 1,\n  \"startTime\": \"2024-01-01T18:00:00\",\n  \"endTime\": \"2024-01-01T20:00:00\",\n  \"price\": 100000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/showtimes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes"]
+            }
+          }
+        },
+        {
+          "name": "Update Showtime",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"movieId\": 1,\n  \"roomId\": 1,\n  \"startTime\": \"2024-01-01T18:00:00\",\n  \"endTime\": \"2024-01-01T20:00:00\",\n  \"price\": 120000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/showtimes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Showtime",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/showtimes/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Available Seats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/1/available-seats",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "1", "available-seats"]
+            }
+          }
+        },
+        {
+          "name": "Get Showtimes by Movie ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/movie/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "movie", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Showtimes by Cinema ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/cinema/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "cinema", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Showtimes by Movie and Cinema",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/movie/1/cinema/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "movie", "1", "cinema", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Showtimes by Movie and Room",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/movie/1/room/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "movie", "1", "room", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Booked Tickets by Showtime",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/showtimes/1/booked-tickets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "1", "booked-tickets"]
+            }
+          }
+        },
+        {
+          "name": "Search Showtimes by Date and Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2024-01-01T18:00:00\",\n  \"roomId\": 1\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/showtimes/search-by-date-and-room",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["showtimes", "search-by-date-and-room"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"movieId\": 1,\n  \"rating\": 5,\n  \"comment\": \"Great movie!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews"]
+            }
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"movieId\": 1,\n  \"rating\": 4,\n  \"comment\": \"Good movie!\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/reviews/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/reviews/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Review by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/reviews/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/reviews/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Reviews by Movie ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/reviews/movie/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "movie", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Reviews by Username",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/reviews/user/testuser",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "user", "testuser"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/reviews/my-reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "my-reviews"]
+            }
+          }
+        },
+        {
+          "name": "Get Movie Rating",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/reviews/movie/1/rating",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "movie", "1", "rating"]
+            }
+          }
+        },
+        {
+          "name": "Get My Review for Movie",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/reviews/movie/1/my-review",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["reviews", "movie", "1", "my-review"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"showtimeId\": 1,\n  \"seatIds\": [1, 2, 3],\n  \"totalPrice\": 300000\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/bookings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get Booking by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/bookings/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["bookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/bookings/my-bookings",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["bookings", "my-bookings"]
+            }
+          }
+        },
+        {
+          "name": "Get Bookings by Username",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/bookings/user/testuser",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["bookings", "user", "testuser"]
+            }
+          }
+        },
+        {
+          "name": "Get Paid Bookings by Username",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/bookings/user/paid-booking/testuser",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["bookings", "user", "paid-booking", "testuser"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create VNPay Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": 1,\n  \"amount\": 300000,\n  \"orderDescription\": \"Booking Payment\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/payments/vnpay/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["payments", "vnpay", "create"]
+            }
+          }
+        },
+        {
+          "name": "VNPay Payment Callback",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/payments/vnpay/callback?vnp_Amount=300000&vnp_TxnRef=1&vnp_ResponseCode=00",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["payments", "vnpay", "callback"],
+              "query": [
+                {
+                  "key": "vnp_Amount",
+                  "value": "300000"
+                },
+                {
+                  "key": "vnp_TxnRef",
+                  "value": "1"
+                },
+                {
+                  "key": "vnp_ResponseCode",
+                  "value": "00"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Get My Tickets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:8080/tickets/my-tickets",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "my-tickets"]
+            }
+          }
+        },
+        {
+          "name": "Get Ticket by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/tickets/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "1"]
+            }
+          }
+        },
+        {
+          "name": "Generate QR Code",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/tickets/1/qr-code",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "1", "qr-code"]
+            }
+          }
+        },
+        {
+          "name": "Scan Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"ticket-qr-code-data\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8080/tickets/scan",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "scan"]
+            }
+          }
+        },
+        {
+          "name": "Get Tickets by Showtime",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/tickets/showtime/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "showtime", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get Booked Tickets by Showtime",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/tickets/showtime/1/booked",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "showtime", "1", "booked"]
+            }
+          }
+        },
+        {
+          "name": "Get Booked Seat IDs by Showtime",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8080/tickets/showtime/1/booked-seat-ids",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["tickets", "showtime", "1", "booked-seat-ids"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

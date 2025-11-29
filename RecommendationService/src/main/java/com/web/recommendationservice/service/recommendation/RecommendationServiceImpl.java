@@ -48,11 +48,45 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.min-similarity-score}")
     private double minSimilarityScore;
 
+    @Value("${recommendation.min-predicted-score}")
+    private double minPredictedScore;
+
     @Value("${recommendation.cf.enabled:true}")
     private boolean cfEnabled;
 
+
     @Override
-    public List<MovieRecommendationResponse> getMovieRecommendationsForUser(String username) {
+    public List<MovieRecommendationResponse> getMovieRecommendations(String username) {
+        List<MovieRecommendationResponse> movieRecommendations = new ArrayList<>();
+
+        Map<Integer, MovieRecommendationResponse> movieRecommendationByCBMap = getMovieRecommendationsUsingCB(username).stream().collect(Collectors.toMap(MovieRecommendationResponse::getMovieId, item -> item));
+        Map<Integer, MovieRecommendationResponse> movieRecommendationByItemItemMap = getMovieRecommendationsUsingItemItem(username).stream().collect(Collectors.toMap(MovieRecommendationResponse::getMovieId, item -> item));
+
+        Set<Integer> movieIds = new TreeSet<>(Comparator.reverseOrder());
+        movieIds.addAll(movieRecommendationByCBMap.keySet());
+        movieIds.addAll(movieRecommendationByItemItemMap.keySet());
+
+        for (Integer id : movieIds)
+        {
+            if (movieRecommendationByCBMap.containsKey(id) && movieRecommendationByItemItemMap.containsKey(id))
+            {
+                MovieRecommendationResponse movie = movieRecommendationByCBMap.get(id);
+                movie.setPredictedRating(movieRecommendationByItemItemMap.get(id).getPredictedRating());
+                movieRecommendations.add(movie);
+            }
+            else if (movieRecommendationByCBMap.containsKey(id)) {
+                movieRecommendations.add(movieRecommendationByCBMap.get(id));
+            }
+            else if (movieRecommendationByItemItemMap.containsKey(id)) {
+                movieRecommendations.add(movieRecommendationByItemItemMap.get(id));
+            }
+        }
+
+        return movieRecommendations;
+    }
+
+    @Override
+    public List<MovieRecommendationResponse> getMovieRecommendationsUsingItemItem(String username) {
         // Get all movies
         ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
         List<MovieResponse> allMovies = moviesResponse.getResult();
@@ -92,18 +126,65 @@ public class RecommendationServiceImpl implements RecommendationService {
             if (movie == null) {
                 continue;
             }
-
-            recommendations.add(MovieRecommendationResponse.builder()
-                    .movieId(movieId)
-                    .movieTitle(movie.getTitle())
-                    .predictedRating(cfScore)
-                    .build());
+            if (cfScore > minPredictedScore)
+            {
+                recommendations.add(MovieRecommendationResponse.builder()
+                        .movieId(movieId)
+                        .movieTitle(movie.getTitle())
+                        .predictedRating(cfScore)
+                        .build());
+            }
         }
         // Sort by score and limit results
-        return recommendations.stream()
-                .sorted((r1, r2) -> Double.compare(r2.getPredictedRating(), r1.getPredictedRating()))
-                .limit(maxResults)
-                .collect(Collectors.toList());
+        return recommendations;
+    }
+
+    @Override
+    public List<MovieRecommendationResponse> getMovieRecommendationsUsingCB(String username) {
+        // Get all movies
+        ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
+        List<MovieResponse> allMovies = moviesResponse.getResult();
+
+        if (allMovies == null || allMovies.isEmpty()) {
+            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
+        }
+
+        // Get all reviews for collaborative filtering
+        ApiResponse<List<ReviewResponse>> reviewsResponse = movieServiceClient.getAllReviews();
+        List<ReviewResponse> allReviews = reviewsResponse.getResult();
+
+        if (allReviews == null || allReviews.isEmpty()) {
+            throw new AppException(ErrorCode.INSUFFICIENT_DATA);
+        }
+
+        // Get movies already watched by user
+        Set<Integer> watchedMovieIds = getWatchedMovieIds(username);
+
+        List<MovieRecommendationResponse> movieRecommendations =  new ArrayList<>();
+
+        List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
+
+        if (userPreferences.isEmpty()) {
+            throw new AppException(ErrorCode.INSUFFICIENT_DATA);
+        }
+        for (MovieResponse movieResponse : allMovies)
+        {
+            if (!watchedMovieIds.contains(movieResponse.getId()))
+            {
+                double similarityScore = contentBasedFilterService.calculateSimilarityScore(movieResponse,userPreferences);
+
+                if (similarityScore >= minSimilarityScore) {
+                    movieRecommendations.add(MovieRecommendationResponse.builder()
+                            .movieId(movieResponse.getId())
+                            .movieTitle(movieResponse.getTitle())
+                            .similarityScore(similarityScore)
+                            .build());
+                }
+            }
+        }
+
+        // Sort by predicted rating (descending) and limit results
+        return movieRecommendations;
     }
 
     @Override
@@ -157,6 +238,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         return new ArrayList<>(userRecommendations);
     }
+
 
     @Override
     public void updateUserPreferencesInternal(String username) {

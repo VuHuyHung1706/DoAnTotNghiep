@@ -7,7 +7,8 @@ import com.web.recommendationservice.service.recommendation.RecommendationServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/recommendations")
@@ -26,7 +27,7 @@ public class RecommendationController {
     @GetMapping("/movies-for-user/{username}")
     public ApiResponse<List<MovieRecommendationResponse>> getMoviesForUser(@PathVariable String username) {
         return ApiResponse.<List<MovieRecommendationResponse>>builder()
-                .result(recommendationService.getMovieRecommendationsForUser(username))
+                .result(recommendationService.getMovieRecommendations(username))
                 .build();
     }
 

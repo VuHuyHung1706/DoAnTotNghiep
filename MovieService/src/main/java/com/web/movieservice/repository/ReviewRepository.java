@@ -17,16 +17,15 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     Optional<Review> findByMovieIdAndUsername(Integer movieId, String username);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.movieId = :movieId AND r.isDefault = 0")
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.movieId = :movieId")
     Double getAverageRatingByMovieId(Integer movieId);
 
-    @Query("SELECT COUNT(r) FROM Review r WHERE r.movieId = :movieId AND r.isDefault = 0")
+    @Query("SELECT COUNT(r) FROM Review r WHERE r.movieId = :movieId")
     Long getReviewCountByMovieId(Integer movieId);
 
     boolean existsByMovieIdAndUsername(Integer movieId, String username);
 
-    @Query("SELECT r FROM Review r WHERE r.movieId = :movieId AND r.isDefault = 0")
+    @Query("SELECT r FROM Review r WHERE r.movieId = :movieId")
     List<Review> findNonDefaultReviewsByMovieId(Integer movieId);
 
-    void deleteByMovieIdAndUsernameAndIsDefault(Integer movieId, String username, Integer isDefault);
 }
