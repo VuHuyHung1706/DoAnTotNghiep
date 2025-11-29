@@ -1,6 +1,7 @@
 package com.web.movieservice.controller;
 
 import com.web.movieservice.dto.request.MovieRequest;
+import com.web.movieservice.dto.request.MovieRequestMultipart;
 import com.web.movieservice.dto.response.ApiResponse;
 import com.web.movieservice.dto.response.MovieResponse;
 import com.web.movieservice.service.movie.MovieService;
@@ -9,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -50,10 +53,35 @@ public class MovieController {
                 .build();
     }
 
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<MovieResponse> createMovieWithUpload(@Valid @ModelAttribute MovieRequestMultipart request) {
+        return ApiResponse.<MovieResponse>builder()
+                .result(movieService.createMovieWithUpload(request))
+                .build();
+    }
+
     @PutMapping("/{id}")
     public ApiResponse<MovieResponse> updateMovie(@PathVariable Integer id, @Valid @RequestBody MovieRequest request) {
         return ApiResponse.<MovieResponse>builder()
                 .result(movieService.updateMovie(id, request))
+                .build();
+    }
+
+    @PutMapping(value = "/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<MovieResponse> updateMovieWithUpload(
+            @PathVariable Integer id,
+            @Valid @ModelAttribute MovieRequestMultipart request) {
+        return ApiResponse.<MovieResponse>builder()
+                .result(movieService.updateMovieWithUpload(id, request))
+                .build();
+    }
+
+    @PostMapping("/{id}/poster")
+    public ApiResponse<MovieResponse> uploadPoster(
+            @PathVariable Integer id,
+            @RequestParam("posterFile") MultipartFile posterFile) {
+        return ApiResponse.<MovieResponse>builder()
+                .result(movieService.uploadPoster(id, posterFile))
                 .build();
     }
 

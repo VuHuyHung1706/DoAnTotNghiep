@@ -40,18 +40,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     @Autowired
     private RecommendationService sendRecommendtionMail;
 
-//    @Autowired
-//    private RoomRepository roomRepository;
-//
-//    @Autowired
-//    private SeatRepository seatRepository;
-//
-//    @Autowired
-//    private TicketRepository ticketRepository;
-//
-//    @Autowired
-//    private CinemaRepository cinemaRepository;
-//
     @Autowired
     private CinemaServiceClient cinemaServiceClient;
 
@@ -60,12 +48,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
     @Autowired
     private ShowtimeMapper showtimeMapper;
-
-//    @Autowired
-//    private SeatMapper seatMapper;
-//
-//    @Autowired
-//    private TicketMapper ticketMapper;
 
     @Override
     public List<ShowtimeResponse> getAllShowtimes() {
@@ -89,8 +71,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         ApiResponse<RoomResponse> roomResponseApiResponse = cinemaServiceClient.getRoomById(showtimeResponse.getRoomId());
 
-        if (roomResponseApiResponse.getCode() != 1000)
-        {
+        if (roomResponseApiResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(roomResponseApiResponse.getMessage()));
         }
 
@@ -108,25 +89,19 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Movie movie = movieRepository.findById(request.getMovieId())
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
 
-//        Room room = roomRepository.findById(request.getRoomId())
-//                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
-
-            // Calculate end time based on movie duration
         LocalDateTime endTimeOnMovie = request.getStartTime().plusMinutes(movie.getDuration());
 
         if (request.getEndTime() == null) {
             request.setEndTime(endTimeOnMovie);
-        }
-        else if (request.getEndTime().isBefore(endTimeOnMovie)) {
+        } else if (request.getEndTime().isBefore(endTimeOnMovie)) {
             throw new AppException(ErrorCode.SHOWTIME_INVALID_TIME);
         }
 
-        // Check for conflicting showtimes in the same room
         List<Showtime> conflictingShowtimes = showtimeRepository.findConflictingShowtimes(
                 request.getRoomId(), request.getStartTime(), request.getEndTime());
 
         if (!conflictingShowtimes.isEmpty()) {
-            throw new AppException(ErrorCode.SHOWTIME_CONFLICTING); // You might want to create a specific error for this
+            throw new AppException(ErrorCode.SHOWTIME_CONFLICTING);
         }
 
         Showtime showtime = showtimeMapper.toShowtime(request);
@@ -144,19 +119,11 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         Showtime showtime = showtimeRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
 
-        // Validate movie exists
         Movie movie = movieRepository.findById(request.getMovieId())
                 .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
 
-        // Validate room exists
-//        if (!roomRepository.existsById(request.getRoomId())) {
-//            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
-//        }
-
-        // Calculate end time based on movie duration
         LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getDuration());
 
-        // Check for conflicting showtimes in the same room (excluding current showtime)
         List<Showtime> conflictingShowtimes = showtimeRepository.findConflictingShowtimes(
                 request.getRoomId(), request.getStartTime(), endTime);
 
@@ -180,17 +147,24 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         if (!showtimeRepository.existsById(id)) {
             throw new AppException(ErrorCode.SHOWTIME_NOT_EXISTED);
         }
+
+        try {
+            ApiResponse<Boolean> hasTicketsResponse = bookingServiceClient.hasTicketsByShowtimeId(id);
+            if (hasTicketsResponse.getCode() == 1000 && hasTicketsResponse.getResult()) {
+                throw new AppException(ErrorCode.CANNOT_DELETE_SHOWTIME_HAS_TICKETS);
+            }
+        } catch (Exception e) {
+            // If booking service is down or error, prevent deletion for safety
+            throw new AppException(ErrorCode.CANNOT_DELETE_SHOWTIME_HAS_TICKETS);
+        }
+
         showtimeRepository.deleteById(id);
     }
-
 
     @Override
     public List<SeatResponse> getAvailableSeats(Integer showtimeId) {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
-
-        // Get all seats
-//        List<Seat> allSeats = seatRepository.findByRoomIdOrderByName(showtime.getRoomId());
 
         ApiResponse<RoomResponse> roomResponses = cinemaServiceClient.getRoomById(showtime.getRoomId());
         if (roomResponses.getCode() != 1000) {
@@ -199,12 +173,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         List<SeatResponse> allSeats = roomResponses.getResult().getSeats();
 
-        // Get booked seats
-//        List<Ticket> bookedTickets = ticketRepository.findByShowtimeIdAndStatus(showtimeId, true);
-//        List<Integer> bookedSeatIds = bookedTickets.stream()
-//                .map(Ticket::getSeatId)
-//                .collect(Collectors.toList());
-
         ApiResponse<List<Integer>> bookedSeatIdsResponse = bookingServiceClient.getBookedSeatIdsByShowtimeId(showtimeId);
         if (bookedSeatIdsResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(bookedSeatIdsResponse.getMessage()));
@@ -212,7 +180,6 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         List<Integer> bookedSeatIds = bookedSeatIdsResponse.getResult();
 
-        // Filter available seats
         return allSeats.stream()
                 .filter(seat -> !bookedSeatIds.contains(seat.getId()))
                 .collect(Collectors.toList());
@@ -245,10 +212,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         CinemaResponse cinemaResponse = cinemaApiResponse.getResult();
         List<Integer> roomIds = cinemaResponse.getRooms().stream().map(RoomResponse::getId).toList();
 
-
         return showtimeRepository.findByRoomIdIn(roomIds)
                 .stream()
-                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
@@ -271,7 +237,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeRepository.findByMovieIdAndRoomIdIn(movieId, roomIds)
                 .stream()
-                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
@@ -284,19 +250,14 @@ public class ShowtimeServiceImpl implements ShowtimeService {
             throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
         }
 
-//        if (!roomRepository.existsById(roomId)) {
-//            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
-//        }        if (!roomRepository.existsById(roomId)) {
-//            throw new AppException(ErrorCode.ROOM_NOT_EXISTED);
-//        }
-
         return showtimeRepository.findByMovieIdAndRoomId(movieId, roomId)
                 .stream()
-                .filter(showtime -> (showtime.getEndTime().isAfter(now)))
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public List<TicketResponse> getBookedTickets(Integer showtimeId) {
         Showtime showtime = showtimeRepository.findById(showtimeId)
                 .orElseThrow(() -> new AppException(ErrorCode.SHOWTIME_NOT_EXISTED));
@@ -324,15 +285,18 @@ public class ShowtimeServiceImpl implements ShowtimeService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
-    public List<ShowtimeResponse> getShowtimesByDateAndRoomId(LocalDate date, Integer roomId)
-    {
+    public List<ShowtimeResponse> getShowtimesByDateAndRoomId(LocalDate date, Integer roomId) {
         List<Showtime> showtimes = showtimeRepository.findShowtimesByDateAndRoom(date, roomId);
         return showtimes.stream()
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
-    };
+    }
+
+    @Override
+    public boolean hasShowtimesByRoomId(Integer roomId) {
+        return !showtimeRepository.findByRoomId(roomId).isEmpty();
+    }
 
     private ShowtimeResponse mapToShowtimeResponseWithDetails(Showtime showtime) {
         ShowtimeResponse showtimeResponse = showtimeMapper.toShowtimeResponse(showtime);
@@ -348,5 +312,4 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         return showtimeResponse;
     }
-
 }

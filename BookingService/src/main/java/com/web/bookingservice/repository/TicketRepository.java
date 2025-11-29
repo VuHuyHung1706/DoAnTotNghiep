@@ -1,6 +1,5 @@
 package com.web.bookingservice.repository;
 
-
 import com.web.bookingservice.entity.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +14,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     boolean existsByShowtimeIdAndSeatIdAndStatus(Integer showtimeId, Integer seatId, Boolean status);
     List<Ticket> findByInvoiceId(Integer invoiceId);
     List<Ticket> findByShowtimeIdAndStatus(Integer showtimeId, Boolean status);
+
+    List<Ticket> findBySeatIdAndStatus(Integer seatId, Boolean status);
+
     // 1. Doanh thu theo RẠP
     @Query(value = """
         SELECT 
@@ -118,3 +120,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Object[]> getRevenueByYear(@Param("fromDate") LocalDateTime fromDate,
                                     @Param("toDate") LocalDateTime toDate);
 }
+
+
+

@@ -115,6 +115,15 @@ public class ShowtimeController {
                 .build();
     }
 
+    @GetMapping("/room/{roomId}/exists")
+    public ApiResponse<Boolean> hasShowtimesByRoomId(@PathVariable Integer roomId) {
+        boolean exists = showtimeService.hasShowtimesByRoomId(roomId);
+        return ApiResponse.<Boolean>builder()
+                .code(1000)
+                .result(exists)
+                .build();
+    }
+
     @PostMapping("/search-by-date-and-room")
     public ApiResponse<List<ShowtimeResponse>> searchShowtimesByDateAndRoom(
             @RequestBody ShowtimeRequest request
