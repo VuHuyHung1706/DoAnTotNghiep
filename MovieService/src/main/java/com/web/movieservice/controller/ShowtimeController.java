@@ -132,4 +132,14 @@ public class ShowtimeController {
                 .result(showtimeService.getShowtimesByDateAndRoomId(request.getStartTime().toLocalDate(), request.getRoomId()))
                 .build();
     }
+
+    @GetMapping("/search")
+    public ApiResponse<Page<ShowtimeResponse>> searchShowtimesByMovieTitle(
+            @RequestParam String movieTitle,
+            Pageable pageable
+    ) {
+        return ApiResponse.<Page<ShowtimeResponse>>builder()
+                .result(showtimeService.searchShowtimesByMovieTitle(movieTitle, pageable))
+                .build();
+    }
 }

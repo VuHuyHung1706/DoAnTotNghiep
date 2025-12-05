@@ -48,18 +48,8 @@ public class ReviewServiceImpl implements ReviewService {
 
         Optional<Review> existingReview = reviewRepository.findByMovieIdAndUsername(request.getMovieId(), username);
 
-        if (existingReview.isPresent()) {
-            if (existingReview.get().getIsDefault() == 1) {
-                reviewRepository.deleteById(existingReview.get().getId());
-            } else {
-                // If it's already a real review, throw error
-                throw new AppException(ErrorCode.REVIEW_ALREADY_EXISTS);
-            }
-        }
-
         Review review = reviewMapper.toReview(request);
         review.setUsername(username);
-        review.setIsDefault(0);
 
         review = reviewRepository.save(review);
 
@@ -80,10 +70,6 @@ public class ReviewServiceImpl implements ReviewService {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        if (review.getIsDefault() == 1) {
-            throw new AppException(ErrorCode.CANNOT_UPDATE_DEFAULT_REVIEW);
-        }
-
         reviewMapper.updateReview(review, request);
         review = reviewRepository.save(review);
 
@@ -100,10 +86,6 @@ public class ReviewServiceImpl implements ReviewService {
         // Check if the review belongs to the user
         if (!review.getUsername().equals(username)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-
-        if (review.getIsDefault() == 1) {
-            throw new AppException(ErrorCode.CANNOT_DELETE_DEFAULT_REVIEW);
         }
 
         reviewRepository.deleteById(reviewId);
@@ -143,7 +125,6 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviews = reviewRepository.findByUsername(username);
 
         return reviews.stream()
-                .filter(review -> review.getIsDefault() == 0)
                 .map(reviewMapper::toReviewResponse)
                 .collect(Collectors.toList());
     }
@@ -193,7 +174,6 @@ public class ReviewServiceImpl implements ReviewService {
                 .movieId(movieId)
                 .username(username)
                 .rating(3)
-                .isDefault(1)
                 .comment(null)
                 .build();
 

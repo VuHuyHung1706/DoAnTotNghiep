@@ -26,5 +26,7 @@ public interface ShowtimeService {
     List<ShowtimeResponse> getShowtimesShowing();
     List<ShowtimeResponse> getShowtimesByDateAndRoomId(LocalDate date, Integer roomId);
 
+    Page<ShowtimeResponse> searchShowtimesByMovieTitle(String movieTitle, Pageable pageable);
+
     boolean hasShowtimesByRoomId(Integer roomId);
 }

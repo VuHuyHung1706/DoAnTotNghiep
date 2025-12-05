@@ -93,18 +93,20 @@ public class CinemaServiceImpl implements CinemaService {
     }
 
     @Override
-    public List<CinemaResponse> getCinemasByMovieId(Integer movieId) {
+    public List<CinemaResponse> searchCinemasByName(String name) {
+        return cinemaRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(cinemaMapper::toCinemaResponse)
+                .collect(Collectors.toList());
+    }
 
-//        if (!movieRepository.existsById(movieId)) {
-//            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
-//        }
+    @Override
+    public List<CinemaResponse> getCinemasByMovieId(Integer movieId) {
 
         ApiResponse<MovieResponse> movieApiResponse = movieServiceClient.getMovieById(movieId);
         if (movieApiResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(movieApiResponse.getMessage()));
         }
-
-//        List<Showtime> showtimes = showtimeRepository.findByMovieId(movieId);
 
         ApiResponse<List<ShowtimeResponse>> showtimesApiResponse = movieServiceClient.getShowtimesByMovieId(movieId);
 
@@ -113,9 +115,6 @@ public class CinemaServiceImpl implements CinemaService {
         }
 
         List<ShowtimeResponse> showtimes = showtimesApiResponse.getResult();
-//        Set<Integer> cinemaIds = showtimes.stream()
-//                .map(showtime -> showtime.getRoom().getCinemaId())
-//                .collect(Collectors.toSet());
         List<Integer> roomIds = showtimes.stream()
                 .map(ShowtimeResponse::getRoomId)
                 .toList();
