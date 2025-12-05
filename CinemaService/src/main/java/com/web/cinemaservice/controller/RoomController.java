@@ -69,4 +69,13 @@ public class RoomController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<RoomResponse>> searchRooms(
+            @RequestParam(required = false) String roomName,
+            @RequestParam(required = false) Integer cinemaId) {
+        return ApiResponse.<List<RoomResponse>>builder()
+                .result(roomService.searchRooms(roomName, cinemaId))
+                .build();
+    }
+
 }

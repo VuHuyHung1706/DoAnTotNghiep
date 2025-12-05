@@ -15,4 +15,5 @@ public interface RoomService {
     RoomResponse createRoom(RoomRequest request);
     RoomResponse updateRoom(Integer id, RoomRequest request);
     void deleteRoom(Integer id);
+    List<RoomResponse> searchRooms(String roomName, Integer cinemaId);
 }
