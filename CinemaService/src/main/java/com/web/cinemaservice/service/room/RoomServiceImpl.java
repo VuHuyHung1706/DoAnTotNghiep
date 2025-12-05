@@ -113,4 +113,12 @@ public class RoomServiceImpl implements RoomService {
 
         roomRepository.deleteById(id);
     }
+
+    @Override
+    public List<RoomResponse> searchRooms(String roomName, Integer cinemaId) {
+        return roomRepository.searchRooms(roomName, cinemaId)
+                .stream()
+                .map(roomMapper::toRoomResponse)
+                .collect(Collectors.toList());
+    }
 }

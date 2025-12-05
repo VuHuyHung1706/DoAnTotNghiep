@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -296,6 +297,25 @@ public class ShowtimeServiceImpl implements ShowtimeService {
     @Override
     public boolean hasShowtimesByRoomId(Integer roomId) {
         return !showtimeRepository.findByRoomId(roomId).isEmpty();
+    }
+
+    @Override
+    public Page<ShowtimeResponse> searchShowtimesByMovieTitle(String movieTitle, Pageable pageable) {
+        List<Showtime> showtimes = showtimeRepository.searchByMovieTitle(movieTitle);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), showtimes.size());
+
+        List<ShowtimeResponse> showtimeResponses = showtimes.subList(start, end)
+                .stream()
+                .map(this::mapToShowtimeResponseWithDetails)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(
+                showtimeResponses,
+                pageable,
+                showtimes.size()
+        );
     }
 
     private ShowtimeResponse mapToShowtimeResponseWithDetails(Showtime showtime) {

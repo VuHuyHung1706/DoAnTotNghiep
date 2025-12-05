@@ -62,6 +62,13 @@ public class CinemaController {
                 .build();
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<CinemaResponse>> searchCinemas(@RequestParam String name) {
+        return ApiResponse.<List<CinemaResponse>>builder()
+                .result(cinemaService.searchCinemasByName(name))
+                .build();
+    }
+
 //    @GetMapping("/movie/{movieId}")
 //    public ApiResponse<List<CinemaResponse>> getCinemasByMovieId(@PathVariable Integer movieId) {
 //        return ApiResponse.<List<CinemaResponse>>builder()
