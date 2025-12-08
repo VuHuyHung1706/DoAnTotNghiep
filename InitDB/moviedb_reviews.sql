@@ -1,0 +1,59 @@
+-- MySQL dump 10.13  Distrib 8.0.43, for macos15 (arm64)
+--
+-- Host: 127.0.0.1    Database: moviedb
+-- ------------------------------------------------------
+-- Server version	8.4.7
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `reviews`
+--
+
+DROP TABLE IF EXISTS `reviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reviews` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `movie_id` int NOT NULL,
+  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rating` int NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_movie_user` (`movie_id`,`username`),
+  CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `reviews_chk_1` CHECK (((`rating` >= 1) and (`rating` <= 5)))
+) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `reviews`
+--
+
+LOCK TABLES `reviews` WRITE;
+/*!40000 ALTER TABLE `reviews` DISABLE KEYS */;
+INSERT INTO `reviews` VALUES (1,1,'user1',5,'Một bộ phim hành động tuyệt vời! Tom Cruise luôn làm tôi kinh ngạc.','2025-11-10 14:30:00',NULL),(2,1,'user3',5,'Mission Impossible 8 là phần hay nhất trong series!','2025-11-11 09:15:00',NULL),(3,2,'user2',5,'Avengers không bao giờ làm tôi thất vọng. Đỉnh cao của Marvel!','2025-11-12 18:45:00',NULL),(4,2,'user5',5,'Các siêu anh hùng xuất hiện đầy đủ, cảnh chiến đấu hoành tráng!','2025-11-13 20:00:00',NULL),(5,3,'user4',5,'Dune Part 3 vượt xa mong đợi của tôi. Hình ảnh tuyệt đẹp!','2025-11-09 16:20:00',NULL),(6,3,'user6',5,'Timothée Chalamet diễn xuất xuất sắc. Phim hay nhất năm!','2025-11-14 10:30:00',NULL),(7,6,'user7',5,'Spider-Man luôn là siêu anh hùng yêu thích của tôi!','2025-11-10 12:00:00',NULL),(8,7,'user8',5,'Deadpool 3 hài hước và đầy bất ngờ. Ryan Reynolds quá tài!','2025-11-11 19:30:00',NULL),(9,8,'user9',5,'Avatar 3 đẹp không thể tả. James Cameron là thiên tài!','2025-11-12 15:45:00',NULL),(10,12,'user10',5,'Guardians of the Galaxy 4 vui nhộn và cảm động!','2025-11-13 11:20:00',NULL),(11,1,'user4',4,'Phim hay nhưng hơi dài. Tuy nhiên đáng xem!','2025-11-13 10:00:00',NULL),(12,2,'user6',4,'Avengers hay nhưng nhiều nhân vật quá, hơi rối.','2025-11-14 14:15:00',NULL),(13,3,'user7',4,'Dune 3 đẹp mắt nhưng cốt truyện hơi chậm.','2025-11-10 17:30:00',NULL),(14,4,'user8',4,'Batman 2 tốt, nhưng không hay bằng phần 1.','2025-11-11 20:45:00',NULL),(15,5,'user1',4,'Joker 2 hay nhưng không gây shock như phần đầu.','2025-11-12 16:00:00',NULL),(16,6,'user2',4,'Spider-Man Beyond khá hay, hiệu ứng đẹp.','2025-11-13 13:30:00',NULL),(17,7,'user3',4,'Deadpool 3 vui nhưng có phần hơi quá lố.','2025-11-14 09:45:00',NULL),(18,9,'user5',4,'Fantastic Four tốt nhưng chưa thực sự xuất sắc.','2025-11-10 11:15:00',NULL),(19,10,'user11',4,'Blade hay, hành động mãn nhãn.','2025-11-11 15:20:00',NULL),(20,11,'user12',4,'The Marvels 2 khá ổn, visual effects đẹp.','2025-11-12 18:00:00',NULL),(21,14,'user13',4,'Thor hay nhưng hơi giống phần trước.','2025-11-13 12:45:00',NULL),(22,15,'user14',4,'Doctor Strange 3 ấn tượng, tuy có chút khúc mắc.','2025-11-14 16:30:00',NULL),(23,21,'user15',4,'The Incredibles 3 vui nhộn, phù hợp gia đình.','2025-11-10 14:00:00',NULL),(24,22,'user1',4,'Toy Story 5 dễ thương, kỷ niệm tuổi thơ.','2025-11-11 10:30:00',NULL),(25,24,'user3',4,'Frozen 3 hay, nhạc phim catchy.','2025-11-12 13:15:00',NULL),(26,4,'user9',3,'Batman 2 bình thường, không có gì đặc sắc.','2025-11-13 15:00:00',NULL),(27,5,'user10',3,'Joker 2 không hay như kỳ vọng.','2025-11-14 11:45:00',NULL),(28,8,'user11',3,'Avatar 3 đẹp nhưng cốt truyện nhạt nhẽo.','2025-11-10 19:00:00',NULL),(29,9,'user12',3,'Fantastic Four ổn, không xuất sắc lắm.','2025-11-11 14:30:00',NULL),(30,10,'user13',3,'Blade tạm được, hơi cũ kỹ.','2025-11-12 10:15:00',NULL),(31,13,'user14',3,'Black Widow 2 bình thường, thiếu điểm nhấn.','2025-11-13 17:45:00',NULL),(32,16,'user15',3,'Shang-Chi 2 không tệ nhưng không xuất sắc.','2025-11-14 12:30:00',NULL),(33,17,'user2',3,'Eternals 2 dài và hơi nhàm chán.','2025-11-10 16:00:00',NULL),(34,18,'user4',3,'Ant-Man 4 tạm ổn, hài hước vừa phải.','2025-11-11 13:00:00',NULL),(35,19,'user6',3,'Captain America khá hay nhưng thiếu cảm xúc.','2025-11-12 11:30:00',NULL),(36,20,'user8',3,'Thunderbolts tạm được, không đặc sắc.','2025-11-13 14:15:00',NULL),(37,23,'user5',3,'Inside Out 3 cute nhưng không bằng phần 2.','2025-11-14 10:00:00',NULL),(38,25,'user7',3,'Moana 2 ổn, nhạc hay nhưng cốt truyện yếu.','2025-11-10 15:30:00',NULL),(39,4,'user14',2,'Batman 2 quá tối tăm và chậm chạp.','2025-11-12 20:00:00',NULL),(40,5,'user15',2,'Joker 2 thất vọng hoàn toàn, không hiểu ý nghĩa.','2025-11-13 16:45:00',NULL),(41,8,'user1',2,'Avatar 3 quá dài, 3 tiếng ngồi mỏi lưng.','2025-11-14 18:30:00',NULL),(42,10,'user3',2,'Blade nhàm chán, kịch bản yếu.','2025-11-10 13:00:00',NULL),(43,11,'user5',2,'The Marvels 2 CGI giả trân, diễn xuất kém.','2025-11-11 17:15:00',NULL),(44,13,'user7',2,'Black Widow 2 không đáng để xem trong rạp.','2025-11-12 14:45:00',NULL),(45,14,'user9',2,'Thor hài hước quá đà, mất đi sự nghiêm túc.','2025-11-13 19:00:00',NULL),(46,16,'user11',2,'Shang-Chi 2 nhàm chán, không ấn tượng.','2025-11-14 15:15:00',NULL),(47,17,'user13',2,'Eternals 2 quá dài và khó hiểu.','2025-11-10 12:30:00',NULL),(48,18,'user2',2,'Ant-Man 4 không buồn cười, kịch bản yếu.','2025-11-11 16:00:00',NULL),(49,19,'user4',2,'Captain America tẻ nhạt, thiếu cảm xúc.','2025-11-12 09:45:00',NULL),(50,20,'user6',2,'Thunderbolts không hay, nhân vật không hấp dẫn.','2025-11-13 13:00:00',NULL),(51,23,'user8',2,'Inside Out 3 lặp lại công thức cũ, nhàm.','2025-11-14 10:00:00',NULL),(52,25,'user10',2,'Moana 2 không đáng giá tiền vé, yếu.','2025-11-10 17:00:00',NULL),(53,5,'user12',1,'Joker 2 tệ nhất từng xem. Lãng phí thời gian!','2025-11-11 21:00:00',NULL),(54,8,'user14',1,'Avatar 3 chỉ có hình ảnh đẹp, nội dung trống rỗng.','2025-11-12 22:00:00',NULL),(55,10,'user15',1,'Blade tệ hại, không nên làm lại phim này.','2025-11-13 20:30:00',NULL),(56,11,'user1',1,'The Marvels 2 là thảm họa của Marvel.','2025-11-14 19:00:00',NULL),(57,13,'user3',1,'Black Widow 2 vô nghĩa, lãng phí diễn viên.','2025-11-10 21:30:00',NULL),(58,14,'user5',1,'Thor quá tệ, không còn là thần sấm nữa.','2025-11-11 22:15:00',NULL),(59,16,'user7',1,'Shang-Chi 2 vô duyên, không đáng xem.','2025-11-12 19:30:00',NULL),(60,17,'user9',1,'Eternals 2 nhàm chán nhất năm!','2025-11-13 21:00:00',NULL),(61,18,'user11',1,'Ant-Man 4 không buồn cười chút nào.','2025-11-14 20:00:00',NULL),(62,19,'user13',1,'Captain America kém, không có tâm hồn.','2025-11-10 18:00:00',NULL),(63,20,'user15',1,'Thunderbolts tệ, không hiểu Marvel nghĩ gì.','2025-11-11 19:45:00',NULL),(64,23,'user2',1,'Inside Out 3 tẻ nhạt, trẻ con cũng chán.','2025-11-12 17:00:00',NULL),(65,25,'user4',1,'Moana 2 thất vọng kinh khủng!','2025-11-13 18:00:00',NULL),(66,1,'user6',5,'Mission Impossible đỉnh cao hành động!','2025-11-15 10:00:00',NULL),(67,2,'user8',4,'Avengers vẫn là số 1 về siêu anh hùng.','2025-11-15 14:30:00',NULL),(68,3,'user10',5,'Dune 3 masterpiece của khoa học viễn tưởng!','2025-11-15 18:00:00',NULL),(69,4,'user12',3,'Batman ổn nhưng không đột phá.','2025-11-15 20:15:00',NULL),(70,6,'user14',5,'Spider-Man hay nhất MCU!','2025-11-16 09:30:00',NULL),(71,7,'user1',4,'Deadpool 3 vui và bạo lực vừa đủ.','2025-11-16 13:00:00',NULL),(72,9,'user3',3,'Fantastic Four tạm ổn, không quá hay.','2025-11-16 16:45:00',NULL),(73,12,'user5',5,'GOTG4 cảm động và vui nhộn!','2025-11-16 19:30:00',NULL),(74,15,'user7',4,'Doctor Strange đẹp mắt và ly kỳ.','2025-11-17 11:00:00',NULL),(75,21,'user9',5,'Incredibles 3 hay cho cả gia đình!','2025-11-17 14:15:00',NULL),(76,22,'user11',4,'Toy Story luôn ấm áp và hay.','2025-11-17 17:00:00',NULL),(77,24,'user13',5,'Frozen 3 tuyệt vời, nhạc phim đỉnh!','2025-11-17 20:00:00',NULL),(78,11,'user15',2,'The Marvels 2 thiếu chiều sâu nhân vật.','2025-11-15 12:00:00',NULL),(79,13,'user2',1,'Black Widow 2 không đáng 150k vé.','2025-11-15 15:30:00',NULL),(80,14,'user4',2,'Thor mất đi bản chất nghiêm túc.','2025-11-15 19:00:00',NULL),(81,16,'user6',1,'Shang-Chi 2 lặp lại công thức cũ.','2025-11-16 10:30:00',NULL),(82,17,'user8',2,'Eternals 2 dài và khó ngồi yên.','2025-11-16 14:00:00',NULL),(83,18,'user10',1,'Ant-Man 4 không còn hài hước.','2025-11-16 17:30:00',NULL),(84,19,'user12',2,'Captain America thiếu hấp dẫn.','2025-11-16 21:00:00',NULL),(85,20,'user14',1,'Thunderbolts nhàm chán nhất MCU.','2025-11-17 10:00:00',NULL),(86,23,'user1',2,'Inside Out 3 không mới mẻ.','2025-11-17 13:30:00',NULL),(87,25,'user3',1,'Moana 2 không hay như phần 1.','2025-11-17 16:00:00',NULL),(88,1,'user5',4,'MI8 hay, Tom Cruise vẫn khỏe!','2025-11-18 09:00:00',NULL),(89,2,'user7',5,'Avengers không thể tin được, quá đỉnh!','2025-11-18 12:30:00',NULL),(90,3,'user9',4,'Dune 3 tuyệt đẹp nhưng hơi chậm.','2025-11-18 15:45:00',NULL),(91,4,'user11',2,'Batman 2 tối tăm quá mức.','2025-11-18 18:15:00',NULL),(92,5,'user13',1,'Joker 2 là phim tệ nhất năm.','2025-11-18 21:00:00',NULL),(93,6,'user15',5,'Spider-Man Beyond quá xuất sắc!','2025-11-19 10:30:00',NULL),(94,7,'user2',5,'Deadpool 3 hài hước bá đạo!','2025-11-19 13:00:00',NULL),(95,8,'user4',3,'Avatar 3 đẹp nhưng dài quá.','2025-11-19 16:00:00',NULL),(96,9,'user6',2,'Fantastic Four chưa thực sự hay.','2025-11-19 19:30:00',NULL),(97,10,'user8',1,'Blade remake thất bại hoàn toàn.','2025-11-20 11:00:00',NULL),(98,12,'user10',5,'GOTG4 cảm động đến rơi nước mắt!','2025-11-20 14:30:00',NULL),(99,15,'user12',5,'Doctor Strange 3 phép thuật đỉnh cao!','2025-11-20 17:00:00',NULL),(100,21,'user14',4,'Incredibles 3 vui cho cả nhà.','2025-11-20 20:00:00',NULL),(101,22,'user1',5,'Toy Story 5 kỷ niệm đẹp!','2025-11-21 10:00:00',NULL),(102,24,'user3',5,'Frozen 3 hay và cảm động!','2025-11-21 13:30:00',NULL),(103,25,'user5',2,'Moana 2 không hay như phần 1.','2025-11-21 16:00:00',NULL),(104,11,'user7',1,'Marvels 2 không xứng đáng chiếu rạp.','2025-11-21 19:00:00',NULL),(105,13,'user9',2,'Black Widow 2 kịch bản yếu kém.','2025-11-22 10:30:00',NULL),(106,14,'user11',1,'Thor mất đi sức nặng.','2025-11-22 13:00:00',NULL),(107,16,'user13',2,'Shang-Chi 2 không ấn tượng.','2025-11-22 16:00:00',NULL),(108,17,'user15',1,'Eternals 2 tệ nhất Marvel.','2025-11-22 19:30:00',NULL),(109,18,'user2',2,'Ant-Man 4 không hài hước.','2025-11-23 11:00:00',NULL),(110,19,'user4',1,'Captain America nhạt nhẽo.','2025-11-23 14:00:00',NULL),(111,20,'user6',2,'Thunderbolts không hấp dẫn.','2025-11-23 17:00:00',NULL),(112,23,'user8',1,'Inside Out 3 nhàm chán.','2025-11-23 20:00:00',NULL);
+/*!40000 ALTER TABLE `reviews` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-12-05 12:09:57

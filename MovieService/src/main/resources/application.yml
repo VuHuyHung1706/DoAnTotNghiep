@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/moviedb
+    url: jdbc:mysql://mysql:3306/moviedb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -38,23 +38,23 @@ jwt:
   #  refreshable-duration: 259200 # in seconds
   valid-duration: 1
   refreshable-duration: 2
-
+  
 file:
   upload-dir: uploads/posters
-  base-url: http://localhost::8081
+  base-url: http://localhost:8888/api/v1
 
 cinema:
   service:
-    url: http://172.17.1.12:8082
+    url: http://cinema-service:8082
 
 booking:
   service:
-    url: http://172.17.1.13:8083
+    url: http://booking-service:8083
 
 user:
   service:
-    url: http://172.17.1.10:8080
+    url: http://user-service:8080
 
 recommendation:
   service:
-    url: http://172.17.1.14:8084
+    url: http://recommendation-service:8084

@@ -15,12 +15,12 @@ public class WebConfig implements WebMvcConfigurer {
     /**
      * Cấu hình truy cập file tĩnh (ảnh upload)
      */
-        @Override
-        public void addResourceHandlers(ResourceHandlerRegistry registry) {
-            registry
-                    .addResourceHandler("/uploads/**")
-                    .addResourceLocations("file:/uploads/");
-        }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry
+                .addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
+    }
 
 //    /**
 //     * Cấu hình CORS cho frontend (ví dụ localhost:3001)

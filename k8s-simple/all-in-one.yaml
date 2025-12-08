@@ -1,0 +1,833 @@
+---
+# Cinema Booking System - Docker Desktop Kubernetes Deployment
+# All resources in single file for Docker Desktop (local k8s cluster)
+# Usage: kubectl apply -f all-in-one.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cinema-booking
+
+---
+# ConfigMap: Database Initialization Script
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-db-script
+  namespace: cinema-booking
+data:
+  init-db.sql: |
+    -- ============================================================================
+    -- CINEMA BOOKING SYSTEM - Database Initialization Script
+    -- ============================================================================
+    -- This script creates 5 databases with complete schema and test data
+    -- Databases: userdb, moviedb, cinemaadb, bookingdb, recommendationdb
+    -- ============================================================================
+
+    -- ============================================================================
+    -- 1. USERDB - User Management Database
+    -- ============================================================================
+    CREATE DATABASE IF NOT EXISTS userdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE userdb;
+
+    -- Table: accounts
+    DROP TABLE IF EXISTS accounts;
+    CREATE TABLE accounts (
+      username VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      password VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      status TINYINT(1) NOT NULL DEFAULT 1,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (username)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO accounts VALUES 
+    ('admin','$2a$10$5vLrQpgrH9YQqpNBaXAs6uDOl9dIF1slFps1od26gnctf23fdQwW6',1,'2025-11-14 14:33:53'),
+    ('staff','$2a$10$utvVRN9okPEEIHmdzygbA.dDWCf8E3pz9DEHBJ5nau2RYfdpfI6pO',1,'2025-11-14 14:33:53'),
+    ('user1','$2a$10$XDh/E5pbNEtookzj7osTnOnZBbzwtpRQkVLhT3xxygQ5QdfFfLVbq',1,'2025-11-14 14:31:46'),
+    ('user2','$2a$10$vPUnT3MRkG.F7uguM0lOOOb/rCn5BpaYBlkKelIDOf3iiXnoPJYlq',1,'2025-11-14 14:31:46'),
+    ('user3','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'2025-11-14 14:31:46'),
+    ('user4','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'2025-11-14 14:31:46'),
+    ('user5','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',1,'2025-11-14 14:31:46');
+
+    -- Table: customers
+    DROP TABLE IF EXISTS customers;
+    CREATE TABLE customers (
+      id INT NOT NULL AUTO_INCREMENT,
+      first_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      last_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      email VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      phone VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      gender TINYINT(1) DEFAULT NULL,
+      date_of_birth DATE DEFAULT NULL,
+      address VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      username VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      UNIQUE KEY username (username),
+      CONSTRAINT customers_ibfk_1 FOREIGN KEY (username) REFERENCES accounts (username) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO customers VALUES 
+    (1,'Nguyễn','Văn A','user1@gmail.com','0901234567',1,'1990-01-15','123 Nguyễn Huệ, Quận 1, TP.HCM','user1','2025-11-14 14:31:46'),
+    (2,'Trần','Thị B','user2@gmail.com','0902345678',0,'1992-03-20','456 Lê Lợi, Quận 3, TP.HCM','user2','2025-11-14 14:31:46'),
+    (3,'Lê','Văn C','user3@gmail.com','0903456789',1,'1988-07-10','789 Hai Bà Trưng, Quận 1, TP.HCM','user3','2025-11-14 14:31:46'),
+    (4,'Phạm','Thị D','user4@gmail.com','0904567890',0,'1995-11-25','321 Trần Hưng Đạo, Quận 5, TP.HCM','user4','2025-11-14 14:31:46'),
+    (5,'Hoàng','Văn E','user5@gmail.com','0905678901',1,'1991-05-30','654 Võ Văn Tần, Quận 3, TP.HCM','user5','2025-11-14 14:31:46');
+
+    -- Table: managers
+    DROP TABLE IF EXISTS managers;
+    CREATE TABLE managers (
+      id INT NOT NULL AUTO_INCREMENT,
+      first_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      last_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      email VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      phone VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      username VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      position ENUM('MANAGER','STAFF') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY username (username),
+      CONSTRAINT managers_ibfk_1 FOREIGN KEY (username) REFERENCES accounts (username) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO managers VALUES 
+    (1,'Admin','System',NULL,NULL,'admin','2025-11-14 14:33:53','MANAGER'),
+    (2,'Staff','Staff',NULL,NULL,'staff','2025-11-14 14:33:53','STAFF');
+
+    -- Table: invalidated_tokens
+    DROP TABLE IF EXISTS invalidated_tokens;
+    CREATE TABLE invalidated_tokens (
+      id VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      expiry_time TIMESTAMP NOT NULL,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    -- ============================================================================
+    -- 2. MOVIEDB - Movie Management Database
+    -- ============================================================================
+    CREATE DATABASE IF NOT EXISTS moviedb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE moviedb;
+
+    -- Table: movies (5 sample movies)
+    DROP TABLE IF EXISTS movies;
+    CREATE TABLE movies (
+      id INT NOT NULL AUTO_INCREMENT,
+      title VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      description VARCHAR(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      duration INT NOT NULL,
+      language VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      poster VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      trailer VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      release_date DATE DEFAULT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO movies VALUES 
+    (1,'Mission: Impossible 8','Ethan Hunt và đội IMF đối mặt với nhiệm vụ nguy hiểm nhất từ trước đến nay',150,'English','http://localhost:8081/uploads/posters/poster1.jpg','https://youtube.com/watch?v=1','2025-05-23','2025-11-18 08:17:44'),
+    (2,'Avengers: Secret Wars','Các siêu anh hùng Marvel đoàn kết chống lại mối đe dọa vũ trụ',180,'English','http://localhost:8081/uploads/posters/poster2.jpg','https://youtube.com/watch?v=2','2025-05-01','2025-11-18 08:17:44'),
+    (3,'Dune: Part Three','Paul Atreides tiếp tục cuộc hành trình trở thành hoàng đế vũ trụ',165,'English','http://localhost:8081/uploads/posters/poster3.jpg','https://youtube.com/watch?v=3','2025-03-15','2025-11-18 08:17:44'),
+    (4,'The Batman 2','Batman đối mặt với kẻ thù mới ở Gotham City',155,'English','http://localhost:8081/uploads/posters/poster4.jpg','https://youtube.com/watch?v=4','2025-06-10','2025-11-18 08:17:44'),
+    (5,'Joker: Folie à Deux','Câu chuyện về Joker và Harley Quinn',140,'English','http://localhost:8081/uploads/posters/poster5.jpg','https://youtube.com/watch?v=5','2024-10-04','2025-11-18 08:17:44');
+
+    -- Table: genres
+    DROP TABLE IF EXISTS genres;
+    CREATE TABLE genres (
+      id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY name (name)
+    ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO genres VALUES 
+    (1,'Hành động'),(2,'Phiêu lưu'),(3,'Hài'),(4,'Chính kịch'),(5,'Kinh dị'),
+    (6,'Khoa học viễn tưởng'),(7,'Lãng mạn'),(8,'Hoạt hình'),(9,'Thriller'),(10,'Tội phạm');
+
+    -- Table: actors
+    DROP TABLE IF EXISTS actors;
+    CREATE TABLE actors (
+      id INT NOT NULL AUTO_INCREMENT,
+      first_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      last_name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      gender TINYINT(1) DEFAULT NULL,
+      date_of_birth DATE DEFAULT NULL,
+      nationality VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO actors VALUES 
+    (1,'Tom','Cruise',1,'1962-07-03','USA'),
+    (2,'Scarlett','Johansson',0,'1984-11-22','USA'),
+    (3,'Robert','Downey Jr.',1,'1965-04-04','USA'),
+    (4,'Jennifer','Lawrence',0,'1990-08-15','USA'),
+    (5,'Chris','Hemsworth',1,'1983-08-11','Australia');
+
+    -- Table: movie_genres
+    DROP TABLE IF EXISTS movie_genres;
+    CREATE TABLE movie_genres (
+      movie_id INT NOT NULL,
+      genre_id INT NOT NULL,
+      PRIMARY KEY (movie_id, genre_id),
+      KEY genre_id (genre_id),
+      CONSTRAINT movie_genres_ibfk_1 FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+      CONSTRAINT movie_genres_ibfk_2 FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO movie_genres VALUES (1,1),(1,2),(2,1),(2,6),(3,2),(3,4),(4,1),(4,9),(5,4),(5,9);
+
+    -- Table: movie_actors
+    DROP TABLE IF EXISTS movie_actors;
+    CREATE TABLE movie_actors (
+      movie_id INT NOT NULL,
+      actor_id INT NOT NULL,
+      PRIMARY KEY (movie_id, actor_id),
+      KEY actor_id (actor_id),
+      CONSTRAINT movie_actors_ibfk_1 FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+      CONSTRAINT movie_actors_ibfk_2 FOREIGN KEY (actor_id) REFERENCES actors (id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO movie_actors VALUES (1,1),(2,2),(2,3),(3,4),(4,5);
+
+    -- Table: showtimes
+    DROP TABLE IF EXISTS showtimes;
+    CREATE TABLE showtimes (
+      id INT NOT NULL AUTO_INCREMENT,
+      movie_id INT NOT NULL,
+      room_id INT NOT NULL,
+      start_time DATETIME NOT NULL,
+      end_time DATETIME NOT NULL,
+      ticket_price INT NOT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY movie_id (movie_id),
+      KEY idx_start_time (start_time),
+      KEY idx_room_movie (room_id, movie_id),
+      CONSTRAINT showtimes_ibfk_1 FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO showtimes VALUES 
+    (1,1,1,'2025-12-08 09:00:00','2025-12-08 11:30:00',100000,'2025-12-08 07:00:00'),
+    (2,2,2,'2025-12-08 09:30:00','2025-12-08 12:30:00',120000,'2025-12-08 07:00:00'),
+    (3,3,3,'2025-12-08 10:00:00','2025-12-08 12:45:00',110000,'2025-12-08 07:00:00'),
+    (4,4,4,'2025-12-08 10:30:00','2025-12-08 13:05:00',105000,'2025-12-08 07:00:00'),
+    (5,5,5,'2025-12-08 12:00:00','2025-12-08 14:20:00',100000,'2025-12-08 07:00:00');
+
+    -- Table: reviews
+    DROP TABLE IF EXISTS reviews;
+    CREATE TABLE reviews (
+      id INT NOT NULL AUTO_INCREMENT,
+      movie_id INT NOT NULL,
+      username VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      rating INT NOT NULL,
+      comment TEXT COLLATE utf8mb4_unicode_ci,
+      created_at DATETIME NOT NULL,
+      updated_at DATETIME DEFAULT NULL,
+      PRIMARY KEY (id),
+      KEY idx_movie_user (movie_id, username),
+      CONSTRAINT reviews_ibfk_1 FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+      CONSTRAINT reviews_chk_1 CHECK (rating >= 1 AND rating <= 5)
+    ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO reviews VALUES 
+    (1,1,'user1',5,'Một bộ phim hành động tuyệt vời!','2025-11-10 14:30:00',NULL),
+    (2,1,'user3',5,'Mission Impossible 8 là phần hay nhất!','2025-11-11 09:15:00',NULL);
+
+    -- ============================================================================
+    -- 3. CINEMAADB - Cinema Management Database
+    -- ============================================================================
+    CREATE DATABASE IF NOT EXISTS cinemaadb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE cinemaadb;
+
+    -- Table: cinemas
+    DROP TABLE IF EXISTS cinemas;
+    CREATE TABLE cinemas (
+      id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      address VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      phone VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO cinemas VALUES 
+    (1,'CGV Vincom Center','72 Lê Thánh Tôn, Quận 1, TP.HCM','1900 6017','2025-11-14 14:32:28'),
+    (2,'Lotte Cinema Diamond Plaza','34 Lê Duẩn, Quận 1, TP.HCM','1900 5454','2025-11-14 14:32:28'),
+    (3,'Galaxy Cinema Nguyễn Du','116 Nguyễn Du, Quận 1, TP.HCM','1900 2224','2025-11-14 14:32:28'),
+    (4,'BHD Star Cineplex 3/2','190 Đường 3 Tháng 2, Quận 10, TP.HCM','1900 2099','2025-11-14 14:32:28');
+
+    -- Table: rooms
+    DROP TABLE IF EXISTS rooms;
+    CREATE TABLE rooms (
+      id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+      total_seats INT NOT NULL,
+      cinema_id INT NOT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY cinema_id (cinema_id),
+      CONSTRAINT rooms_ibfk_1 FOREIGN KEY (cinema_id) REFERENCES cinemas (id) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO rooms VALUES 
+    (1,'Phòng 1 - CGV Vincom',56,1,'2025-11-14 14:32:28'),
+    (2,'Phòng 2 - CGV Vincom',56,1,'2025-11-14 14:32:28'),
+    (3,'Phòng 3 - CGV Vincom',56,1,'2025-11-14 14:32:28'),
+    (4,'Phòng 4 - CGV Vincom',56,1,'2025-11-14 14:32:28'),
+    (5,'Phòng 1 - Lotte Diamond',56,2,'2025-11-14 14:32:28'),
+    (6,'Phòng 2 - Lotte Diamond',56,2,'2025-11-14 14:32:28'),
+    (7,'Phòng 3 - Lotte Diamond',56,2,'2025-11-14 14:32:28'),
+    (8,'Phòng 4 - Lotte Diamond',56,2,'2025-11-14 14:32:28'),
+    (9,'Phòng 1 - Galaxy Nguyễn Du',56,3,'2025-11-14 14:32:28'),
+    (10,'Phòng 2 - Galaxy Nguyễn Du',56,3,'2025-11-14 14:32:28'),
+    (11,'Phòng 3 - Galaxy Nguyễn Du',56,3,'2025-11-14 14:32:28'),
+    (12,'Phòng 4 - Galaxy Nguyễn Du',56,3,'2025-11-14 14:32:28'),
+    (13,'Phòng 1 - BHD Star 3/2',56,4,'2025-11-14 14:32:28'),
+    (14,'Phòng 2 - BHD Star 3/2',56,4,'2025-11-14 14:32:28'),
+    (15,'Phòng 3 - BHD Star 3/2',56,4,'2025-11-14 14:32:28'),
+    (16,'Phòng 4 - BHD Star 3/2',56,4,'2025-11-14 14:32:28');
+
+    -- Table: seats (56 seats per room)
+    DROP TABLE IF EXISTS seats;
+    CREATE TABLE seats (
+      id INT NOT NULL AUTO_INCREMENT,
+      name VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      seat_row INT NOT NULL,
+      seat_column INT NOT NULL,
+      room_id INT NOT NULL,
+      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_room_seat (room_id, seat_row, seat_column),
+      CONSTRAINT seats_ibfk_1 FOREIGN KEY (room_id) REFERENCES rooms (id) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=897 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    -- ============================================================================
+    -- 4. BOOKINGDB - Booking Management Database
+    -- ============================================================================
+    CREATE DATABASE IF NOT EXISTS bookingdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE bookingdb;
+
+    -- Table: invoices
+    DROP TABLE IF EXISTS invoices;
+    CREATE TABLE invoices (
+      invoice_id INT NOT NULL AUTO_INCREMENT,
+      username VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+      total_amount INT NOT NULL,
+      payment_status ENUM('PENDING','PAID','CANCELLED','REFUNDED') COLLATE utf8mb4_unicode_ci DEFAULT 'PENDING',
+      vnpay_transaction_id VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      paid_at DATETIME DEFAULT NULL,
+      PRIMARY KEY (invoice_id),
+      KEY idx_username (username),
+      KEY idx_status (payment_status)
+    ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO invoices VALUES 
+    (1,'user1',200000,'PAID','VNP20250114001','2025-01-14 08:30:00','2025-01-14 08:35:00'),
+    (2,'user2',360000,'PAID','VNP20250114002','2025-01-14 09:15:00','2025-01-14 09:20:00'),
+    (3,'user3',220000,'PAID','VNP20250114003','2025-01-15 10:00:00','2025-01-15 10:05:00'),
+    (4,'user1',210000,'PAID','VNP20250115001','2025-01-15 14:30:00','2025-01-15 14:35:00');
+
+    -- Table: tickets
+    DROP TABLE IF EXISTS tickets;
+    CREATE TABLE tickets (
+      id INT NOT NULL AUTO_INCREMENT,
+      showtime_id INT NOT NULL,
+      seat_id INT NOT NULL,
+      invoice_id INT NOT NULL,
+      price INT NOT NULL,
+      status TINYINT(1) DEFAULT 0,
+      qr_code VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      scanned_at DATETIME DEFAULT NULL,
+      is_scanned TINYINT(1) DEFAULT 0,
+      PRIMARY KEY (id),
+      UNIQUE KEY qr_code (qr_code),
+      KEY idx_showtime (showtime_id),
+      KEY idx_seat (seat_id),
+      KEY idx_invoice (invoice_id),
+      KEY idx_qr_code (qr_code),
+      CONSTRAINT tickets_ibfk_1 FOREIGN KEY (invoice_id) REFERENCES invoices (invoice_id) ON DELETE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO tickets VALUES 
+    (1,1,25,1,100000,1,'QR-1-25-001','2025-01-14 08:35:00','2025-01-15 09:05:00',1),
+    (2,1,26,1,100000,1,'QR-1-26-002','2025-01-14 08:35:00','2025-01-15 09:05:00',1),
+    (3,2,50,2,120000,1,'QR-2-50-001','2025-01-14 09:20:00','2025-01-15 09:30:00',1),
+    (4,2,51,2,120000,1,'QR-2-51-002','2025-01-14 09:20:00','2025-01-15 09:30:00',1);
+
+    -- ============================================================================
+    -- 5. RECOMMENDATIONDB - Recommendation Service Database
+    -- ============================================================================
+    CREATE DATABASE IF NOT EXISTS recommendationdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE recommendationdb;
+
+    -- Table: user_preferences
+    DROP TABLE IF EXISTS user_preferences;
+    CREATE TABLE user_preferences (
+      id INT NOT NULL AUTO_INCREMENT,
+      username VARCHAR(255) NOT NULL UNIQUE,
+      preferred_genres VARCHAR(500),
+      preferred_actors VARCHAR(500),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO user_preferences VALUES 
+    (1,'user1','1,2,6','1,3',NOW(),NOW()),
+    (2,'user2','1,4,9','2,4',NOW(),NOW()),
+    (3,'user3','2,6,8','5,3',NOW(),NOW());
+
+    -- Table: viewing_history
+    DROP TABLE IF EXISTS viewing_history;
+    CREATE TABLE viewing_history (
+      id INT NOT NULL AUTO_INCREMENT,
+      username VARCHAR(255) NOT NULL,
+      movie_id INT NOT NULL,
+      viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      rating INT,
+      PRIMARY KEY (id),
+      KEY idx_username (username),
+      KEY idx_movie (movie_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    INSERT INTO viewing_history VALUES 
+    (1,'user1',1,NOW(),5),
+    (2,'user1',2,NOW(),4),
+    (3,'user2',2,NOW(),5);
+
+---
+# MySQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.4.6
+        ports:
+        - containerPort: 3306
+          name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        - name: MYSQL_DATABASE
+          value: "userdb"
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+        - name: init-db-script
+          mountPath: /docker-entrypoint-initdb.d
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - -h
+            - localhost
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: mysql-data
+        emptyDir: {}
+      - name: init-db-script
+        configMap:
+          name: init-db-script
+          defaultMode: 0644
+
+---
+# MySQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: cinema-booking
+spec:
+  selector:
+    app: mysql
+  type: ClusterIP
+  ports:
+  - port: 3306
+    targetPort: 3306
+    name: mysql
+
+---
+# User Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: user-service-image:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/userdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123456"
+        - name: SERVER_PORT
+          value: "8080"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# User Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: cinema-booking
+spec:
+  selector:
+    app: user-service
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: movie-upload-pvc
+  namespace: cinema-booking
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movie-service
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movie-service
+  template:
+    metadata:
+      labels:
+        app: movie-service
+    spec:
+      containers:
+        - name: movie-service
+          image: movie-service-image:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+              name: http
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/moviedb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "123456"
+            - name: SERVER_PORT
+              value: "8081"
+
+          # ✅ THÊM MOUNT UPLOAD
+          volumeMounts:
+            - name: upload-volume
+              mountPath: /uploads
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+      # ✅ THÊM VOLUME PVC
+      volumes:
+        - name: upload-volume
+          persistentVolumeClaim:
+            claimName: movie-upload-pvc
+---
+# Movie Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: movie-service
+  namespace: cinema-booking
+spec:
+  selector:
+    app: movie-service
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    name: http
+
+---
+# Cinema Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cinema-service
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cinema-service
+  template:
+    metadata:
+      labels:
+        app: cinema-service
+    spec:
+      containers:
+      - name: cinema-service
+        image: cinema-service-image:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8082
+          name: http
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/cinemaadb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123456"
+        - name: SERVER_PORT
+          value: "8082"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Cinema Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cinema-service
+  namespace: cinema-booking
+spec:
+  selector:
+    app: cinema-service
+  type: ClusterIP
+  ports:
+  - port: 8082
+    targetPort: 8082
+    name: http
+
+---
+# Booking Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: booking-service-image:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8083
+          name: http
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/bookingdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123456"
+        - name: SERVER_PORT
+          value: "8083"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Booking Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: cinema-booking
+spec:
+  selector:
+    app: booking-service
+  type: ClusterIP
+  ports:
+  - port: 8083
+    targetPort: 8083
+    name: http
+
+---
+# Recommendation Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-service
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendation-service
+  template:
+    metadata:
+      labels:
+        app: recommendation-service
+    spec:
+      containers:
+      - name: recommendation-service
+        image: recommendation-service-image:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8084
+          name: http
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql:3306/recommendationdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8&allowPublicKeyRetrieval=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123456"
+        - name: SERVER_PORT
+          value: "8084"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Recommendation Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendation-service
+  namespace: cinema-booking
+spec:
+  selector:
+    app: recommendation-service
+  type: ClusterIP
+  ports:
+  - port: 8084
+    targetPort: 8084
+    name: http
+
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: cinema-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: api-gateway-image:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8888
+          name: http
+        env:
+        - name: SERVER_PORT
+          value: "8888"
+        - name: APP_API_PREFIX
+          value: "/api/v1"
+        - name: APPLICATION_NAME
+          value: "api-gateway"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# API Gateway Service (LoadBalancer for external access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: cinema-booking
+spec:
+  selector:
+    app: api-gateway
+  type: LoadBalancer
+  ports:
+  - port: 8888
+    targetPort: 8888
+    name: http

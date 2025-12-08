@@ -19,7 +19,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Value("${file.upload-dir:uploads/posters}")
     private String uploadDir;
 
-        @Value("${file.base-url:http://localhost:8081}")
+    @Value("${file.base-url:http://localhost:8888/api/v1}")
     private String baseUrl;
 
     @Override
@@ -59,8 +59,11 @@ public class FileUploadServiceImpl implements FileUploadService {
             Path filePath = uploadPath.resolve(uniqueFilename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
+            String cleanBaseUrl = baseUrl.replaceAll("/+$", ""); // Remove trailing slashes
+            String cleanUploadDir = uploadDir.replaceAll("^/+", "").replaceAll("/+$", ""); // Remove leading and trailing slashes
+
             // Return URL to access the file
-            return baseUrl + "/" + uploadDir + "/" + uniqueFilename;
+            return String.format("%s/%s/%s", cleanBaseUrl, cleanUploadDir, uniqueFilename);
 
         } catch (IOException e) {
             throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);

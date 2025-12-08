@@ -40,7 +40,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     @NonFinal
     private String[] publicEndpoints = {
               "/user-service/.*",
-              "/movie-service/movies.*",
+              "/user-service/.*",
+              "/movie-service/uploads.*",
+              "/uploads.*",
               "/movie-service/genres.*",
               "/cinema-service/.*",
               "/booking-service/payments/vnpay/callback.*"
