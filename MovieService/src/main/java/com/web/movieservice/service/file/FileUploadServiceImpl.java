@@ -19,7 +19,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Value("${file.upload-dir:uploads/posters}")
     private String uploadDir;
 
-    @Value("${file.base-url:http://localhost:8081}")
+        @Value("${file.base-url:http://localhost:8081}")
     private String baseUrl;
 
     @Override
