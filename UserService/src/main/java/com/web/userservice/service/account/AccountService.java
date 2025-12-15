@@ -1,11 +1,12 @@
 package com.web.userservice.service.account;
 
-
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
 import com.web.userservice.dto.resquest.ChangePasswordRequest;
 import com.web.userservice.dto.resquest.UpdateProfileRequest;
 import com.web.userservice.dto.resquest.UserRegistrationRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AccountService {
     CustomerResponse registerUser(UserRegistrationRequest request);
@@ -18,4 +19,12 @@ public interface AccountService {
     CustomerResponse getCustomerByUsername(String username);
     CustomerResponse getCustomerById(Integer id);
     void resetPassword(String username);
+
+    Page<CustomerResponse> getAllCustomers(Pageable pageable);
+    CustomerResponse createCustomer(UserRegistrationRequest request);
+    void deleteCustomer(String username); // Soft delete - sets status to false
+    void updateCustomerPassword(String username, String newPassword);
+    CustomerResponse updateCustomer(String username, UpdateProfileRequest request); // New method for updating user info
+
+    Page<CustomerResponse> searchCustomers(String keyword, Pageable pageable);
 }

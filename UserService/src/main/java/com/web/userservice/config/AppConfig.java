@@ -19,6 +19,8 @@ public class AppConfig {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    static final String SUPER_ADMIN_USER_NAME = "superadmin";
+    static final String SUPER_ADMIN_PASSWORD = "superadmin";
     static final String ADMIN_USER_NAME = "admin";
     static final String ADMIN_PASSWORD = "admin";
     static final String STAFF_USER_NAME = "staff";
@@ -31,6 +33,25 @@ public class AppConfig {
     )
     ApplicationRunner applicationRunner(AccountRepository accountRepository, ManagerRepository managerRepository) {
         return args -> {
+            if (accountRepository.findByUsername(SUPER_ADMIN_USER_NAME).isEmpty()) {
+                Account superAdminAccount = Account.builder()
+                        .username(SUPER_ADMIN_USER_NAME)
+                        .password(passwordEncoder.encode(SUPER_ADMIN_PASSWORD))
+                        .status(true)
+                        .build();
+
+                superAdminAccount = accountRepository.save(superAdminAccount);
+
+                Manager superAdmin = Manager.builder()
+                        .firstName("Super")
+                        .lastName("Admin")
+                        .position(Position.ADMIN)
+                        .account(superAdminAccount)
+                        .build();
+
+                managerRepository.save(superAdmin);
+            }
+
             if (accountRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
                 // Create admin account
                 Account adminAccount = Account.builder()
@@ -69,6 +90,6 @@ public class AppConfig {
 
                 managerRepository.save(staff);
             }
-            };
+        };
     }
 }

@@ -10,6 +10,10 @@ import com.web.userservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/accounts")
@@ -76,18 +80,59 @@ public class AccountController {
                 .build();
     }
 
-//    @GetMapping("customer/{id}")
-//    public ApiResponse<CustomerResponse> getCustomerById(@PathVariable Integer id) {
-//        return ApiResponse.<CustomerResponse>builder()
-//                .result(accountService.getCustomerById(id))
-//                .build();
-//    }
-
     @PostMapping("reset-password/customer/{username}")
     public ApiResponse<String> resetPassword(@PathVariable String username) {
         accountService.resetPassword(username);
         return ApiResponse.<String>builder()
                 .result("Reset password success")
+                .build();
+    }
+
+    @GetMapping("/customers")
+    public ApiResponse<Page<CustomerResponse>> getAllCustomers(Pageable pageable) {
+        return ApiResponse.<Page<CustomerResponse>>builder()
+                .result(accountService.getAllCustomers(pageable))
+                .build();
+    }
+
+    @GetMapping("/customers/search")
+    public ApiResponse<Page<CustomerResponse>> searchCustomers(Pageable pageable, @RequestParam(required = false) String keyword) {
+        return ApiResponse.<Page<CustomerResponse>>builder()
+                .result(accountService.searchCustomers(keyword,pageable))
+                .build();
+    }
+
+    @PostMapping("/customers")
+    public ApiResponse<CustomerResponse> createCustomer(@Valid @RequestBody UserRegistrationRequest request) {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(accountService.createCustomer(request))
+                .build();
+    }
+
+    @DeleteMapping("/customers/{username}")
+    public ApiResponse<String> deleteCustomer(@PathVariable String username) {
+        accountService.deleteCustomer(username);
+        return ApiResponse.<String>builder()
+                .result("Customer soft deleted successfully")
+                .build();
+    }
+
+    @PutMapping("/customers/{username}/password")
+    public ApiResponse<String> updateCustomerPassword(
+            @PathVariable String username,
+            @RequestBody ChangePasswordRequest request) {
+        accountService.updateCustomerPassword(username, request.getNewPassword());
+        return ApiResponse.<String>builder()
+                .result("Password updated successfully")
+                .build();
+    }
+
+    @PutMapping("/customers/{username}")
+    public ApiResponse<CustomerResponse> updateCustomer(
+            @PathVariable String username,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        return ApiResponse.<CustomerResponse>builder()
+                .result(accountService.updateCustomer(username, request))
                 .build();
     }
 }

@@ -259,7 +259,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var manager = managerRepository.findByAccountUsername(account.getUsername());
         if (manager.isPresent()) {
             Position position = manager.get().getPosition();
-            if (position == Position.MANAGER) {
+            if (position == Position.ADMIN) {
+                stringJoiner.add("ROLE_ADMIN");
+            } else if (position == Position.MANAGER) {
                 stringJoiner.add("ROLE_MANAGER");
             } else if (position == Position.STAFF) {
                 stringJoiner.add("ROLE_STAFF");
