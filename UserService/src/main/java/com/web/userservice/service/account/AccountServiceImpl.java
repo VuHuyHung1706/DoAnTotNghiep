@@ -1,5 +1,7 @@
 package com.web.userservice.service.account;
 
+import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateStaffRequest;
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
 import com.web.userservice.dto.resquest.ChangePasswordRequest;
@@ -8,6 +10,7 @@ import com.web.userservice.dto.resquest.UserRegistrationRequest;
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Customer;
 import com.web.userservice.entity.Manager;
+import com.web.userservice.enums.Position;
 import com.web.userservice.exception.AppException;
 import com.web.userservice.exception.ErrorCode;
 import com.web.userservice.mapper.CustomerMapper;
@@ -23,6 +26,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Transactional
@@ -260,5 +266,143 @@ public class AccountServiceImpl implements AccountService {
     public Page<CustomerResponse> searchCustomers(String keyword, Pageable pageable) {
         Page<Customer> customers = customerRepository.searchCustomers(keyword, pageable);
         return customers.map(customerMapper::toCustomerResponse);
+    }
+
+    @Override
+    public Page<ManagerResponse> getAllStaff(Pageable pageable) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        List<Position> allowedPositions;
+        if (currentManager.getPosition() == Position.ADMIN) {
+            allowedPositions = Arrays.asList(Position.MANAGER, Position.STAFF);
+        } else if (currentManager.getPosition() == Position.MANAGER) {
+            allowedPositions = Arrays.asList(Position.STAFF);
+        } else {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Page<Manager> staff = managerRepository.findAllByPositionIn(allowedPositions, pageable);
+        return staff.map(managerMapper::toManagerResponse);
+    }
+
+    @Override
+    public Page<ManagerResponse> searchStaff(String keyword, Pageable pageable) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        List<Position> allowedPositions;
+        if (currentManager.getPosition() == Position.ADMIN) {
+            allowedPositions = Arrays.asList(Position.MANAGER, Position.STAFF);
+        } else if (currentManager.getPosition() == Position.MANAGER) {
+            allowedPositions = Arrays.asList(Position.STAFF);
+        } else {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Page<Manager> staff = managerRepository.searchStaffByPositions(keyword, allowedPositions, pageable);
+        return staff.map(managerMapper::toManagerResponse);
+    }
+
+    @Override
+    public ManagerResponse createStaff(StaffRegistrationRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (currentManager.getPosition() == Position.MANAGER && request.getPosition() != Position.STAFF) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (accountRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        if (request.getEmail() != null && managerRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        Account account = Account.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .status(true)
+                .build();
+
+        account = accountRepository.save(account);
+
+        Manager manager = managerMapper.toManager(request);
+        manager.setAccount(account);
+
+        manager = managerRepository.save(manager);
+
+        return managerMapper.toManagerResponse(manager);
+    }
+
+    @Override
+    public ManagerResponse updateStaff(String username, UpdateStaffRequest request) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(currentUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Manager targetStaff = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (currentManager.getPosition() == Position.MANAGER) {
+            if (targetStaff.getPosition() != Position.STAFF || request.getPosition() != Position.STAFF) {
+                throw new AppException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+
+        if (request.getEmail() != null && !request.getEmail().equals(targetStaff.getEmail())
+                && managerRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        managerMapper.updateManager(targetStaff, request);
+        targetStaff = managerRepository.save(targetStaff);
+
+        return managerMapper.toManagerResponse(targetStaff);
+    }
+
+    @Override
+    public void deleteStaff(String username) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(currentUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Manager targetStaff = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (currentManager.getPosition() == Position.MANAGER && targetStaff.getPosition() != Position.STAFF) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        account.setStatus(false);
+        accountRepository.save(account);
+    }
+
+    @Override
+    public void updateStaffPassword(String username, String newPassword) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        Manager currentManager = managerRepository.findByAccountUsername(currentUsername)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Manager targetStaff = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (currentManager.getPosition() == Position.MANAGER && targetStaff.getPosition() != Position.STAFF) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
     }
 }

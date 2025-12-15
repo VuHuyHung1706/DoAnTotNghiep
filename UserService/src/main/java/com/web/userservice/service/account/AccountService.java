@@ -1,5 +1,7 @@
 package com.web.userservice.service.account;
 
+import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateStaffRequest;
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
 import com.web.userservice.dto.resquest.ChangePasswordRequest;
@@ -22,9 +24,15 @@ public interface AccountService {
 
     Page<CustomerResponse> getAllCustomers(Pageable pageable);
     CustomerResponse createCustomer(UserRegistrationRequest request);
-    void deleteCustomer(String username); // Soft delete - sets status to false
+    void deleteCustomer(String username);
     void updateCustomerPassword(String username, String newPassword);
-    CustomerResponse updateCustomer(String username, UpdateProfileRequest request); // New method for updating user info
-
+    CustomerResponse updateCustomer(String username, UpdateProfileRequest request);
     Page<CustomerResponse> searchCustomers(String keyword, Pageable pageable);
+
+    Page<ManagerResponse> getAllStaff(Pageable pageable);
+    Page<ManagerResponse> searchStaff(String keyword, Pageable pageable);
+    ManagerResponse createStaff(StaffRegistrationRequest request);
+    ManagerResponse updateStaff(String username, UpdateStaffRequest request);
+    void deleteStaff(String username);
+    void updateStaffPassword(String username, String newPassword);
 }
