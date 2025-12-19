@@ -1,4 +1,4 @@
-package com.web.userservice.dto.resquest;
+package com.web.userservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateProfileRequest {
+public class UpdateManagerProfileRequest {
 
     @NotBlank(message = "FIRST_NAME_NOT_BLANK")
     private String firstName;
@@ -25,4 +25,5 @@ public class UpdateProfileRequest {
     private Boolean gender;
     private LocalDate dateOfBirth;
     private String address;
+    private String idCard;
 }

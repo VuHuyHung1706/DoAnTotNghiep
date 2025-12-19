@@ -1,4 +1,4 @@
-package com.web.userservice.dto.resquest;
+package com.web.userservice.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class IntrospectRequest {
+public class LogoutRequest {
     private String token;
 }

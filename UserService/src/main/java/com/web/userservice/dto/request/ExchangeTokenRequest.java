@@ -1,4 +1,4 @@
-package com.web.userservice.dto.resquest;
+package com.web.userservice.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

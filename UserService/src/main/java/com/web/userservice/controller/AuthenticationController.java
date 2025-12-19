@@ -5,10 +5,10 @@ import com.nimbusds.jose.JOSEException;
 import com.web.userservice.dto.response.ApiResponse;
 import com.web.userservice.dto.response.AuthenticationResponse;
 import com.web.userservice.dto.response.IntrospectResponse;
-import com.web.userservice.dto.resquest.AuthenticationRequest;
-import com.web.userservice.dto.resquest.IntrospectRequest;
-import com.web.userservice.dto.resquest.LogoutRequest;
-import com.web.userservice.dto.resquest.RefreshRequest;
+import com.web.userservice.dto.request.AuthenticationRequest;
+import com.web.userservice.dto.request.IntrospectRequest;
+import com.web.userservice.dto.request.LogoutRequest;
+import com.web.userservice.dto.request.RefreshRequest;
 import com.web.userservice.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +22,16 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationService;
 
+
+    @GetMapping("/callback")
+    public ApiResponse<String> callback() {
+        String result = "callback";
+        return ApiResponse.<String>builder()
+                .result(result)
+                .build();
+    }
+
+
     @PostMapping("/login")
     public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         var result = authenticationService.authenticate(request);
@@ -29,6 +39,7 @@ public class AuthenticationController {
                 .result(result)
                 .build();
     }
+
 
     @PostMapping("/google/login")
     public ApiResponse<AuthenticationResponse> googleLogin(@RequestParam String code) {

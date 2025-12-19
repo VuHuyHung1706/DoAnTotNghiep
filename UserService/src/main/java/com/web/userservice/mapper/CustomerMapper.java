@@ -2,8 +2,8 @@ package com.web.userservice.mapper;
 
 
 import com.web.userservice.dto.response.CustomerResponse;
-import com.web.userservice.dto.resquest.UpdateProfileRequest;
-import com.web.userservice.dto.resquest.UserRegistrationRequest;
+import com.web.userservice.dto.request.UpdateProfileRequest;
+import com.web.userservice.dto.request.UserRegistrationRequest;
 import com.web.userservice.entity.Customer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

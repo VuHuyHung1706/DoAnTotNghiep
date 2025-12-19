@@ -9,7 +9,7 @@ import com.web.userservice.dto.response.AuthenticationResponse;
 import com.web.userservice.dto.response.ExchangeTokenResponse;
 import com.web.userservice.dto.response.GoogleUserResponse;
 import com.web.userservice.dto.response.IntrospectResponse;
-import com.web.userservice.dto.resquest.*;
+import com.web.userservice.dto.request.*;
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Customer;
 import com.web.userservice.entity.InvalidatedToken;

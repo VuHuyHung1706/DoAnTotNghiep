@@ -1,7 +1,7 @@
 package com.web.userservice.repository.google;
 
 import com.web.userservice.dto.response.ExchangeTokenResponse;
-import com.web.userservice.dto.resquest.ExchangeTokenRequest;
+import com.web.userservice.dto.request.ExchangeTokenRequest;
 import feign.QueryMap;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;

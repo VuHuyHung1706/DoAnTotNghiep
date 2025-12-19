@@ -18,8 +18,8 @@ vnpay:
   pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:8888/api/v1/booking-service/payments/vnpay/callback
   ipn-url: https://b8d0aa68f709.ngrok-free.app/payments/vnpay/ipn
-  tmn-code: RTZSTG9H
-  secret-key: 2AZN4DDW57TB4Q4OS8A50XQTCR625BAT
+  tmn-code: NFMHSMW8
+  secret-key: 04JGKK3WAHVD42YZ17VYSVILDFB8D4SS
   api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
 
 jwt:

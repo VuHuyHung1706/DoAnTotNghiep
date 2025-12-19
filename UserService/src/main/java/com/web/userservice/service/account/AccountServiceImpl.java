@@ -1,12 +1,13 @@
 package com.web.userservice.service.account;
 
 import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateManagerProfileRequest;
 import com.web.userservice.dto.request.UpdateStaffRequest;
+import com.web.userservice.dto.request.UserRegistrationRequest;
+import com.web.userservice.dto.request.ChangePasswordRequest;
+import com.web.userservice.dto.request.UpdateProfileRequest;
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
-import com.web.userservice.dto.resquest.ChangePasswordRequest;
-import com.web.userservice.dto.resquest.UpdateProfileRequest;
-import com.web.userservice.dto.resquest.UserRegistrationRequest;
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Customer;
 import com.web.userservice.entity.Manager;
@@ -169,6 +170,24 @@ public class AccountServiceImpl implements AccountService {
 
         Manager manager = managerRepository.findByAccountUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return managerMapper.toManagerResponse(manager);
+    }
+
+    @Override
+    public ManagerResponse updateManagerProfile(UpdateManagerProfileRequest request) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Manager manager = managerRepository.findByAccountUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (request.getEmail() != null && !request.getEmail().equals(manager.getEmail())
+                && managerRepository.existsByEmail(request.getEmail())) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        managerMapper.updateManagerProfile(manager, request);
+        manager = managerRepository.save(manager);
 
         return managerMapper.toManagerResponse(manager);
     }

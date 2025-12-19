@@ -1,12 +1,13 @@
 package com.web.userservice.service.account;
 
 import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateManagerProfileRequest;
 import com.web.userservice.dto.request.UpdateStaffRequest;
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
-import com.web.userservice.dto.resquest.ChangePasswordRequest;
-import com.web.userservice.dto.resquest.UpdateProfileRequest;
-import com.web.userservice.dto.resquest.UserRegistrationRequest;
+import com.web.userservice.dto.request.ChangePasswordRequest;
+import com.web.userservice.dto.request.UpdateProfileRequest;
+import com.web.userservice.dto.request.UserRegistrationRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,6 +19,7 @@ public interface AccountService {
     CustomerResponse updateProfile(UpdateProfileRequest request);
     CustomerResponse getMyProfile();
     ManagerResponse getManager();
+    ManagerResponse updateManagerProfile(UpdateManagerProfileRequest request);
     CustomerResponse getCustomerByUsername(String username);
     CustomerResponse getCustomerById(Integer id);
     void resetPassword(String username);

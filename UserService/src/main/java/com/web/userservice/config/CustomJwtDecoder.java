@@ -1,7 +1,7 @@
 package com.web.userservice.config;
 
 import com.nimbusds.jose.JOSEException;
-import com.web.userservice.dto.resquest.IntrospectRequest;
+import com.web.userservice.dto.request.IntrospectRequest;
 import com.web.userservice.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.web.userservice.dto.resquest;
+package com.web.userservice.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

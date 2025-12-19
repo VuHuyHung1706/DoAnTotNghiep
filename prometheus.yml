@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['api-gateway:8888', 'user-service:8080', 'movie-service:8081', 'cinema-service:8082', 'booking-service:8083']

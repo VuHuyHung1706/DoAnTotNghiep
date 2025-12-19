@@ -2,6 +2,7 @@ package com.web.userservice.mapper;
 
 
 import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateManagerProfileRequest;
 import com.web.userservice.dto.request.UpdateStaffRequest;
 import com.web.userservice.dto.response.ManagerResponse;
 import com.web.userservice.entity.Manager;
@@ -19,4 +20,6 @@ public interface ManagerMapper {
     Manager toManager(StaffRegistrationRequest request);
 
     void updateManager(@MappingTarget Manager manager, UpdateStaffRequest request);
+
+    void updateManagerProfile(@MappingTarget Manager manager, UpdateManagerProfileRequest request);
 }

@@ -1,13 +1,14 @@
 package com.web.userservice.controller;
 
 import com.web.userservice.dto.request.StaffRegistrationRequest;
+import com.web.userservice.dto.request.UpdateManagerProfileRequest;
 import com.web.userservice.dto.request.UpdateStaffRequest;
 import com.web.userservice.dto.response.ApiResponse;
 import com.web.userservice.dto.response.CustomerResponse;
 import com.web.userservice.dto.response.ManagerResponse;
-import com.web.userservice.dto.resquest.ChangePasswordRequest;
-import com.web.userservice.dto.resquest.UpdateProfileRequest;
-import com.web.userservice.dto.resquest.UserRegistrationRequest;
+import com.web.userservice.dto.request.ChangePasswordRequest;
+import com.web.userservice.dto.request.UpdateProfileRequest;
+import com.web.userservice.dto.request.UserRegistrationRequest;
 import com.web.userservice.service.account.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,13 @@ public class AccountController {
     public ApiResponse<ManagerResponse> getManagerProfile() {
         return ApiResponse.<ManagerResponse>builder()
                 .result(accountService.getManager())
+                .build();
+    }
+
+    @PutMapping("manager/profile")
+    public ApiResponse<ManagerResponse> updateManagerProfile(@Valid @RequestBody UpdateManagerProfileRequest request) {
+        return ApiResponse.<ManagerResponse>builder()
+                .result(accountService.updateManagerProfile(request))
                 .build();
     }
 

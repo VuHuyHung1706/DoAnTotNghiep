@@ -4,10 +4,10 @@ package com.web.userservice.service;
 import com.nimbusds.jose.JOSEException;
 import com.web.userservice.dto.response.AuthenticationResponse;
 import com.web.userservice.dto.response.IntrospectResponse;
-import com.web.userservice.dto.resquest.AuthenticationRequest;
-import com.web.userservice.dto.resquest.IntrospectRequest;
-import com.web.userservice.dto.resquest.LogoutRequest;
-import com.web.userservice.dto.resquest.RefreshRequest;
+import com.web.userservice.dto.request.AuthenticationRequest;
+import com.web.userservice.dto.request.IntrospectRequest;
+import com.web.userservice.dto.request.LogoutRequest;
+import com.web.userservice.dto.request.RefreshRequest;
 
 import java.text.ParseException;
 
