@@ -1,26 +1,32 @@
 
 ApiGateway/*
 !ApiGateway/pom.xml
+!CinemaService/Dockerfile
 !ApiGateway/src
 
 BookingService/*
 !BookingService/pom.xml
+!BookingService/Dockerfile
 !BookingService/src
 
 CinemaService/*
 !CinemaService/pom.xml
+!CinemaService/Dockerfile
 !CinemaService/src
 
 UserService/*
 !UserService/pom.xml
+!UserService/Dockerfile
 !UserService/src
 
 RecommendationService/*
 !RecommendationService/pom.xml
+!RecommendationService/Dockerfile
 !RecommendationService/src
 
 MovieService/*
 !MovieService/pom.xml
+!MovieService/Dockerfile
 !MovieService/src
 
 #.gitignore
