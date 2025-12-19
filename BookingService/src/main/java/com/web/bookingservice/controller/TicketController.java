@@ -70,7 +70,6 @@ public class TicketController {
     }
 
     @PostMapping("/scan")
-    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse<ScanTicketResponse> scanTicket(@Valid @RequestBody ScanTicketRequest request) {
         return ApiResponse.<ScanTicketResponse>builder()
                 .result(ticketService.scanTicket(request))
@@ -78,7 +77,6 @@ public class TicketController {
     }
 
     @GetMapping("/showtime/{showtimeId}")
-//    @PreAuthorize("hasRole('MANAGER')")
     public ApiResponse<List<TicketDetailResponse>> getTicketsByShowtime(@PathVariable Integer showtimeId) {
         return ApiResponse.<List<TicketDetailResponse>>builder()
                 .result(ticketService.getTicketsByShowtime(showtimeId))
