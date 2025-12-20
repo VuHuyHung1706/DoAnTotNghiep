@@ -44,7 +44,7 @@ public class ShowtimeController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ApiResponse<ShowtimeResponse> createShowtime(@Valid @RequestBody ShowtimeRequest request) {
         return ApiResponse.<ShowtimeResponse>builder()
                 .result(showtimeService.createShowtime(request))
@@ -52,7 +52,7 @@ public class ShowtimeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ApiResponse<ShowtimeResponse> updateShowtime(@PathVariable Integer id,
                                                         @Valid @RequestBody ShowtimeRequest request) {
         return ApiResponse.<ShowtimeResponse>builder()
@@ -61,7 +61,7 @@ public class ShowtimeController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('MANAGER') or hasRole('ADMIN')")
     public ApiResponse<String> deleteShowtime(@PathVariable Integer id) {
         showtimeService.deleteShowtime(id);
         return ApiResponse.<String>builder()

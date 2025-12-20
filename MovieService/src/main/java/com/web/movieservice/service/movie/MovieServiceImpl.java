@@ -29,10 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -260,6 +257,7 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<MovieResponse> searchMovies(String query, Integer cinemaId, List<Integer> genreIds, LocalDate date) {
         List<Movie> movies = movieRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
 
         // Filter by title or actor name
         if (query != null && !query.isEmpty()) {
@@ -291,6 +289,7 @@ public class MovieServiceImpl implements MovieService {
             List<Integer> roomIds = cinemaApiResponse.getResult().getRooms().stream().map(RoomResponse::getId).collect(Collectors.toList());
             List<Showtime> showtimesAtCinema = showtimeRepository.findByRoomIdIn(roomIds);
             Set<Integer> movieIdsAtCinema = showtimesAtCinema.stream()
+                    .filter(showtime -> showtime.getEndTime().isAfter(now))
                     .map(Showtime::getMovieId)
                     .collect(Collectors.toSet());
 
@@ -322,6 +321,15 @@ public class MovieServiceImpl implements MovieService {
                     .filter(movie -> movieIdsOnDate.contains(movie.getId()))
                     .collect(Collectors.toList());
         }
+
+        Set<Integer> movieIdsOnDate = showtimeRepository.findAll().stream()
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
+                .map(showtime -> showtime.getMovie().getId())
+                .collect(Collectors.toSet());
+
+        movies = movies.stream()
+                .filter(movie -> movieIdsOnDate.contains(movie.getId()))
+                .collect(Collectors.toList());
 
         return movies.stream()
                 .map(this::mapMovieToResponseWithStatus)
