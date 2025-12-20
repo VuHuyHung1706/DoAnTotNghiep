@@ -125,6 +125,12 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getDuration());
 
+        if (request.getEndTime() == null) {
+            request.setEndTime(endTime);
+        } else if (request.getEndTime().isBefore(endTime)) {
+            throw new AppException(ErrorCode.SHOWTIME_INVALID_TIME);
+        }
+
         List<Showtime> conflictingShowtimes = showtimeRepository.findConflictingShowtimes(
                 request.getRoomId(), request.getStartTime(), endTime);
 
