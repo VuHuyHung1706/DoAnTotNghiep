@@ -1,7 +1,7 @@
 
 ApiGateway/*
 !ApiGateway/pom.xml
-!CinemaService/Dockerfile
+!ApiGateway/Dockerfile
 !ApiGateway/src
 
 BookingService/*
