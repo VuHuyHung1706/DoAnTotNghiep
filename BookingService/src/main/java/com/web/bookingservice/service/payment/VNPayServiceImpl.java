@@ -183,12 +183,12 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                     invoice.setPaymentStatus(PaymentStatus.PAID);
                     invoice.setPaidAt(LocalDateTime.now());
                     invoiceRepository.save(invoice);
-
-                    try {
-                        recommendationServiceClient.updatePreferences(invoice.getUsername());
-                    } catch (AppException e) {
-                        log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
-                    }
+//
+//                    try {
+//                        recommendationServiceClient.updatePreferences(invoice.getUsername());
+//                    } catch (AppException e) {
+//                        log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
+//                    }
 
                 } else {
                     // Payment failed
