@@ -39,4 +39,11 @@ public class RecommendationController {
                 .build();
     }
 
+    @GetMapping("/popular-movies")
+    public ApiResponse<List<MovieRecommendationResponse>> getPopularMovies() {
+        return ApiResponse.<List<MovieRecommendationResponse>>builder()
+                .result(recommendationService.getPopularMovieRecommendations())
+                .build();
+    }
+
 }

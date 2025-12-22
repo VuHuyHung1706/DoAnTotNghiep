@@ -11,4 +11,5 @@ public interface RecommendationService {
     List<MovieRecommendationResponse> getMovieRecommendations(String username);
     List<MovieRecommendationResponse> getMovieRecommendationsUsingItemItem(String username);
     List<MovieRecommendationResponse> getMovieRecommendationsUsingCB(String username);
+    List<MovieRecommendationResponse> getPopularMovieRecommendations();
 }

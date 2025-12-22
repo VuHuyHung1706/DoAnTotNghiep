@@ -40,10 +40,8 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.default-rating}")
     private double defaultRating;
 
-
     @Value("${recommendation.max-results}")
     private int maxResults;
-
 
     @Value("${recommendation.min-similarity-score}")
     private double minSimilarityScore;
@@ -54,6 +52,17 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.cf.enabled:true}")
     private boolean cfEnabled;
 
+    @Value("${recommendation.popularity.booking-weight:2.0}")
+    private double bookingWeight;
+
+    @Value("${recommendation.popularity.review-weight:1.5}")
+    private double reviewWeight;
+
+    @Value("${recommendation.popularity.rating-weight:1.0}")
+    private double ratingWeight;
+
+    @Value("${recommendation.popularity.max-results:20}")
+    private int popularityMaxResults;
 
     @Override
     public List<MovieRecommendationResponse> getMovieRecommendations(String username) {
@@ -66,18 +75,14 @@ public class RecommendationServiceImpl implements RecommendationService {
         movieIds.addAll(movieRecommendationByCBMap.keySet());
         movieIds.addAll(movieRecommendationByItemItemMap.keySet());
 
-        for (Integer id : movieIds)
-        {
-            if (movieRecommendationByCBMap.containsKey(id) && movieRecommendationByItemItemMap.containsKey(id))
-            {
+        for (Integer id : movieIds) {
+            if (movieRecommendationByCBMap.containsKey(id) && movieRecommendationByItemItemMap.containsKey(id)) {
                 MovieRecommendationResponse movie = movieRecommendationByCBMap.get(id);
                 movie.setPredictedRating(movieRecommendationByItemItemMap.get(id).getPredictedRating());
                 movieRecommendations.add(movie);
-            }
-            else if (movieRecommendationByCBMap.containsKey(id)) {
+            } else if (movieRecommendationByCBMap.containsKey(id)) {
                 movieRecommendations.add(movieRecommendationByCBMap.get(id));
-            }
-            else if (movieRecommendationByItemItemMap.containsKey(id)) {
+            } else if (movieRecommendationByItemItemMap.containsKey(id)) {
                 movieRecommendations.add(movieRecommendationByItemItemMap.get(id));
             }
         }
@@ -126,8 +131,7 @@ public class RecommendationServiceImpl implements RecommendationService {
             if (movie == null) {
                 continue;
             }
-            if (cfScore > minPredictedScore)
-            {
+            if (cfScore > minPredictedScore) {
                 recommendations.add(MovieRecommendationResponse.builder()
                         .movieId(movieId)
                         .movieTitle(movie.getTitle())
@@ -136,7 +140,8 @@ public class RecommendationServiceImpl implements RecommendationService {
             }
         }
         // Sort by score and limit results
-        return recommendations;
+        recommendations.sort((m1, m2) -> Double.compare(m2.getPredictedRating(), m1.getPredictedRating()));
+        return recommendations.stream().limit(maxResults).collect(Collectors.toList());
     }
 
     @Override
@@ -160,18 +165,16 @@ public class RecommendationServiceImpl implements RecommendationService {
         // Get movies already watched by user
         Set<Integer> watchedMovieIds = getWatchedMovieIds(username);
 
-        List<MovieRecommendationResponse> movieRecommendations =  new ArrayList<>();
+        List<MovieRecommendationResponse> movieRecommendations = new ArrayList<>();
 
         List<UserPreference> userPreferences = userPreferenceRepository.findByUsername(username);
 
         if (userPreferences.isEmpty()) {
             throw new AppException(ErrorCode.INSUFFICIENT_DATA);
         }
-        for (MovieResponse movieResponse : allMovies)
-        {
-            if (!watchedMovieIds.contains(movieResponse.getId()))
-            {
-                double similarityScore = contentBasedFilterService.calculateSimilarityScore(movieResponse,userPreferences);
+        for (MovieResponse movieResponse : allMovies) {
+            if (!watchedMovieIds.contains(movieResponse.getId())) {
+                double similarityScore = contentBasedFilterService.calculateSimilarityScore(movieResponse, userPreferences);
 
                 if (similarityScore >= minSimilarityScore) {
                     movieRecommendations.add(MovieRecommendationResponse.builder()
@@ -184,7 +187,8 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         // Sort by predicted rating (descending) and limit results
-        return movieRecommendations;
+        movieRecommendations.sort((m1, m2) -> Double.compare(m2.getPredictedRating(), m1.getPredictedRating()));
+        return movieRecommendations.stream().limit(maxResults).collect(Collectors.toList());
     }
 
     @Override
@@ -238,7 +242,6 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         return new ArrayList<>(userRecommendations);
     }
-
 
     @Override
     public void updateUserPreferencesInternal(String username) {
@@ -317,7 +320,7 @@ public class RecommendationServiceImpl implements RecommendationService {
 
             if (existing.isPresent()) {
                 UserPreference pref = existing.get();
-                pref.setPreferenceScore(actorPref.getPreferenceScore() / sumPerferenceScores) ;
+                pref.setPreferenceScore(actorPref.getPreferenceScore() / sumPerferenceScores);
                 pref.setLastUpdated(LocalDateTime.now());
                 userPreferenceRepository.save(pref);
             } else {
@@ -326,6 +329,81 @@ public class RecommendationServiceImpl implements RecommendationService {
                 userPreferenceRepository.save(actorPref);
             }
         }
+    }
+
+    @Override
+    public List<MovieRecommendationResponse> getPopularMovieRecommendations() {
+
+        // Get all movies
+        ApiResponse<List<MovieResponse>> moviesResponse = movieServiceClient.getAllMovies();
+        List<MovieResponse> allMovies = moviesResponse.getResult();
+
+        if (allMovies == null || allMovies.isEmpty()) {
+            throw new AppException(ErrorCode.MOVIE_NOT_EXISTED);
+        }
+
+        // Get all reviews
+        ApiResponse<List<ReviewResponse>> reviewsResponse = movieServiceClient.getAllReviews();
+        List<ReviewResponse> allReviews = reviewsResponse.getResult();
+
+        if (allReviews == null) {
+            allReviews = new ArrayList<>();
+        }
+
+        // Calculate popularity score for each movie
+        List<MovieRecommendationResponse> popularMovies = new ArrayList<>();
+
+        for (MovieResponse movie : allMovies) {
+            double popularityScore = calculatePopularityScore(movie, allReviews);
+
+            popularMovies.add(MovieRecommendationResponse.builder()
+                    .movieId(movie.getId())
+                    .movieTitle(movie.getTitle())
+                    .predictedRating(popularityScore)
+                    .build());
+        }
+
+        // Sort by popularity score (descending) and limit results
+        popularMovies.sort((m1, m2) -> Double.compare(m2.getPredictedRating(), m1.getPredictedRating()));
+
+        return popularMovies.stream()
+                .limit(popularityMaxResults)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Calculate popularity score based on:
+     * - Number of bookings (views/tickets sold)
+     * - Number of reviews (engagement)
+     * - Average rating (quality)
+     */
+    private double calculatePopularityScore(MovieResponse movie, List<ReviewResponse> allReviews) {
+        // Get reviews for this movie
+        List<ReviewResponse> movieReviews = allReviews.stream()
+                .filter(r -> r.getMovieId().equals(movie.getId()))
+                .collect(Collectors.toList());
+
+        // Calculate metrics
+        int reviewCount = movieReviews.size();
+
+        // Calculate average rating
+        double avgRating = movieReviews.isEmpty() ? 0.0 :
+                movieReviews.stream()
+                        .mapToDouble(ReviewResponse::getRating)
+                        .average()
+                        .orElse(0.0);
+
+        // Estimate booking count based on review count (typically 1 review per 5-10 bookings)
+        int estimatedBookingCount = reviewCount * 7;
+
+        // Calculate weighted popularity score
+        double popularityScore =
+                (estimatedBookingCount * bookingWeight) +
+                        (reviewCount * reviewWeight) +
+                        (avgRating * ratingWeight);
+
+        // Normalize the score (optional, to keep it in a reasonable range)
+        return popularityScore;
     }
 
     private void updateGenrePreference(Map<Integer, UserPreference> preferences,

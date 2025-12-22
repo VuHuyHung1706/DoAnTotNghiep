@@ -24,4 +24,7 @@ public interface RecommendationServiceClient {
     @PostMapping("/recommendations/update-preferences/{username}")
     public ApiResponse<Void> updatePreferences(@PathVariable String username);
 
+    @GetMapping("recommendations/popular-movies")
+    ApiResponse<List<MovieRecommendationResponse>> getPopularMovies();
+
 }

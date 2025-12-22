@@ -141,4 +141,11 @@ public class MovieController {
                 .result(movieService.getRecommendationMovies(username))
                 .build();
     }
+
+    @GetMapping("/popular")
+    public ApiResponse<List<MovieResponse>> getPopularMovies() {
+        return ApiResponse.<List<MovieResponse>>builder()
+                .result(movieService.getPopularMovies())
+                .build();
+    }
 }

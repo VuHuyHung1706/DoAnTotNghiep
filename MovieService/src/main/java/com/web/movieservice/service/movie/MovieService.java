@@ -28,4 +28,5 @@ public interface MovieService {
     List<MovieResponse> getUpcomingMovies();
     List<MovieResponse> getRecommendationMovies(String username);
     List<MovieResponse> getMoviesByCinemaId(Integer cinemaId);
+    List<MovieResponse> getPopularMovies();
 }

@@ -30,8 +30,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -369,17 +372,7 @@ public class MovieServiceImpl implements MovieService {
         LocalDateTime now = LocalDateTime.now();
         LocalDate today = now.toLocalDate();
 
-        List<Movie> allMovies = movieRepository.findAll();
-//        List<Integer> moviesWithShowtimes = showtimeRepository.findAll()
-//                .stream()
-//                .map(showtime -> showtime.getMovie().getId())
-//                .distinct()
-//                .collect(Collectors.toList());
-
-        List<Movie> upcomingMovies = allMovies.stream()
-//                .filter(movie -> !moviesWithShowtimes.contains(movie.getId()))
-                .filter(movie -> movie.getReleaseDate() != null && movie.getReleaseDate().isAfter(today))
-                .collect(Collectors.toList());
+        List<Movie> upcomingMovies = movieRepository.findByReleaseDateAfterOrderByReleaseDateAsc(today);
 
         return upcomingMovies.stream()
                 .map(movieMapper::toMovieResponse)
@@ -400,6 +393,37 @@ public class MovieServiceImpl implements MovieService {
         List<Movie> movies = movieRepository.findByIdIn(recommendationMovieIds);
 
         return movies.stream()
+                .map(movie -> {
+                    MovieResponse movieResponse = movieMapper.toMovieResponse(movie);
+                    movieResponse.setRating(reviewService.getMovieRating(movie.getId()).getAverageRating());
+                    return movieResponse;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponse> getPopularMovies() {
+        List<Integer> popularMovieIds = new ArrayList<>();
+        try {
+            ApiResponse<List<MovieRecommendationResponse>> popularMoviesResponse = recommendationServiceClient.getPopularMovies();
+            List<MovieRecommendationResponse> popularMovies = popularMoviesResponse.getResult();
+            popularMovieIds = popularMovies.stream()
+                    .map(MovieRecommendationResponse::getMovieId)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        }
+
+        List<Movie> movies = movieRepository.findByIdIn(popularMovieIds);
+
+        // Sort movies based on the order from recommendation service
+        Map<Integer, Integer> orderMap = new HashMap<>();
+        for (int i = 0; i < popularMovieIds.size(); i++) {
+            orderMap.put(popularMovieIds.get(i), i);
+        }
+
+        return movies.stream()
+                .sorted(Comparator.comparingInt(m -> orderMap.getOrDefault(m.getId(), Integer.MAX_VALUE)))
                 .map(movie -> {
                     MovieResponse movieResponse = movieMapper.toMovieResponse(movie);
                     movieResponse.setRating(reviewService.getMovieRating(movie.getId()).getAverageRating());
