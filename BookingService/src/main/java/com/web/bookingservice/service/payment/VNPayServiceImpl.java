@@ -13,6 +13,8 @@ import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
 import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.repository.client.RecommendationServiceClient;
+import com.web.bookingservice.repository.client.UserServiceClient;
+import com.web.bookingservice.service.mail.MailService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +37,12 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
 
     @Autowired
     private MovieServiceClient movieServiceClient;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+    @Autowired
+    private MailService mailService;
 
     @Value("${vnpay.pay-url}")
     private String vnp_PayUrl;
@@ -183,12 +191,23 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
                     invoice.setPaymentStatus(PaymentStatus.PAID);
                     invoice.setPaidAt(LocalDateTime.now());
                     invoiceRepository.save(invoice);
-//
-//                    try {
-//                        recommendationServiceClient.updatePreferences(invoice.getUsername());
-//                    } catch (AppException e) {
-//                        log.error("[ERROR] Update recommendation preferences for user FAIL: " + e.getMessage());
-//                    }
+
+                    // Send email with ticket QR codes
+                    try {
+                        List<Ticket> tickets = ticketRepository.findByInvoiceId(invoice.getId());
+                        String recipientEmail = getRecipientEmail(invoice);
+
+                        if (recipientEmail != null && !recipientEmail.isEmpty()) {
+                            mailService.sendTicketEmail(recipientEmail, tickets, invoice.getUsername());
+                            log.info("Ticket email sent successfully to: {}", recipientEmail);
+                        } else {
+                            log.warn("No email found for invoice {}, skipping email notification", invoice.getId());
+                        }
+                    } catch (Exception e) {
+                        log.error("[ERROR] Failed to send ticket email for invoice {}: {}",
+                                invoice.getId(), e.getMessage(), e);
+                        // Don't fail the payment process if email fails
+                    }
 
                 } else {
                     // Payment failed
@@ -200,6 +219,26 @@ public class VNPayServiceImpl extends VNPayConfig implements VNPayService {
 
         }
         return false;
+    }
+
+    private String getRecipientEmail(Invoice invoice) {
+        // If invoice has customer email (guest user), use it
+        if (invoice.getCustomerEmail() != null && !invoice.getCustomerEmail().isEmpty()) {
+            return invoice.getCustomerEmail();
+        }
+
+        // Otherwise, get email from UserService for registered users
+        try {
+            var customerResponse = userServiceClient.getCustomerByUsername(invoice.getUsername());
+            if (customerResponse != null && customerResponse.getResult() != null) {
+                return customerResponse.getResult().getEmail();
+            }
+        } catch (Exception e) {
+            log.error("[ERROR] Failed to get customer email for username {}: {}",
+                    invoice.getUsername(), e.getMessage());
+        }
+
+        return null;
     }
 
     private void createDefaultReviewsForInvoice(Invoice invoice) {

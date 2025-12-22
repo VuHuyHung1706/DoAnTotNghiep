@@ -24,6 +24,9 @@ public class Invoice {
     @Column(name = "username")
     private String username;
 
+    @Column(name = "customer_email")
+    private String customerEmail;
+
     @Column(name = "total_amount")
     private Integer totalAmount;
 

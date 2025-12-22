@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vé xem phim của bạn</title>
+</head>
+<body style="margin:0;padding:0;font-family:Arial,sans-serif;background-color:#f5f5f5;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;padding:20px 0;">
+    <tr>
+        <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+                <!-- Header -->
+                <tr>
+                    <td style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px;text-align:center;">
+                        <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:700;">🎬 HHK Cinema</h1>
+                        <p style="margin:10px 0 0;color:#ffffff;font-size:16px;">Vé xem phim của bạn</p>
+                    </td>
+                </tr>
+
+                <!-- Greeting -->
+                <tr>
+                    <td style="padding:30px 30px 20px;">
+                        <h2 style="margin:0 0 15px;color:#333;font-size:22px;">Xin chào ${username}!</h2>
+                        <p style="margin:0;color:#666;font-size:16px;line-height:1.6;">
+                            Cảm ơn bạn đã đặt vé tại HHK Cinema. Thanh toán của bạn đã được xác nhận thành công!
+                            Dưới đây là thông tin vé của bạn.
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Movie Info -->
+                <tr>
+                    <td style="padding:0 30px 20px;">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f9fa;border-radius:8px;overflow:hidden;">
+                            <tr>
+                                <td style="padding:20px;">
+                                    <table width="100%" cellpadding="5" cellspacing="0">
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;width:40%;">🎬 Phim:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${movieTitle}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">🏢 Rạp:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${cinemaName}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">📍 Phòng:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${roomName}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">🕐 Giờ chiếu:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${startTime}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">📅 Ngày chiếu:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${startDate}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">💺 Ghế:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${seatNames}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">🎫 Số vé:</td>
+                                            <td style="color:#333;font-size:14px;font-weight:600;">${ticketCount} vé</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color:#666;font-size:14px;">💰 Tổng tiền:</td>
+                                            <td style="color:#e91e63;font-size:18px;font-weight:700;">${totalPrice}</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- QR Codes -->
+                <tr>
+                    <td style="padding:0 30px 30px;">
+                        <h3 style="margin:0 0 15px;color:#333;font-size:18px;text-align:center;">
+                            Mã QR vé của bạn
+                        </h3>
+                        <table width="100%" cellpadding="10" cellspacing="0" style="border:2px solid #667eea;border-radius:8px;overflow:hidden;">
+                            <thead>
+                            <tr style="background-color:#667eea;">
+                                <th style="padding:15px;color:#fff;font-size:16px;text-align:center;">Ghế</th>
+                                <th style="padding:15px;color:#fff;font-size:16px;text-align:center;">Mã QR</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            ${ticketRows}
+                            </tbody>
+                        </table>
+                        <p style="margin:15px 0 0;color:#999;font-size:13px;text-align:center;">
+                            ⚠️ Vui lòng xuất trình mã QR này tại quầy để nhận vé
+                        </p>
+                    </td>
+                </tr>
+
+                <!-- Instructions -->
+                <tr>
+                    <td style="padding:0 30px 30px;">
+                        <div style="background-color:#fff3cd;border-left:4px solid #ffc107;padding:15px;border-radius:4px;">
+                            <h4 style="margin:0 0 10px;color:#856404;font-size:16px;">📋 Hướng dẫn sử dụng vé:</h4>
+                            <ul style="margin:0;padding-left:20px;color:#856404;font-size:14px;line-height:1.8;">
+                                <li>Đến rạp trước giờ chiếu ít nhất 15 phút</li>
+                                <li>Xuất trình mã QR tại quầy để lấy vé giấy</li>
+                                <li>Giữ email này để tiện kiểm tra thông tin</li>
+                                <li>Liên hệ hotline nếu cần hỗ trợ</li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="background-color:#f8f9fa;padding:20px;text-align:center;border-top:1px solid #dee2e6;">
+                        <p style="margin:0 0 5px;color:#666;font-size:14px;">
+                            Cảm ơn bạn đã chọn HHK Cinema!
+                        </p>
+                        <p style="margin:0;color:#999;font-size:12px;">
+                            Hotline: 1900-xxxx | Email: support@hhkcinema.vn
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

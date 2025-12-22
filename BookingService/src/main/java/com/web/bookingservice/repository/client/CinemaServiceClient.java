@@ -1,6 +1,7 @@
 package com.web.bookingservice.repository.client;
 
 import com.web.bookingservice.dto.response.ApiResponse;
+import com.web.bookingservice.dto.response.RoomResponse;
 import com.web.bookingservice.dto.response.SeatResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,4 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CinemaServiceClient {
     @GetMapping("/seats/{id}")
     ApiResponse<SeatResponse> getSeatById(@PathVariable Integer id);
+    @GetMapping("/rooms/{id}")
+    ApiResponse<RoomResponse> getRoomById(@PathVariable Integer id);
 }

@@ -14,7 +14,9 @@ import com.web.bookingservice.repository.client.CinemaServiceClient;
 import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.service.qr.QRCodeService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 public class BookingServiceImpl implements BookingService {
@@ -46,7 +49,25 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingResponse bookTickets(BookingRequest request) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username;
+        String customerEmail = null;
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getName())) {
+            username = authentication.getName();
+        } else {
+            // Guest user - generate vanglai username with auto-increment ID
+            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+                throw new AppException(ErrorCode.fromMessage("Email is required for guest booking"));
+            }
+
+            customerEmail = request.getEmail();
+            Integer maxGuestId = invoiceRepository.findMaxGuestId();
+            username = "vanglai" + (maxGuestId + 1);
+            log.info("Created guest username: {} for email: {}", username, customerEmail);
+        }
 
         ApiResponse<ShowtimeResponse> showtimeResponseApiResponse = movieServiceClient.getShowtimeById(request.getShowtimeId());
         if (showtimeResponseApiResponse.getCode() != 1000) {
@@ -76,9 +97,9 @@ public class BookingServiceImpl implements BookingService {
         // Calculate total amount
         int totalAmount = seats.size() * showtimeResponseApiResponse.getResult().getTicketPrice();
 
-        // Create invoice
         Invoice invoice = Invoice.builder()
                 .username(username)
+                .customerEmail(customerEmail)
                 .totalAmount(totalAmount)
                 .paymentStatus(PaymentStatus.PENDING)
                 .createdAt(LocalDateTime.now())

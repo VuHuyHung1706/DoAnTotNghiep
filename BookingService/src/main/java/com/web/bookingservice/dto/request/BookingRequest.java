@@ -20,4 +20,6 @@ public class BookingRequest {
 
     @NotEmpty(message = "SEAT_SELECTION_REQUIRED")
     private List<Integer> seatIds;
+
+    private String email;
 }

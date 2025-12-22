@@ -43,7 +43,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
               "/movie-service/movies.*",
               "/movie-service/genres.*",
               "/cinema-service/.*",
-              "/booking-service/payments/vnpay/callback.*"
+              "/booking-service/payments/vnpay/callback.*",
+              "/booking-service/.*"
+
+
 //             "/booking-service/payments.*",
 //            "/recommendation-service/.*"
 //              "user-service/auth/.*"

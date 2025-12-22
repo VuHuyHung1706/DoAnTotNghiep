@@ -183,9 +183,15 @@ public class TicketServiceImpl implements TicketService {
                     TicketResponse response = ticketMapper.toTicketResponse(ticket);
                     ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(response.getSeatId());
                     response.setSeatName(seatResponseApiResponse.getResult().getName());
-                    ApiResponse<CustomerResponse> customerResponseApiResponse = userServiceClient.getCustomerByUsername(ticket.getInvoice().getUsername());
-                    CustomerResponse customerResponse = customerResponseApiResponse.getResult();
-                    response.setCustomer(customerResponseApiResponse.getResult());
+                    CustomerResponse customerResponse;
+                    try
+                    {
+                        ApiResponse<CustomerResponse> customerResponseApiResponse = userServiceClient.getCustomerByUsername(ticket.getInvoice().getUsername());
+                        customerResponse = customerResponseApiResponse.getResult();
+                    } catch (Exception e) {
+                        customerResponse = CustomerResponse.builder().firstName("vanglai").lastName("vanglai").build();
+                    }
+                    response.setCustomer(customerResponse);
                     return response;
                 })
                 .collect(Collectors.toList());

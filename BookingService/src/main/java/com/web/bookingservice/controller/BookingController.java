@@ -6,7 +6,6 @@ import com.web.bookingservice.dto.response.BookingResponse;
 import com.web.bookingservice.service.booking.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

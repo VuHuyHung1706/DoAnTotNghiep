@@ -12,4 +12,4 @@ public interface BookingService {
     List<BookingResponse> getMyBookings();
     List<BookingResponse> getMyBookingsByUsername(String username);
     List<BookingResponse> getMyPaidBookingsByUsername(String username);
-    }
+}
