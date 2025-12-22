@@ -22,7 +22,9 @@ import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -324,14 +326,105 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         );
     }
 
+    @Override
+    public List<MovieWithShowtimesResponse> getMoviesWithShowtimesByCinemaAndDate(Integer cinemaId, LocalDate date) {
+        ApiResponse<List<RoomResponse>> roomsApiResponse = cinemaServiceClient.getRoomsByCinemaId(cinemaId);
+        if (roomsApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(roomsApiResponse.getMessage()));
+        }
+
+        List<RoomResponse> rooms = roomsApiResponse.getResult();
+        List<Integer> roomIds = rooms.stream()
+                .map(RoomResponse::getId)
+                .collect(Collectors.toList());
+
+        if (roomIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Showtime> showtimes = showtimeRepository.findShowtimesByRoomIdsAndDate(roomIds, date);
+
+        // Group showtimes by movie
+        Map<Integer, List<Showtime>> showtimesByMovie = showtimes.stream()
+                .collect(Collectors.groupingBy(Showtime::getMovieId));
+
+        List<MovieWithShowtimesResponse> result = new ArrayList<>();
+
+        for (Map.Entry<Integer, List<Showtime>> entry : showtimesByMovie.entrySet()) {
+            Integer movieId = entry.getKey();
+            List<Showtime> movieShowtimes = entry.getValue();
+
+            Movie movie = movieRepository.findById(movieId)
+                    .orElseThrow(() -> new AppException(ErrorCode.MOVIE_NOT_EXISTED));
+
+            Map<Integer, String> roomIdToName = rooms.stream()
+                    .collect(Collectors.toMap(RoomResponse::getId, RoomResponse::getName));
+
+            // Map showtimes to ShowtimeDetailResponse
+            List<ShowtimeDetailResponse> showtimeDetails = movieShowtimes.stream()
+                    .map(showtime -> {
+                        String roomName = roomIdToName.getOrDefault(showtime.getRoomId(), "Unknown");
+
+                        return ShowtimeDetailResponse.builder()
+                                .showtimeId(showtime.getId())
+                                .roomId(showtime.getRoomId())
+                                .roomName(roomName)
+                                .startTime(showtime.getStartTime())
+                                .endTime(showtime.getEndTime())
+                                .ticketPrice(showtime.getTicketPrice())
+                                .build();
+                    })
+                    .sorted((a, b) -> a.getStartTime().compareTo(b.getStartTime()))
+                    .collect(Collectors.toList());
+
+            MovieWithShowtimesResponse movieWithShowtimes = MovieWithShowtimesResponse.builder()
+                    .movieId(movie.getId())
+                    .title(movie.getTitle())
+                    .description(movie.getDescription())
+                    .duration(movie.getDuration())
+                    .poster(movie.getPoster())
+                    .trailer(movie.getTrailer())
+                    .showtimes(showtimeDetails)
+                    .build();
+
+            result.add(movieWithShowtimes);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<ShowtimeResponse> getShowtimesByCinemaAndDate(Integer cinemaId, LocalDate date) {
+        ApiResponse<List<RoomResponse>> roomsApiResponse = cinemaServiceClient.getRoomsByCinemaId(cinemaId);
+        if (roomsApiResponse.getCode() != 1000) {
+            throw new AppException(ErrorCode.fromMessage(roomsApiResponse.getMessage()));
+        }
+
+        List<Integer> roomIds = roomsApiResponse.getResult().stream()
+                .map(RoomResponse::getId)
+                .collect(Collectors.toList());
+
+        if (roomIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Showtime> showtimes = showtimeRepository.findShowtimesByRoomIdsAndDate(roomIds, date);
+        return showtimes.stream()
+                .map(this::mapToShowtimeResponseWithDetails)
+                .collect(Collectors.toList());
+    }
+
     private ShowtimeResponse mapToShowtimeResponseWithDetails(Showtime showtime) {
         ShowtimeResponse showtimeResponse = showtimeMapper.toShowtimeResponse(showtime);
 
         ApiResponse<RoomResponse> roomResponseApiResponse = cinemaServiceClient.getRoomById(showtimeResponse.getRoomId());
+
         if (roomResponseApiResponse.getCode() != 1000) {
             throw new AppException(ErrorCode.fromMessage(roomResponseApiResponse.getMessage()));
         }
+
         RoomResponse roomResponse = roomResponseApiResponse.getResult();
+
         showtimeResponse.setCinemaName(roomResponse.getCinemaName());
         showtimeResponse.setRoomName(roomResponse.getName());
         showtimeResponse.setRoom(roomResponse);

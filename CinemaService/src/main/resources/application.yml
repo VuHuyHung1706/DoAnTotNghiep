@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://172.30.0.2:3306/cinemadb
+    url: jdbc:mysql://localhost:3306/cinemadb
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,11 +16,11 @@ spring:
 
 movie:
   service:
-    url: http://172.30.1.11:8081
+    url: http://localhost:8081
 
 showtime:
   service:
-    url: http://172.30.1.13:8083
+    url: http://localhost:8083
 
 jwt:
   signerKey: "YlYC92Q2NQlTEWXqxCMLhICbRb561RUicb+iEvw2sOTdWNOUavYJorDKyItY+0awM6rExXLQuDDCImefylr/wYQdTksaXc0mpJkQcg87vys="

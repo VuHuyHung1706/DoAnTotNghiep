@@ -5,6 +5,7 @@ import com.web.movieservice.dto.response.ApiResponse;
 import com.web.movieservice.dto.response.SeatResponse;
 import com.web.movieservice.dto.response.ShowtimeResponse;
 import com.web.movieservice.dto.response.TicketResponse;
+import com.web.movieservice.dto.response.MovieWithShowtimesResponse;
 import com.web.movieservice.service.showtime.ShowtimeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -84,9 +86,30 @@ public class ShowtimeController {
     }
 
     @GetMapping("/cinema/{cinemaId}")
-    public ApiResponse<List<ShowtimeResponse>> getShowtimesByCinemaId(@PathVariable Integer cinemaId) {
-        return ApiResponse.<List<ShowtimeResponse>>builder()
-                .result(showtimeService.getShowtimesByCinemaId(cinemaId))
+    public ApiResponse<List<ShowtimeResponse>> getShowtimesByCinemaAndDate(
+            @PathVariable Integer cinemaId,
+            @RequestParam(required = false) String date
+    ) {
+        if (date != null && !date.isEmpty()) {
+            LocalDate localDate = LocalDate.parse(date);
+            return ApiResponse.<List<ShowtimeResponse>>builder()
+                    .result(showtimeService.getShowtimesByCinemaAndDate(cinemaId, localDate))
+                    .build();
+        } else {
+            return ApiResponse.<List<ShowtimeResponse>>builder()
+                    .result(showtimeService.getShowtimesByCinemaId(cinemaId))
+                    .build();
+        }
+    }
+
+    @GetMapping("/cinema/{cinemaId}/movies")
+    public ApiResponse<List<MovieWithShowtimesResponse>> getMoviesWithShowtimesByCinemaAndDate(
+            @PathVariable Integer cinemaId,
+            @RequestParam String date
+    ) {
+        LocalDate localDate = LocalDate.parse(date);
+        return ApiResponse.<List<MovieWithShowtimesResponse>>builder()
+                .result(showtimeService.getMoviesWithShowtimesByCinemaAndDate(cinemaId, localDate))
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.web.movieservice.service.showtime;
 
 import com.web.movieservice.dto.request.ShowtimeRequest;
+import com.web.movieservice.dto.response.MovieWithShowtimesResponse;
 import com.web.movieservice.dto.response.SeatResponse;
 import com.web.movieservice.dto.response.ShowtimeResponse;
 import com.web.movieservice.dto.response.TicketResponse;
@@ -29,4 +30,8 @@ public interface ShowtimeService {
     Page<ShowtimeResponse> searchShowtimesByMovieTitle(String movieTitle, Pageable pageable);
 
     boolean hasShowtimesByRoomId(Integer roomId);
+
+    List<ShowtimeResponse> getShowtimesByCinemaAndDate(Integer cinemaId, LocalDate date);
+
+    List<MovieWithShowtimesResponse> getMoviesWithShowtimesByCinemaAndDate(Integer cinemaId, LocalDate date);
 }

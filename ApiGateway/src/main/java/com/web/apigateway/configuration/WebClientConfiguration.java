@@ -18,7 +18,7 @@ public class WebClientConfiguration {
     @Bean
     WebClient webClient()
     {
-        return  WebClient.builder().baseUrl("http://172.30.1.10:8080/").build();
+        return  WebClient.builder().baseUrl("http://localhost:8080/").build();
     }
 
     @Bean

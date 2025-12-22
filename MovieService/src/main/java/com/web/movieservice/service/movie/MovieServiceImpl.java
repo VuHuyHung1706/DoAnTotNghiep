@@ -354,8 +354,7 @@ public class MovieServiceImpl implements MovieService {
 
         List<Movie> nowShowingMovies = showtimeRepository.findAll()
                 .stream()
-                .filter(showtime -> (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now))
-                        && (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now)))
+                .filter(showtime -> showtime.getStartTime().isAfter(now))
                 .map(Showtime::getMovie)
                 .distinct()
                 .collect(Collectors.toList());
@@ -368,12 +367,18 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public List<MovieResponse> getUpcomingMovies() {
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
-        List<Movie> upcomingMovies = showtimeRepository.findAll()
-                .stream()
-                .filter(showtime -> showtime.getStartTime().isAfter(now))
-                .map(Showtime::getMovie)
-                .distinct()
+        List<Movie> allMovies = movieRepository.findAll();
+//        List<Integer> moviesWithShowtimes = showtimeRepository.findAll()
+//                .stream()
+//                .map(showtime -> showtime.getMovie().getId())
+//                .distinct()
+//                .collect(Collectors.toList());
+
+        List<Movie> upcomingMovies = allMovies.stream()
+//                .filter(movie -> !moviesWithShowtimes.contains(movie.getId()))
+                .filter(movie -> movie.getReleaseDate() != null && movie.getReleaseDate().isAfter(today))
                 .collect(Collectors.toList());
 
         return upcomingMovies.stream()
@@ -430,15 +435,13 @@ public class MovieServiceImpl implements MovieService {
     public MovieResponse mapMovieToResponseWithStatus(Movie movie) {
         MovieResponse response = movieMapper.toMovieResponse(movie);
         LocalDateTime now = LocalDateTime.now();
+        LocalDate today = now.toLocalDate();
 
         boolean nowShowing = movie.getShowtimes().stream()
-                .anyMatch(showtime ->
-                        (showtime.getStartTime().isBefore(now) || showtime.getStartTime().isEqual(now)) &&
-                                (showtime.getEndTime().isAfter(now) || showtime.getEndTime().isEqual(now))
-                );
-
-        boolean upcoming = movie.getShowtimes().stream()
                 .anyMatch(showtime -> showtime.getStartTime().isAfter(now));
+
+        boolean hasShowtimes = !movie.getShowtimes().isEmpty();
+        boolean upcoming = !hasShowtimes && movie.getReleaseDate() != null && movie.getReleaseDate().isAfter(today);
 
         response.setNowShowing(nowShowing);
         response.setUpcoming(upcoming);

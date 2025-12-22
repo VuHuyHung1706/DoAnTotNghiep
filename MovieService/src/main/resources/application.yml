@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://172.30.0.2:3306/moviedb
+    url: jdbc:mysql://localhost:3306/moviedb
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -45,16 +45,16 @@ file:
 
 cinema:
   service:
-    url: http://172.30.1.12:8082
+    url: http://localhost:8082
 
 booking:
   service:
-    url: http://172.30.1.13:8083
+    url: http://localhost:8083
 
 user:
   service:
-    url: http://172.30.1.10:8080
+    url: http://localhost:8080
 
 recommendation:
   service:
-    url: http://172.30.1.14:8084
+    url: http://localhost:8084

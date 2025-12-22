@@ -22,14 +22,24 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer> {
 
     List<Showtime> findByMovieId(Integer movieId);
     List<Showtime> findByRoomIdIn(List<Integer> roomIds);
-    //    List<Showtime> findByRoomCinemaId(Integer cinemaId);
-//    List<Showtime> findByMovieIdAndRoomCinemaId(Integer movieId, Integer cinemaId);
     List<Showtime> findByMovieIdAndRoomIdIn(Integer movieId, List<Integer> roomIds);
     List<Showtime> findByMovieIdAndRoomId(Integer movieId, Integer roomId);
     List<Showtime> findByRoomId(Integer roomId);
 
     @Query("SELECT s FROM Showtime s JOIN s.movie m WHERE LOWER(m.title) LIKE LOWER(CONCAT('%', :movieTitle, '%'))")
     List<Showtime> searchByMovieTitle(@Param("movieTitle") String movieTitle);
+
+    @Query(value = "SELECT * FROM showtimes s " +
+            "WHERE s.room_id IN (:roomIds) " +
+            "AND DAY(s.start_time) = DAY(:date) " +
+            "AND MONTH(s.start_time) = MONTH(:date) " +
+            "AND YEAR(s.start_time) = YEAR(:date) " +
+            "ORDER BY s.start_time",
+            nativeQuery = true)
+    List<Showtime> findShowtimesByRoomIdsAndDate(
+            @Param("roomIds") List<Integer> roomIds,
+            @Param("date") LocalDate date
+    );
 
     @Query(value = "SELECT * FROM showtimes s " +
             "WHERE DAY(s.start_time) = DAY(:date) " +

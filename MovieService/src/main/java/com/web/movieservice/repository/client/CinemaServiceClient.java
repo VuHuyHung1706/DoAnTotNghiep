@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.List;
+
 @FeignClient(name = "cinema-service", url = "${cinema.service.url}")
 public interface CinemaServiceClient {
     @GetMapping("/cinemas/{id}")
@@ -16,4 +18,6 @@ public interface CinemaServiceClient {
     @GetMapping("/rooms/{id}")
     ApiResponse<RoomResponse> getRoomById(@PathVariable Integer id);
 
+    @GetMapping("/rooms/cinema/{cinemaId}")
+    ApiResponse<List<RoomResponse>> getRoomsByCinemaId(@PathVariable Integer cinemaId);
 }
