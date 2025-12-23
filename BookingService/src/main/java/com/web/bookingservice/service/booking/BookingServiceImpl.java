@@ -1,6 +1,7 @@
 package com.web.bookingservice.service.booking;
 
 import com.web.bookingservice.constant.PaymentStatus;
+import com.web.bookingservice.constant.SeatType;
 import com.web.bookingservice.dto.request.BookingRequest;
 import com.web.bookingservice.dto.response.*;
 import com.web.bookingservice.entity.Invoice;
@@ -94,8 +95,12 @@ public class BookingServiceImpl implements BookingService {
             seats.add(seatResponses.getResult());
         }
 
-        // Calculate total amount
-        int totalAmount = seats.size() * showtimeResponseApiResponse.getResult().getTicketPrice();
+        int basePrice = showtimeResponseApiResponse.getResult().getTicketPrice();
+        int totalAmount = 0;
+        for (SeatResponse seat : seats) {
+            double multiplier = getPriceMultiplier(seat.getSeatType());
+            totalAmount += (int) Math.round(basePrice * multiplier);
+        }
 
         Invoice invoice = Invoice.builder()
                 .username(username)
@@ -110,11 +115,14 @@ public class BookingServiceImpl implements BookingService {
         List<Ticket> tickets = new ArrayList<>();
 
         for (SeatResponse seat : seats) {
+            double multiplier = getPriceMultiplier(seat.getSeatType());
+            int ticketPrice = (int) Math.round(basePrice * multiplier);
+
             Ticket ticket = Ticket.builder()
                     .showtimeId(request.getShowtimeId())
                     .seatId(seat.getId())
                     .invoiceId(invoice.getId())
-                    .price(showtimeResponseApiResponse.getResult().getTicketPrice())
+                    .price(ticketPrice)
                     .status(true) // Mark as booked
                     .createdAt(LocalDateTime.now())
                     .build();
@@ -380,5 +388,21 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookings;
+    }
+
+    private double getPriceMultiplier(SeatType seatType) {
+        if (seatType == null) {
+            return 1.0;
+        }
+
+        switch (seatType) {
+            case VIP:
+                return 1.5;
+            case COUPLE:
+                return 2.0;
+            case STANDARD:
+            default:
+                return 1.0;
+        }
     }
 }

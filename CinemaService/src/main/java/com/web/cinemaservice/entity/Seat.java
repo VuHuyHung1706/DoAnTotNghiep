@@ -1,5 +1,6 @@
 package com.web.cinemaservice.entity;
 
+import com.web.cinemaservice.constant.SeatType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,10 @@ public class Seat {
 
     @Column(name = "seat_column")
     private Integer seatColumn;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "seat_type", nullable = false)
+    private SeatType seatType;
 
     @Column(name = "room_id")
     private Integer roomId;
