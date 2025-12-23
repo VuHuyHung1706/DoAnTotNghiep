@@ -187,7 +187,7 @@ public class RecommendationServiceImpl implements RecommendationService {
         }
 
         // Sort by predicted rating (descending) and limit results
-        movieRecommendations.sort((m1, m2) -> Double.compare(m2.getPredictedRating(), m1.getPredictedRating()));
+        movieRecommendations.sort((m1, m2) -> Double.compare(m2.getSimilarityScore(), m1.getSimilarityScore()));
         return movieRecommendations.stream().limit(maxResults).collect(Collectors.toList());
     }
 
