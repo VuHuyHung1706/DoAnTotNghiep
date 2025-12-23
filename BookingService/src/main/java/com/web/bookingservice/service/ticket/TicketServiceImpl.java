@@ -9,6 +9,7 @@ import com.web.bookingservice.mapper.TicketMapper;
 import com.web.bookingservice.repository.InvoiceRepository;
 import com.web.bookingservice.repository.TicketRepository;
 import com.web.bookingservice.repository.client.CinemaServiceClient;
+import com.web.bookingservice.repository.client.MovieServiceClient;
 import com.web.bookingservice.repository.client.UserServiceClient;
 import com.web.bookingservice.service.qr.QRCodeService;
 import jakarta.transaction.Transactional;
@@ -41,6 +42,10 @@ public class TicketServiceImpl implements TicketService {
 
     @Autowired
     private UserServiceClient userServiceClient;
+
+    @Autowired
+    private MovieServiceClient movieServiceClient;
+
 
     @Override
     public List<TicketDetailResponse> getMyTickets() {
@@ -133,7 +138,9 @@ public class TicketServiceImpl implements TicketService {
             TicketDetailResponse ticketDetail = ticketMapper.toTicketDetailResponse(ticket);
             ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
             ticketDetail.setSeatName(seatResponseApiResponse.getResult().getName());
-
+            ticketDetail.setSeat(seatResponseApiResponse.getResult());
+            ApiResponse<ShowtimeResponse> showtimeResponseApiResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
+            ticketDetail.setShowtime(showtimeResponseApiResponse.getResult());
             return ScanTicketResponse.builder()
                     .success(false)
                     .message("Ticket already scanned at " + ticket.getScannedAt())
@@ -152,6 +159,9 @@ public class TicketServiceImpl implements TicketService {
         TicketDetailResponse ticketDetail = ticketMapper.toTicketDetailResponse(ticket);
         ApiResponse<SeatResponse> seatResponseApiResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
         ticketDetail.setSeatName(seatResponseApiResponse.getResult().getName());
+        ticketDetail.setSeat(seatResponseApiResponse.getResult());
+        ApiResponse<ShowtimeResponse> showtimeResponseApiResponse = movieServiceClient.getShowtimeById(ticket.getShowtimeId());
+        ticketDetail.setShowtime(showtimeResponseApiResponse.getResult());
 
         return ScanTicketResponse.builder()
                 .success(true)
