@@ -9,6 +9,7 @@ import com.web.userservice.dto.response.AuthenticationResponse;
 import com.web.userservice.dto.response.ExchangeTokenResponse;
 import com.web.userservice.dto.response.GoogleUserResponse;
 import com.web.userservice.dto.response.IntrospectResponse;
+import com.web.userservice.dto.response.VerifyUsernameResponse;
 import com.web.userservice.dto.request.*;
 import com.web.userservice.entity.Account;
 import com.web.userservice.entity.Customer;
@@ -261,6 +262,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         redisTemplate.delete("reset_token:" + token);
         redisTemplate.delete("forgot_password_verified:" + email);
+    }
+
+    @Override
+    public VerifyUsernameResponse verifyUsername(String username) {
+        Account account = accountRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Customer customer = customerRepository.findByAccount_Username(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String email = customer.getEmail();
+        String maskedEmail = maskEmail(email);
+
+        return VerifyUsernameResponse.builder()
+                .email(email)
+                .maskedEmail(maskedEmail)
+                .build();
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return email;
+        }
+
+        String[] parts = email.split("@");
+        String localPart = parts[0];
+        String domain = parts[1];
+
+        if (localPart.length() <= 2) {
+            return email.charAt(0) + "***@" + domain;
+        }
+
+        int visibleChars = Math.min(2, localPart.length() / 3);
+        String visible = localPart.substring(0, visibleChars);
+        return visible + "***@" + domain;
     }
 
     public SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {

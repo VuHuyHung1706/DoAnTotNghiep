@@ -12,6 +12,8 @@ import com.web.userservice.dto.request.LogoutRequest;
 import com.web.userservice.dto.request.RefreshRequest;
 import com.web.userservice.dto.request.VerifyOtpForgotPasswordRequest;
 import com.web.userservice.dto.request.ResetPasswordRequest;
+import com.web.userservice.dto.request.VerifyUsernameRequest;
+import com.web.userservice.dto.response.VerifyUsernameResponse;
 import com.web.userservice.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -75,6 +77,14 @@ public class AuthenticationController {
         authenticationService.logout(request);
         return ApiResponse.<String>builder()
                 .result("Logout successful")
+                .build();
+    }
+
+    @PostMapping("/verify-username")
+    public ApiResponse<VerifyUsernameResponse> verifyUsername(@RequestBody VerifyUsernameRequest request) {
+        var result = authenticationService.verifyUsername(request.getUsername());
+        return ApiResponse.<VerifyUsernameResponse>builder()
+                .result(result)
                 .build();
     }
 
