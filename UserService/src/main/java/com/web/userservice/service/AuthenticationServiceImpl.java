@@ -22,10 +22,12 @@ import com.web.userservice.repository.InvalidatedTokenRepository;
 import com.web.userservice.repository.ManagerRepository;
 import com.web.userservice.repository.google.GoogleIdentityClient;
 import com.web.userservice.repository.google.GoogleUserClient;
+import com.web.userservice.service.mail.MailService;
 import jakarta.transaction.Transactional;
 import lombok.experimental.NonFinal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -86,6 +89,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -206,6 +214,55 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder().token(token).authenticated(true).build();
     }
 
+    @Override
+    public void forgotPassword(String email) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        mailService.sendOtpForgotPassword(email);
+    }
+
+    @Override
+    public String verifyOtpAndGenerateResetToken(String email, String otp) {
+        Boolean isValid = mailService.verifyOtpForgotPassword(email, otp);
+        if (!isValid) {
+            throw new AppException(ErrorCode.INVALID_OTP);
+        }
+
+        String resetToken = UUID.randomUUID().toString();
+
+        redisTemplate.opsForValue().set("reset_token:" + resetToken, email, 15, TimeUnit.MINUTES);
+
+        mailService.sendResetPasswordLink(email, resetToken);
+
+        return resetToken;
+    }
+
+    @Override
+    public void resetPassword(String token, String newPassword) {
+        String email = redisTemplate.opsForValue().get("reset_token:" + token);
+        if (email == null) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        String verified = redisTemplate.opsForValue().get("forgot_password_verified:" + email);
+        if (verified == null) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        Account account = customer.getAccount();
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+
+        redisTemplate.delete("reset_token:" + token);
+        redisTemplate.delete("forgot_password_verified:" + email);
+    }
+
     public SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
@@ -266,7 +323,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             } else if (position == Position.STAFF) {
                 stringJoiner.add("ROLE_STAFF");
             } else {
-                // Default to STAFF if position is null
                 stringJoiner.add("ROLE_STAFF");
             }
         } else {

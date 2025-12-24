@@ -27,6 +27,8 @@ public enum ErrorCode {
     INVOICE_NOT_EXISTED(1004, "Invoice not found", HttpStatus.NOT_FOUND),
     TICKET_NOT_EXISTED(1004, "Ticket not found", HttpStatus.NOT_FOUND),
 
+    INVALID_TOKEN(1005, "Invalid or expired reset token", HttpStatus.BAD_REQUEST),
+
     UNAUTHENTICATED(1006, "Authentication failed", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     PERMISSION_NOT_EXISTED(1008, "Permission not found", HttpStatus.NOT_FOUND),

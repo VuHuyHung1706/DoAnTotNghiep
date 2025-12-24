@@ -17,4 +17,7 @@ public interface AuthenticationService {
     IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException;
     void logout(LogoutRequest request) throws ParseException, JOSEException;
     AuthenticationResponse refresh(RefreshRequest request) throws ParseException, JOSEException;
+    void forgotPassword(String email);
+    String verifyOtpAndGenerateResetToken(String email, String otp);
+    void resetPassword(String token, String newPassword);
 }

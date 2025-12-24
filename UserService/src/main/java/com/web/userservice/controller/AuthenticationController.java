@@ -6,9 +6,12 @@ import com.web.userservice.dto.response.ApiResponse;
 import com.web.userservice.dto.response.AuthenticationResponse;
 import com.web.userservice.dto.response.IntrospectResponse;
 import com.web.userservice.dto.request.AuthenticationRequest;
+import com.web.userservice.dto.request.ForgotPasswordRequest;
 import com.web.userservice.dto.request.IntrospectRequest;
 import com.web.userservice.dto.request.LogoutRequest;
 import com.web.userservice.dto.request.RefreshRequest;
+import com.web.userservice.dto.request.VerifyOtpForgotPasswordRequest;
+import com.web.userservice.dto.request.ResetPasswordRequest;
 import com.web.userservice.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -72,6 +75,33 @@ public class AuthenticationController {
         authenticationService.logout(request);
         return ApiResponse.<String>builder()
                 .result("Logout successful")
+                .build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ApiResponse<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        authenticationService.forgotPassword(request.getEmail());
+        return ApiResponse.<String>builder()
+                .result("OTP has been sent to your email")
+                .build();
+    }
+
+    @PostMapping("/verify-otp-forgot-password")
+    public ApiResponse<String> verifyOtpForgotPassword(@RequestBody VerifyOtpForgotPasswordRequest request) {
+        String resetToken = authenticationService.verifyOtpAndGenerateResetToken(
+                request.getEmail(),
+                request.getOtp()
+        );
+        return ApiResponse.<String>builder()
+                .result("OTP verified. Check your email for reset password link.")
+                .build();
+    }
+
+    @PostMapping("/reset-password")
+    public ApiResponse<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authenticationService.resetPassword(request.getToken(), request.getNewPassword());
+        return ApiResponse.<String>builder()
+                .result("Password has been reset successfully")
                 .build();
     }
 }
