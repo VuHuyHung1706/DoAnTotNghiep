@@ -357,7 +357,7 @@ public class MovieServiceImpl implements MovieService {
 
         List<Movie> nowShowingMovies = showtimeRepository.findAll()
                 .stream()
-                .filter(showtime -> showtime.getStartTime().isAfter(now))
+                .filter(showtime -> showtime.getEndTime().isAfter(now))
                 .map(Showtime::getMovie)
                 .distinct()
                 .collect(Collectors.toList());

@@ -13,7 +13,7 @@ import lombok.*;
 public class Account {
 
     @Id
-    @Column(name = "username", unique = true)
+    @Column(name = "username", unique = true, length = 50)
     private String username;
 
     @Column(name = "password")

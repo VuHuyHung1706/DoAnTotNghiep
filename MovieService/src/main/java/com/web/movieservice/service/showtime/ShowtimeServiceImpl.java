@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +106,11 @@ public class ShowtimeServiceImpl implements ShowtimeService {
 
         if (!conflictingShowtimes.isEmpty()) {
             throw new AppException(ErrorCode.SHOWTIME_CONFLICTING);
+        }
+
+        if (movie.getReleaseDate().isAfter(ChronoLocalDate.from(request.getStartTime())))
+        {
+            throw new AppException(ErrorCode.SHOWTIME_INVALID);
         }
 
         Showtime showtime = showtimeMapper.toShowtime(request);
