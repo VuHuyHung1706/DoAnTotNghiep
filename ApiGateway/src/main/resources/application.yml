@@ -11,31 +11,31 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: http://localhost:8080
+              uri: http://172.30.1.10:8080
               predicates:
                 - Path=${app.api-prefix}/user-service/**
               filters:
                 - StripPrefix=3
             - id: movie-service
-              uri: http://localhost:8081
+              uri: http://172.30.1.11:8081
               predicates:
                 - Path=${app.api-prefix}/movie-service/**
               filters:
                 - StripPrefix=3
             - id: cinema-service
-              uri: http://localhost:8082
+              uri: http://172.30.1.12:8082
               predicates:
                 - Path=${app.api-prefix}/cinema-service/**
               filters:
                 - StripPrefix=3
             - id: booking-service
-              uri: http://localhost:8083
+              uri: http://172.30.1.13:8083
               predicates:
                 - Path=${app.api-prefix}/booking-service/**
               filters:
                 - StripPrefix=3
             - id: recommendation-service
-              uri: http://localhost:8084
+              uri: http://172.30.1.14:8084
               predicates:
                 - Path=${app.api-prefix}/recommendation-service/**
               filters:
