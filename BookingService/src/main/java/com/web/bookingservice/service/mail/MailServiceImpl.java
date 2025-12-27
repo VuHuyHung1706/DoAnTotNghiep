@@ -11,7 +11,6 @@ import com.web.bookingservice.dto.response.ShowtimeResponse;
 import com.web.bookingservice.entity.Ticket;
 import com.web.bookingservice.repository.client.CinemaServiceClient;
 import com.web.bookingservice.repository.client.MovieServiceClient;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,8 @@ import org.springframework.stereotype.Service;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -49,50 +47,63 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendTicketEmail(String toEmail, List<Ticket> tickets, String username) throws Exception {
-        if (tickets.isEmpty()) {
+        if (tickets == null || tickets.isEmpty()) {
             throw new IllegalArgumentException("No tickets to send");
         }
 
-        // Get showtime info from first ticket
+        // ===== Showtime =====
         Ticket firstTicket = tickets.get(0);
-        ApiResponse<ShowtimeResponse> showtimeResponse = movieServiceClient.getShowtimeById(firstTicket.getShowtimeId());
+        ApiResponse<ShowtimeResponse> showtimeResponse =
+                movieServiceClient.getShowtimeById(firstTicket.getShowtimeId());
         ShowtimeResponse showtime = showtimeResponse.getResult();
 
-        // Get seat info for all tickets
+        // ===== Seats =====
         StringBuilder seatNames = new StringBuilder();
         for (int i = 0; i < tickets.size(); i++) {
-            ApiResponse<SeatResponse> seatResponse = cinemaServiceClient.getSeatById(tickets.get(i).getSeatId());
+            ApiResponse<SeatResponse> seatResponse =
+                    cinemaServiceClient.getSeatById(tickets.get(i).getSeatId());
             seatNames.append(seatResponse.getResult().getName());
             if (i < tickets.size() - 1) {
                 seatNames.append(", ");
             }
         }
 
-        // Get room info
-        ApiResponse<RoomResponse> roomResponse = cinemaServiceClient.getRoomById(showtime.getRoomId());
+        // ===== Room =====
+        ApiResponse<RoomResponse> roomResponse =
+                cinemaServiceClient.getRoomById(showtime.getRoomId());
         RoomResponse room = roomResponse.getResult();
 
-        // Read HTML template
-        ClassPathResource resource = new ClassPathResource("templates/ticket_email_template.html");
-        String template = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
+        // ===== Load HTML template (SAFE FOR DOCKER) =====
+        ClassPathResource resource =
+                new ClassPathResource("templates/ticket_email_template.html");
 
-        // Format data
-        String startTime = showtime.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm"));
-        String startDate = showtime.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        String totalPrice = NumberFormat.getInstance(new Locale("vi", "VN"))
+        String template;
+        try (InputStream inputStream = resource.getInputStream()) {
+            template = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
+
+        // ===== Format data =====
+        String startTime =
+                showtime.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+        String startDate =
+                showtime.getStartTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+
+        String totalPrice = NumberFormat
+                .getInstance(new Locale("vi", "VN"))
                 .format(tickets.stream().mapToInt(Ticket::getPrice).sum()) + " VNĐ";
 
-        // Generate QR codes and embed them
+        // ===== QR Codes =====
         StringBuilder ticketRows = new StringBuilder();
         Map<String, ByteArrayResource> qrCodeImages = new HashMap<>();
 
-        for (int i = 0; i < tickets.size(); i++) {
-            Ticket ticket = tickets.get(i);
-            ApiResponse<SeatResponse> seatResponse = cinemaServiceClient.getSeatById(ticket.getSeatId());
+        for (Ticket ticket : tickets) {
+            ApiResponse<SeatResponse> seatResponse =
+                    cinemaServiceClient.getSeatById(ticket.getSeatId());
             String seatName = seatResponse.getResult().getName();
 
-            // Generate QR code image
-            byte[] qrCodeBytes = generateQRCodeImage(ticket.getQrCode(), 300, 300);
+            byte[] qrCodeBytes =
+                    generateQRCodeImage(ticket.getQrCode(), 300, 300);
+
             String qrCodeCid = "qrcode" + ticket.getId();
             qrCodeImages.put(qrCodeCid, new ByteArrayResource(qrCodeBytes));
 
@@ -101,12 +112,14 @@ public class MailServiceImpl implements MailService {
                     .append(seatName)
                     .append("</td>")
                     .append("<td style='padding:15px;border-bottom:1px solid #eee;text-align:center;'>")
-                    .append("<img src='cid:").append(qrCodeCid).append("' alt='QR Code' style='width:150px;height:150px;'/>")
+                    .append("<img src='cid:")
+                    .append(qrCodeCid)
+                    .append("' style='width:150px;height:150px;'/>")
                     .append("</td>")
                     .append("</tr>");
         }
 
-        // Replace placeholders
+        // ===== Replace placeholders =====
         String htmlContent = template
                 .replace("${username}", username)
                 .replace("${movieTitle}", showtime.getMovie().getTitle())
@@ -119,7 +132,7 @@ public class MailServiceImpl implements MailService {
                 .replace("${ticketCount}", String.valueOf(tickets.size()))
                 .replace("${ticketRows}", ticketRows.toString());
 
-        // Send email with embedded QR codes
+        // ===== Send email =====
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(
                 message,
@@ -128,30 +141,35 @@ public class MailServiceImpl implements MailService {
         );
 
         helper.setTo(toEmail);
-        helper.setSubject("🎬 [HHK Cinema] Vé xem phim của bạn - " + showtime.getMovie().getTitle());
+        helper.setSubject("🎬 [HHK Cinema] Vé xem phim của bạn - "
+                + showtime.getMovie().getTitle());
         helper.setText(htmlContent, true);
 
-        // Attach QR code images
         for (Map.Entry<String, ByteArrayResource> entry : qrCodeImages.entrySet()) {
             helper.addInline(entry.getKey(), entry.getValue(), "image/png");
         }
 
         mailSender.send(message);
-        log.info("Ticket email sent successfully to: {}", toEmail);
+        log.info("Ticket email sent successfully to {}", toEmail);
     }
 
     private byte[] generateQRCodeImage(String text, int width, int height) throws Exception {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
+
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.MARGIN, 1);
 
-        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hints);
+        BitMatrix bitMatrix =
+                qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height, hints);
 
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage image =
+                new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
+                image.setRGB(x, y,
+                        bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
             }
         }
 

@@ -415,7 +415,9 @@ public class ShowtimeServiceImpl implements ShowtimeService {
         }
 
         List<Showtime> showtimes = showtimeRepository.findShowtimesByRoomIdsAndDate(roomIds, date);
+
         return showtimes.stream()
+                .filter(showtime -> showtime.getEndTime().isAfter(LocalDateTime.now()) )
                 .map(this::mapToShowtimeResponseWithDetails)
                 .collect(Collectors.toList());
     }
