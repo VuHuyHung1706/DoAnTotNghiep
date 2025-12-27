@@ -52,16 +52,10 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.cf.enabled:true}")
     private boolean cfEnabled;
 
-    @Value("${recommendation.popularity.booking-weight:2.0}")
-    private double bookingWeight;
+    @Value("${recommendation.popularity.gravity:1.8}")
+    private double gravity;
 
-    @Value("${recommendation.popularity.review-weight:1.5}")
-    private double reviewWeight;
-
-    @Value("${recommendation.popularity.rating-weight:1.0}")
-    private double ratingWeight;
-
-    @Value("${recommendation.popularity.max-results:20}")
+    @Value("${recommendation.popularity.max-results:12}")
     private int popularityMaxResults;
 
     @Override
@@ -350,11 +344,14 @@ public class RecommendationServiceImpl implements RecommendationService {
             allReviews = new ArrayList<>();
         }
 
-        // Calculate popularity score for each movie
+        // Calculate popularity score for each movie using Hacker News formula:
+        // Score = (Points - 1) / (T + 2)^G
+        // where Points = weighted interactions, t = hours since release, G = gravity
         List<MovieRecommendationResponse> popularMovies = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
         for (MovieResponse movie : allMovies) {
-            double popularityScore = calculatePopularityScore(movie, allReviews);
+            double popularityScore = calculateHackerNewsScore(movie, allReviews, now);
 
             popularMovies.add(MovieRecommendationResponse.builder()
                     .movieId(movie.getId())
@@ -372,39 +369,35 @@ public class RecommendationServiceImpl implements RecommendationService {
     }
 
     /**
-     * Calculate popularity score based on:
-     * - Number of bookings (views/tickets sold)
-     * - Number of reviews (engagement)
-     * - Average rating (quality)
+     * Implemented Hacker News algorithm for ranking
+     * Formula: Score = (P - 1) / (T + 2)^G
+     * P: Points (number of reviews/votes)
+     * T: Time since release in hours
+     * G: Gravity (default 1.8)
      */
-    private double calculatePopularityScore(MovieResponse movie, List<ReviewResponse> allReviews) {
+    private double calculateHackerNewsScore(MovieResponse movie, List<ReviewResponse> allReviews, LocalDateTime now) {
         // Get reviews for this movie
         List<ReviewResponse> movieReviews = allReviews.stream()
                 .filter(r -> r.getMovieId().equals(movie.getId()))
                 .collect(Collectors.toList());
 
-        // Calculate metrics
-        int reviewCount = movieReviews.size();
+        // Points (P) = Total interactions/votes (reviews + estimated bookings)
+        // In the original HN formula, Points (P) is the number of upvotes.
+        // We use review count and an estimated booking count as proxies for "upvotes".
+        double points = movieReviews.size();
 
-        // Calculate average rating
-        double avgRating = movieReviews.isEmpty() ? 0.0 :
-                movieReviews.stream()
-                        .mapToDouble(ReviewResponse::getRating)
-                        .average()
-                        .orElse(0.0);
+        // Calculate Time (T) in hours since release
+        long hoursSinceRelease = 0;
+        if (movie.getReleaseDate() != null) {
+            LocalDateTime releaseDateTime = movie.getReleaseDate().atStartOfDay();
+            hoursSinceRelease = java.time.Duration.between(releaseDateTime, now).toHours();
+            if (hoursSinceRelease < 0) hoursSinceRelease = 0;
+        }
 
-        // Estimate booking count based on review count (typically 1 review per 5-10 bookings)
-        int estimatedBookingCount = reviewCount * 7;
-
-        // Calculate weighted popularity score
-        double popularityScore =
-                (estimatedBookingCount * bookingWeight) +
-                        (reviewCount * reviewWeight) +
-                        (avgRating * ratingWeight);
-
-        // Normalize the score (optional, to keep it in a reasonable range)
-        return popularityScore;
+        // Hacker News Formula: Score = (Points - 1) / (Hours + 2)^Gravity
+        return (points - 1) / Math.pow(hoursSinceRelease + 2, gravity);
     }
+
 
     private void updateGenrePreference(Map<Integer, UserPreference> preferences,
                                        GenreResponse genre, double weight) {

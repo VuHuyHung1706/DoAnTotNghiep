@@ -45,7 +45,7 @@ booking:
 # Recommendation algorithm parameters
 recommendation:
   max-results: 10
-  min-similarity-score: 0.4
+  min-similarity-score: 0.6
   min-predicted-score: 4.3
   genre-weight: 1
   actor-weight: 1
