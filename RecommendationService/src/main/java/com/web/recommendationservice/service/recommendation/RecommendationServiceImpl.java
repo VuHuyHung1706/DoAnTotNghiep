@@ -52,16 +52,7 @@ public class RecommendationServiceImpl implements RecommendationService {
     @Value("${recommendation.cf.enabled:true}")
     private boolean cfEnabled;
 
-    @Value("${recommendation.popularity.booking-weight:2.0}")
-    private double bookingWeight;
-
-    @Value("${recommendation.popularity.review-weight:1.5}")
-    private double reviewWeight;
-
-    @Value("${recommendation.popularity.rating-weight:1.0}")
-    private double ratingWeight;
-
-    @Value("${recommendation.popularity.max-results:20}")
+    @Value("${recommendation.popularity.max-results:12}")
     private int popularityMaxResults;
 
     @Value("${recommendation.popularity.gravity:1.8}")
@@ -411,34 +402,6 @@ public class RecommendationServiceImpl implements RecommendationService {
     /**
      * @deprecated Use calculateHackerNewsScore instead
      */
-    private double calculatePopularityScore(MovieResponse movie, List<ReviewResponse> allReviews) {
-        // Get reviews for this movie
-        List<ReviewResponse> movieReviews = allReviews.stream()
-                .filter(r -> r.getMovieId().equals(movie.getId()))
-                .collect(Collectors.toList());
-
-        // Calculate metrics
-        int reviewCount = movieReviews.size();
-
-        // Calculate average rating
-        double avgRating = movieReviews.isEmpty() ? 0.0 :
-                movieReviews.stream()
-                        .mapToDouble(ReviewResponse::getRating)
-                        .average()
-                        .orElse(0.0);
-
-        // Estimate booking count based on review count (typically 1 review per 5-10 bookings)
-        int estimatedBookingCount = reviewCount * 7;
-
-        // Calculate weighted popularity score
-        double popularityScore =
-                (estimatedBookingCount * bookingWeight) +
-                        (reviewCount * reviewWeight) +
-                        (avgRating * ratingWeight);
-
-        // Normalize the score (optional, to keep it in a reasonable range)
-        return popularityScore;
-    }
     private void updateGenrePreference(Map<Integer, UserPreference> preferences,
                                        GenreResponse genre, double weight) {
         UserPreference pref = preferences.get(genre.getId());
